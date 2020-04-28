@@ -202,9 +202,12 @@ class ValidationEpochResultsProcessor:
         token_ids = []
         for out in self._outputs:
             ids = out['token_ids'].detach().cpu().numpy().tolist()
-            ids = ids[:self._max_n_tokens_to_embed]
             token_ids.append(ids)
+
         token_ids = list(more_itertools.flatten(token_ids))
+        token_ids = token_ids[:self._max_n_samples_to_embed]
+        token_ids = [ids[:self._max_n_tokens_to_embed] for ids in token_ids]
+
         texts = self._tokenizer.decode_batch(token_ids)
         texts = [self._tokenizer.postprocess(text) for text in texts]
         return texts
