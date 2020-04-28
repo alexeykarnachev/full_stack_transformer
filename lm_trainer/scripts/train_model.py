@@ -23,7 +23,6 @@ import pathlib
 from typing import Mapping
 
 import pytorch_lightning as pl
-import torch
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 

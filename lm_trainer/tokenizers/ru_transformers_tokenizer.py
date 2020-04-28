@@ -66,3 +66,11 @@ class RuTransformersTokenizer(Tokenizer):
     @staticmethod
     def get_pad_val() -> int:
         return 0
+
+    @staticmethod
+    def get_start_of_doc_val() -> int:
+        return 2
+
+    @staticmethod
+    def get_end_of_doc_val() -> int:
+        return 3

@@ -12,6 +12,16 @@ class Tokenizer(abc.ABC, tokenizers.SentencePieceBPETokenizer):
 
     @staticmethod
     @abc.abstractmethod
+    def get_end_of_doc_val() -> int:
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def get_start_of_doc_val() -> int:
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
     def get_preprocessor() -> Callable[[str], str]:
         pass
 

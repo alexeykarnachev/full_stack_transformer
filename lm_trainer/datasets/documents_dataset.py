@@ -137,8 +137,7 @@ class DocumentsDatasetReader:
 
         for document_token_ids in self._iterate_on_document_token_ids():
             for sample_token_ids in more_itertools.chunked(
-                    document_token_ids, self._max_sample_length
-            ):
+                    document_token_ids, self._max_sample_length):
                 yield sample_token_ids
 
     def _iterate_on_document_token_ids(
@@ -153,7 +152,10 @@ class DocumentsDatasetReader:
                 sequences=documents_chunk)
 
             for encoding in encodings_chunk:
-                yield encoding.ids
+                token_ids = encoding.ids
+                token_ids.append(self._tokenizer.get_end_of_doc_val())
+                token_ids.insert(0, self._tokenizer.get_start_of_doc_val())
+                yield token_ids
 
     def _preprocess_documents(self, documents: Sequence[str]):
         preprocessed_documents = []
@@ -177,7 +179,7 @@ class DocumentsDatasetReader:
                 if striped_line != self._end_of_document:
                     document_lines.append(striped_line)
                 else:
-                    document = '\n'.join(document_lines) + '\n'
+                    document = '\n'.join(document_lines)
                     document_lines = []
 
                     yield document
