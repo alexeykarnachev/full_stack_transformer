@@ -15,16 +15,15 @@ class LMModule(pl.LightningModule):
     def __init__(self, hparams: argparse.Namespace):
         super().__init__()
         self.hparams = hparams
-
-        self._model = transformers.GPT2LMHeadModel.from_pretrained(
-            hparams.model_path
-        )
         self._tokenizer = lm_trainer.tokenizers.get_tokenizer(
-            self._get_tokenizer_cls_name()
-        )
+            self._get_tokenizer_cls_name())
+
+        self._model = get_gpt_model(
+            model_path=hparams.model_path,
+            vocab_size=self._tokenizer.get_vocab_size())
 
     def _get_tokenizer_cls_name(self):
-        description = load_json(self.hparams.dataset_dir / 'description')
+        description = load_json(self.hparams.dataset_dir / 'description.json')
         return description['tokenizer_cls_name']
 
     def prepare_data(self) -> None:
@@ -35,7 +34,7 @@ class LMModule(pl.LightningModule):
     def train_dataloader(self) -> DataLoader:
         return self._get_dataloader('train')
 
-    def valid_dataloader(self) -> DataLoader:
+    def val_dataloader(self) -> DataLoader:
         return self._get_dataloader('valid')
 
     def _get_dataloader(self, name: str):
@@ -99,6 +98,12 @@ class LMModule(pl.LightningModule):
         return scheduler
 
     def _get_num_training_steps(self):
-        total_steps = len(self.train_dataloader()) * self.hparams.n_epochs
+        total_steps = len(self.train_dataloader()) * self.hparams.max_epochs
         training_steps = total_steps // self.trainer.accumulate_grad_batches
         return training_steps
+
+
+def get_gpt_model(model_path, vocab_size: int):
+    model = transformers.GPT2LMHeadModel.from_pretrained(model_path)
+    model.resize_token_embeddings(vocab_size)
+    return model

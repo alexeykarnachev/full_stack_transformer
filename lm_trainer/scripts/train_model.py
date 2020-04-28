@@ -1,3 +1,21 @@
+"""Script to train language model.
+
+Pytorch-lightning will add its arguments automatically, so don't forget to
+consider them. For example, these ones:
+
+--gradient_clip_val
+--gpus
+--progress_bar_refresh_rate
+--accumulate_grad_batches
+--max_epochs
+--val_check_interval
+--row_log_interval
+--precision
+--amp_level
+
+Use `python train_model.py --help` to see them all.
+"""
+
 import argparse
 import copy
 import logging.config
@@ -45,8 +63,8 @@ def _parse_args():
              '`prepare_dataset.py` script.'
     )
     parser.add_argument(
-        '--model_path', type=str, required=True,
-        help='Path or name of a pre-trained GPT model.'
+        '--model_path', type=_str2path, required=True,
+        help='Path to the pre-trained GPT model.'
     )
     parser.add_argument(
         '--batch_size', type=int, required=True, help='Batch size'
@@ -80,6 +98,10 @@ def _parse_args():
     )
 
     args = parser.parse_args()
+
+    if args.experiment_name is None:
+        args.experiment_name = args.dataset_dir.parents[0].name
+
     return args
 
 
@@ -93,7 +115,7 @@ def _prepare_experiment_dir(args):
         description = {
             "Experiment": args_dict,
             "Dataset": load_json(args.dataset_dir / 'description.json'),
-            "GPT": load_json(args.gpt_dir / 'config.json')}
+            "GPT": load_json(args.model_path / 'config.json')}
 
         experiment_dir = prepare_dataset_dir(
             datasets_root=args.experiments_root,
@@ -118,12 +140,8 @@ def _prepare_trainer(
     trainer_args = copy.deepcopy(args.__dict__)
 
     trainer_args.update(
-        {
-            'show_progress_bar': True,
-            'progress_bar_refresh_rate': 50,
-            'row_log_interval': 50,
-            'val_check_interval': int(trainer_args['val_check_interval'])
-        }
+        {'show_progress_bar': True,
+         'val_check_interval': int(trainer_args['val_check_interval'])}
     )
     trainer_args.update(callbacks)
 
@@ -149,4 +167,6 @@ def _prepare_callbacks(experiment_dir: pathlib.Path) -> Mapping:
 
 
 if __name__ == '__main__':
-    main()
+    #main()
+    import torch
+    a = torch.tensor([1]).to('cuda')

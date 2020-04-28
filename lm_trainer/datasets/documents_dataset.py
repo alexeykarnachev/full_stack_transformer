@@ -114,24 +114,21 @@ class DocumentsDatasetReader:
 
     def construct(self) -> DocumentsDataset:
         corpus = []
-        sample_start_positions = []
+        sample_start_pos = []
 
         for sample_token_ids in self._iterate_on_sample_token_ids():
             if len(sample_token_ids) < self._min_sample_length:
                 continue
 
-            sample_start_positions.append(len(corpus))
+            sample_start_pos.append(len(corpus))
             corpus.extend(sample_token_ids)
 
-        corpus = np.array(
-            corpus, dtype=np.uint32)
-
-        sample_start_positions = np.array(
-            sample_start_positions, dtype=np.uint32)
+        corpus = np.array(corpus, dtype=np.int32)
+        sample_start_pos = np.array(sample_start_pos, dtype=np.int32)
 
         dataset = DocumentsDataset(
             corpus=corpus,
-            sample_start_positions=sample_start_positions)
+            sample_start_positions=sample_start_pos)
 
         return dataset
 
@@ -151,11 +148,20 @@ class DocumentsDatasetReader:
         for documents_chunk in more_itertools.chunked(
                 documents_iterator, n=self._chunk_size
         ):
+            documents_chunk = self._preprocess_documents(documents_chunk)
             encodings_chunk = self._tokenizer.encode_batch(
                 sequences=documents_chunk)
 
             for encoding in encodings_chunk:
                 yield encoding.ids
+
+    def _preprocess_documents(self, documents: Sequence[str]):
+        preprocessed_documents = []
+        for document in documents:
+            document = self._document_text_preprocessor(document)
+            preprocessed_documents.append(document)
+
+        return preprocessed_documents
 
     def _iterate_on_documents(self) -> Generator[str, None, None]:
         document_lines = []
@@ -172,7 +178,6 @@ class DocumentsDatasetReader:
                     document_lines.append(striped_line)
                 else:
                     document = '\n'.join(document_lines) + '\n'
-                    document = self._document_text_preprocessor(document)
                     document_lines = []
 
                     yield document

@@ -4,7 +4,7 @@ from typing import Callable
 import tokenizers
 
 
-class Tokenizer(abc.ABC, tokenizers.implementations.BaseTokenizer):
+class Tokenizer(abc.ABC, tokenizers.SentencePieceBPETokenizer):
     @staticmethod
     @abc.abstractmethod
     def get_pad_val() -> int:
