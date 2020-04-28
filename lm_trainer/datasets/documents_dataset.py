@@ -171,7 +171,7 @@ class DocumentsDatasetReader:
                 if striped_line != self._end_of_document:
                     document_lines.append(striped_line)
                 else:
-                    document = '\n'.join(document_lines)
+                    document = '\n'.join(document_lines) + '\n'
                     document = self._document_text_preprocessor(document)
                     document_lines = []
 
