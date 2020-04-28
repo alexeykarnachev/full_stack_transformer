@@ -94,9 +94,6 @@ class LMModule(pl.LightningModule):
             seq = self._tokenizer.get_postprocessor()(seq)
             print(seq)
 
-        print('=' * 80)
-        print(generated_sequences)
-
     def configure_optimizers(self):
         optimizer = self._get_optimizer()
         scheduler = self._get_lr_scheduler(optimizer)
