@@ -1,4 +1,6 @@
 import argparse
+import pathlib
+from typing import Sequence
 
 import pytorch_lightning as pl
 import torch
@@ -87,12 +89,26 @@ class LMModule(pl.LightningModule):
             repetition_penalty=5.0,
             num_return_sequences=4)
 
-        decoded_sequences = self._tokenizer.decode_batch(generated_sequences)
+        decoded = self._tokenizer.decode_batch(generated_sequences)
+        text_samples = [self._tokenizer.postprocess(seq) for seq in decoded]
+        self._log_text_samples(text_samples)
 
-        for seq in decoded_sequences:
-            print('\n')
-            seq = self._tokenizer.postprocess(seq)
-            print(seq)
+    def _log_text_samples(self, text_samples: Sequence[str]):
+        file_path: pathlib.Path = self.hparams.experiment_dir / 'generated.txt'
+
+        texts = self._prepare_texts_for_logging(text_samples)
+
+        with file_path.open('a') as file:
+            file.write(texts)
+
+    def _prepare_texts_for_logging(self, text_samples: Sequence[str]) -> str:
+        step = self.trainer.global_step
+        epoch = self.trainer.current_epoch
+        header = f"Global step: {step}, Current epoch: {epoch}"
+        texts_sep = '\n' + '-' * 80 + '\n'
+        texts = texts_sep.join([header] + list(text_samples))
+        texts += '\n' + '=' * 80 + '\n\n'
+        return texts
 
     def configure_optimizers(self):
         optimizer = self._get_optimizer()

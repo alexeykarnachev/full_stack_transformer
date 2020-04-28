@@ -39,7 +39,9 @@ def main():
     seed_everything(seed=args.seed)
 
     experiment_dir = _prepare_experiment_dir(args)
-    callbacks = _prepare_callbacks(experiment_dir=experiment_dir)
+    callbacks = _prepare_callbacks(
+        experiment_dir=experiment_dir,
+        tensorboard_logdir=args.tensorboard_logdir)
     _prepare_logging(experiment_dir)
 
     trainer = _prepare_trainer(args=args, callbacks=callbacks)
@@ -50,6 +52,7 @@ def main():
 
 def _parse_args():
     experiments_root = THIS_DIR / '../../data/experiments'
+    tb_logdir = THIS_DIR / '../../data/tb_logs'
 
     parser = argparse.ArgumentParser(
         description='Script which executes lm-model training.')
@@ -82,6 +85,10 @@ def _parse_args():
     )
     parser.add_argument(
         '--seed', type=int, required=False, default=228, help='Random seed.'
+    )
+    parser.add_argument(
+        '--tensorboard_logdir', type=_str2path, required=False,
+        default=tb_logdir, help='Tensorboard logs directory.'
     )
     parser.add_argument(
         '--experiments_root', type=_str2path, required=False,
@@ -124,6 +131,8 @@ def _prepare_experiment_dir(args):
     else:
         experiment_dir = pathlib.Path(args.resume_from_checkpoint).parent
 
+    args.experiment_dir = experiment_dir
+
     return experiment_dir
 
 
@@ -150,13 +159,20 @@ def _prepare_trainer(
     return trainer
 
 
-def _prepare_callbacks(experiment_dir: pathlib.Path) -> Mapping:
+def _prepare_callbacks(
+        experiment_dir: pathlib.Path,
+        tensorboard_logdir: pathlib.Path
+) -> Mapping:
     models_dir = str(experiment_dir / 'models')
-    tensorboard_logdir = str(experiment_dir / 'tb_logs')
+    tensorboard_logdir = str(tensorboard_logdir)
+    name, version = experiment_dir.parts[-2:]
 
     callbacks = {
-        'tb_logger_callback': TensorBoardLogger(save_dir=tensorboard_logdir),
-        'model_checkpoint_callback': ModelCheckpoint(
+        'logger': TensorBoardLogger(
+            save_dir=tensorboard_logdir,
+            name=name,
+            version=version),
+        'checkpoint_callback': ModelCheckpoint(
             filepath=models_dir,
             verbose=True,
             save_top_k=2,
