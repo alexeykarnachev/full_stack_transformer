@@ -75,8 +75,8 @@ class LMModule(pl.LightningModule):
     def validation_epoch_end(self, outputs):
         outputs_processor = ValidationEpochResultsProcessor(
             validation_outputs=outputs,
-            max_n_samples_to_embed=1000,
-            max_n_tokens_to_embed=24,
+            max_n_samples_to_embed=3000,
+            max_n_tokens_to_embed=12,
             tokenizer=self._tokenizer
         )
 
