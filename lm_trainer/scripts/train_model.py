@@ -23,6 +23,7 @@ import pathlib
 from typing import Mapping
 
 import pytorch_lightning as pl
+import torch
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 
@@ -167,6 +168,4 @@ def _prepare_callbacks(experiment_dir: pathlib.Path) -> Mapping:
 
 
 if __name__ == '__main__':
-    #main()
-    import torch
-    a = torch.tensor([1]).to('cuda')
+    main()

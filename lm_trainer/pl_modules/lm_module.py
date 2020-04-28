@@ -45,7 +45,7 @@ class LMModule(pl.LightningModule):
         return dataloader
 
     def forward(self, documents_batch):
-        loss = self._model(documents_batch)[0]
+        loss = self._model(documents_batch, labels=documents_batch)[0]
         return loss
 
     def training_step(self, batch, batch_idx):
