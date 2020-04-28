@@ -75,14 +75,14 @@ class LMModule(pl.LightningModule):
             model=self._model,
             eos_token_id=self._tokenizer.get_eos_token_id())
 
-        seed_sequence = [self._tokenizer.get_bos_token_id()]
+        seed_sequence = [20000]
 
         generated_sequences = generator(
             sequence=seed_sequence,
             ignored_token_ids=None,
             generation_max_len=12,
-            temperature=0.5,
-            top_k=40,
+            temperature=0.7,
+            top_k=0,
             top_p=1.0,
             repetition_penalty=5.0,
             num_return_sequences=4)
