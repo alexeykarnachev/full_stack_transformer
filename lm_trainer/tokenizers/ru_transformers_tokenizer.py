@@ -63,6 +63,10 @@ class RuTransformersTokenizer(Tokenizer):
 
     def postprocess(self, sequence) -> str:
         """Performs postprocessing on the detokenized sequence."""
+        sequence = re.sub(re.escape(_DOC_START), '', sequence)
+        sequence = re.sub(re.escape(_DOC_END), '', sequence)
+        sequence = sequence.strip()
+
         sequence = re.sub(re.escape(_NEW_LINE_REP), '\n', sequence)
         sequence = re.sub(r'( )?(<\|n\|>)( )?', r'\n', sequence)
         sequence = re.sub(r'([\n(]) (\w)', r'\g<1>\g<2>', sequence)

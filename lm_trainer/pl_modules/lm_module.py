@@ -2,6 +2,7 @@ import argparse
 import pathlib
 from typing import Sequence
 
+import more_itertools
 import pytorch_lightning as pl
 import torch
 import transformers
@@ -48,11 +49,11 @@ class LMModule(pl.LightningModule):
         return dataloader
 
     def forward(self, documents_batch):
-        loss = self._model(documents_batch, labels=documents_batch)[0]
-        return loss
+        output = self._model(documents_batch, labels=documents_batch)
+        return output
 
     def training_step(self, batch, batch_idx):
-        loss = self.forward(batch)
+        loss = self.forward(batch)[0]
         lr = self.trainer.optimizers[0].param_groups[0]['lr']
 
         log = {'Loss/train': loss, 'Learning-Rate': lr}
@@ -60,15 +61,38 @@ class LMModule(pl.LightningModule):
         return {'loss': loss, 'log': log}
 
     def validation_step(self, batch, batch_idx):
-        loss = self.forward(batch)
-        return {'val_loss': loss}
+        output = self.forward(batch)
+        last_hidden_states = output[-1][-1]
+
+        validation_step_result = {
+            'val_loss': output[0],
+            'last_hidden_states': last_hidden_states,
+            'token_ids': batch
+        }
+        return validation_step_result
 
     def validation_epoch_end(self, outputs):
-        loss = torch.stack([x['val_loss'] for x in outputs]).mean()
+        outputs_processor = ValidationEpochResultsProcessor(
+            validation_outputs=outputs,
+            max_n_samples_to_embed=1000,
+            max_n_tokens_to_embed=24,
+            tokenizer=self._tokenizer
+        )
+
+        loss = outputs_processor.get_validation_loss()
+        embeddings = outputs_processor.get_validation_embeddings()
+        texts = outputs_processor.get_validation_texts()
+
+        self.trainer.logger.experiment.add_embedding(
+            mat=embeddings,
+            metadata=texts,
+            global_step=self.trainer.global_step
+        )
+
+        text_samples = self._generate_text_samples()
+        self._log_text_samples(text_samples)
 
         logs = {'Loss/valid': loss}
-
-        self._generate_text_samples()
 
         return {'val_loss': loss, 'log': logs}
 
@@ -91,7 +115,7 @@ class LMModule(pl.LightningModule):
 
         decoded = self._tokenizer.decode_batch(generated_sequences)
         text_samples = [self._tokenizer.postprocess(seq) for seq in decoded]
-        self._log_text_samples(text_samples)
+        return text_samples
 
     def _log_text_samples(self, text_samples: Sequence[str]):
         file_path: pathlib.Path = self.hparams.experiment_dir / 'generated.txt'
@@ -107,7 +131,7 @@ class LMModule(pl.LightningModule):
         header = f"Global step: {step}, Current epoch: {epoch}"
         texts_sep = '\n' + '-' * 80 + '\n'
         texts = texts_sep.join([header] + list(text_samples))
-        texts += '\n' + '=' * 80 + '\n\n'
+        texts += '\n\n\n' + '=' * 80 + '\n\n\n'
         return texts
 
     def configure_optimizers(self):
@@ -146,9 +170,52 @@ class LMModule(pl.LightningModule):
         return training_steps
 
 
+class ValidationEpochResultsProcessor:
+    def __init__(
+            self,
+            validation_outputs,
+            max_n_tokens_to_embed,
+            max_n_samples_to_embed,
+            tokenizer
+    ):
+        self._outputs = validation_outputs
+        self._max_n_tokens_to_embed = max_n_tokens_to_embed
+        self._max_n_samples_to_embed = max_n_samples_to_embed
+        self._tokenizer = tokenizer
+
+    def get_validation_loss(self):
+        losses = [out['val_loss'] for out in self._outputs]
+        loss = torch.stack(losses).mean()
+
+        return loss
+
+    def get_validation_embeddings(self):
+        hidden_states = [out['last_hidden_states'] for out in self._outputs]
+        hidden_states = list(more_itertools.flatten(hidden_states))
+        hidden_states = hidden_states[:self._max_n_samples_to_embed]
+        hidden_states = [x[:self._max_n_tokens_to_embed] for x in hidden_states]
+        embeddings = [x.mean(0) for x in hidden_states]
+        embeddings = torch.stack(embeddings, 0)
+        return embeddings
+
+    def get_validation_texts(self):
+        token_ids = []
+        for out in self._outputs:
+            ids = out['token_ids'].detach().cpu().numpy().tolist()
+            ids = ids[:self._max_n_tokens_to_embed]
+            token_ids.append(ids)
+        token_ids = list(more_itertools.flatten(token_ids))
+        texts = self._tokenizer.decode_batch(token_ids)
+        texts = [self._tokenizer.postprocess(text) for text in texts]
+        return texts
+
+
 def get_gpt_model_from_model_path(model_path, vocab_size: int):
-    model = transformers.GPT2LMHeadModel.from_pretrained(model_path)
+    model = transformers.GPT2LMHeadModel.from_pretrained(
+        pretrained_model_name_or_path=model_path,
+        output_past=True,
+        output_hidden_states=True
+    )
     model.resize_token_embeddings(vocab_size)
-    model.config.output_past = True
 
     return model

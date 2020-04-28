@@ -24,7 +24,7 @@ class ModelHandler(nn.Module):
 
         self._model.eval()
         with torch.no_grad():
-            logits, past = self._model(input_ids=input_ids, past=past)
+            logits, past, _ = self._model(input_ids=input_ids, past=past)
 
         return logits, past
 
