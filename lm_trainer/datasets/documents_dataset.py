@@ -74,7 +74,8 @@ class DocumentsDataset(torch.utils.data.Dataset):
             batch_size=batch_size,
             collate_fn=collate_fn,
             sampler=sampler,
-            drop_last=False)
+            drop_last=False,
+            num_workers=4)
 
         return dataloader
 
@@ -152,8 +153,7 @@ class DocumentsDatasetReader:
                 sequences=documents_chunk)
 
             for encoding in encodings_chunk:
-                token_ids = encoding.ids
-                yield token_ids
+                yield encoding.ids
 
     def _preprocess_documents(self, documents: Sequence[str]):
         preprocessed_documents = []

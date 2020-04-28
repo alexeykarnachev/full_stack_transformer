@@ -73,6 +73,11 @@ class RuTransformersTokenizer(Tokenizer):
     def get_postprocessor() -> Callable[[str], str]:
         return postprocessor
 
-    @staticmethod
-    def get_pad_val() -> int:
-        return 0
+    def get_pad_token_id(self) -> int:
+        return self.token_to_id('<pad>')
+
+    def get_bos_token_id(self) -> int:
+        return self.token_to_id(_DOC_START)
+
+    def get_eos_token_id(self) -> int:
+        return self.token_to_id(_DOC_END)

@@ -1,5 +1,5 @@
 import abc
-from typing import Sequence
+from typing import Sequence, Optional
 
 import torch
 from transformers import modeling_utils
@@ -94,7 +94,7 @@ class TopKNucleusModifier(NextTokenLogitsModifier):
 class IgnoredTokensModifier(NextTokenLogitsModifier):
     """Assigns zero probabilities logits to the ignored tokens."""
 
-    def __init__(self, ignored_token_ids: Sequence[int]):
+    def __init__(self, ignored_token_ids: Optional[Sequence[int]]):
         """
         Args:
             ignored_token_ids:
@@ -103,7 +103,8 @@ class IgnoredTokensModifier(NextTokenLogitsModifier):
         self._ignored_token_ids = ignored_token_ids
 
     def modify(self, logits: torch.tensor):
-        logits[:, self._ignored_token_ids] = _MINUS_INF
+        if self._ignored_token_ids:
+            logits[:, self._ignored_token_ids] = _MINUS_INF
 
 
 class RepetitiveTokensModifier(NextTokenLogitsModifier):

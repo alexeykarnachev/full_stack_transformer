@@ -5,9 +5,16 @@ import tokenizers
 
 
 class Tokenizer(abc.ABC, tokenizers.SentencePieceBPETokenizer):
-    @staticmethod
     @abc.abstractmethod
-    def get_pad_val() -> int:
+    def get_pad_token_id(self) -> int:
+        pass
+
+    @abc.abstractmethod
+    def get_eos_token_id(self) -> int:
+        pass
+
+    @abc.abstractmethod
+    def get_bos_token_id(self) -> int:
         pass
 
     @staticmethod

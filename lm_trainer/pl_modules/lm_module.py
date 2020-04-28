@@ -8,6 +8,7 @@ from transformers import get_cosine_with_hard_restarts_schedule_with_warmup
 
 import lm_trainer.tokenizers
 from lm_trainer.datasets.documents_dataset import load_from_dir
+from lm_trainer.text_generator.text_generator import TextGenerator
 from lm_trainer.utilities.file_io import load_json
 
 
@@ -18,7 +19,7 @@ class LMModule(pl.LightningModule):
         self._tokenizer = lm_trainer.tokenizers.get_tokenizer(
             self._get_tokenizer_cls_name())
 
-        self._model = get_gpt_model(
+        self._model = get_gpt_model_from_model_path(
             model_path=hparams.model_path,
             vocab_size=self._tokenizer.get_vocab_size())
 
@@ -41,7 +42,7 @@ class LMModule(pl.LightningModule):
         dataset = getattr(self, f'_{name}_dataset')
         dataloader = dataset.get_dataloader(
             batch_size=self.hparams.batch_size,
-            pad_val=self._tokenizer.get_pad_val())
+            pad_val=self._tokenizer.get_pad_token_id())
         return dataloader
 
     def forward(self, documents_batch):
@@ -65,7 +66,29 @@ class LMModule(pl.LightningModule):
 
         logs = {'Loss/valid': loss}
 
+        self._generate_text_samples()
+
         return {'val_loss': loss, 'log': logs}
+
+    def _generate_text_samples(self):
+        generator = TextGenerator(
+            model=self._model,
+            eos_token_id=self._tokenizer.get_eos_token_id())
+
+        seed_sequence = [self._tokenizer.get_bos_token_id()]
+
+        generated_sequences = generator(
+            sequence=seed_sequence,
+            ignored_token_ids=None,
+            generation_max_len=12,
+            temperature=0.5,
+            top_k=40,
+            top_p=1.0,
+            repetition_penalty=5.0,
+            num_return_sequences=4)
+
+        print('='*80)
+        print(generated_sequences)
 
     def configure_optimizers(self):
         optimizer = self._get_optimizer()
@@ -103,7 +126,9 @@ class LMModule(pl.LightningModule):
         return training_steps
 
 
-def get_gpt_model(model_path, vocab_size: int):
+def get_gpt_model_from_model_path(model_path, vocab_size: int):
     model = transformers.GPT2LMHeadModel.from_pretrained(model_path)
     model.resize_token_embeddings(vocab_size)
+    model.config.output_past = True
+
     return model
