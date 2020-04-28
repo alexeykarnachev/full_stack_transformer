@@ -4,12 +4,12 @@ from typing import Sequence, Callable, Generator
 
 import more_itertools
 import numpy as np
-import tokenizers
 import torch.utils.data
 import tqdm
 from torch.utils.data.dataloader import DataLoader
 
 from lm_trainer.datasets.length_sort_sampler import LengthSortSampler
+from lm_trainer.tokenizers import Tokenizer
 from lm_trainer.utilities.sequences import pad_sequences
 
 
@@ -97,7 +97,7 @@ class DocumentsDatasetReader:
             file_path: pathlib.Path,
             end_of_document: str,
             document_text_preprocessor: Callable[[str], str],
-            tokenizer: tokenizers.implementations.BaseTokenizer,
+            tokenizer: Tokenizer,
             max_sample_length: int,
             min_sample_length: int,
             chunk_size: int = 10000

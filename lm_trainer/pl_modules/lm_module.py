@@ -8,18 +8,24 @@ from transformers import get_cosine_with_hard_restarts_schedule_with_warmup
 
 import lm_trainer.tokenizers
 from lm_trainer.datasets.documents_dataset import load_from_dir
+from lm_trainer.utilities.file_io import load_json
 
 
 class LMModule(pl.LightningModule):
     def __init__(self, hparams: argparse.Namespace):
         super().__init__()
+        self.hparams = hparams
 
         self._model = transformers.GPT2LMHeadModel.from_pretrained(
             hparams.model_path
         )
         self._tokenizer = lm_trainer.tokenizers.get_tokenizer(
-            hparams.tolenizer_cls_name
+            self._get_tokenizer_cls_name()
         )
+
+    def _get_tokenizer_cls_name(self):
+        description = load_json(self.hparams.dataset_dir / 'description')
+        return description['tokenizer_cls_name']
 
     def prepare_data(self) -> None:
         for name in ['train', 'valid']:
@@ -36,7 +42,7 @@ class LMModule(pl.LightningModule):
         dataset = getattr(self, f'_{name}_dataset')
         dataloader = dataset.get_dataloader(
             batch_size=self.hparams.batch_size,
-            pad_val=self.hparams.pad_val)
+            pad_val=self._tokenizer.get_pad_val())
         return dataloader
 
     def forward(self, documents_batch):

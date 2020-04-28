@@ -4,6 +4,8 @@ from typing import Callable
 
 import tokenizers
 
+from lm_trainer.tokenizers.tokenizer import Tokenizer
+
 _THIS_DIR = pathlib.Path(__file__).parent
 _VOCAB = _THIS_DIR / 'data' / 'ru_transformers_yt' / 'vocab.json'
 _MERGES = _THIS_DIR / 'data' / 'ru_transformers_yt' / 'merges.txt'
@@ -44,7 +46,7 @@ def postprocessor(sequence: str) -> str:
     return sequence
 
 
-class RuTransformersTokenizer(tokenizers.SentencePieceBPETokenizer):
+class RuTransformersTokenizer(Tokenizer):
     """BPE Tokenizer class for model from
     https://github.com/mgrankin/ru_transformers.
     """
@@ -60,3 +62,7 @@ class RuTransformersTokenizer(tokenizers.SentencePieceBPETokenizer):
     @staticmethod
     def get_postprocessor() -> Callable[[str], str]:
         return postprocessor
+
+    @staticmethod
+    def get_pad_val() -> int:
+        return 0

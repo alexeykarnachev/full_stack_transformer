@@ -8,11 +8,11 @@ from lm_trainer.utilities.file_io import prepare_dataset_dir
 THIS_DIR = pathlib.Path(__file__).parent
 
 
-def parse_args():
+def _parse_args():
     ds_root = THIS_DIR / '../../data/datasets'
 
     parser = argparse.ArgumentParser(
-        description='Script which prepares tran and validation dataset files.')
+        description='Script which prepares train and validation dataset files.')
 
     parser.add_argument(
         '--documents_train_file', type=_str2path, required=True,
@@ -62,7 +62,7 @@ def _str2path(path: str) -> pathlib.Path:
 
 
 def main():
-    args = parse_args()
+    args = _parse_args()
     dataset_dir = prepare_dataset_dir(
         datasets_root=args.datasets_root,
         dataset_name=args.dataset_name,
