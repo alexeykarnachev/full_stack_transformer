@@ -80,14 +80,21 @@ class LMModule(pl.LightningModule):
         generated_sequences = generator(
             sequence=seed_sequence,
             ignored_token_ids=None,
-            generation_max_len=12,
+            generation_max_len=36,
             temperature=0.7,
-            top_k=0,
+            top_k=50,
             top_p=1.0,
             repetition_penalty=5.0,
             num_return_sequences=4)
 
-        print('='*80)
+        decoded_sequences = self._tokenizer.decode_batch(generated_sequences)
+
+        for seq in decoded_sequences:
+            print('\n\n')
+            seq = self._tokenizer.get_postprocessor()(seq)
+            print(seq)
+
+        print('=' * 80)
         print(generated_sequences)
 
     def configure_optimizers(self):
