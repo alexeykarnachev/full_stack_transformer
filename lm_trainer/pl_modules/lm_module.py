@@ -1,5 +1,6 @@
 import argparse
 import pathlib
+import re
 from typing import Sequence
 
 import more_itertools
@@ -210,6 +211,7 @@ class ValidationEpochResultsProcessor:
 
         texts = self._tokenizer.decode_batch(token_ids)
         texts = [self._tokenizer.postprocess(text) for text in texts]
+        texts = [re.sub(r'\s+', ' ', text) for text in texts]
         return texts
 
 
