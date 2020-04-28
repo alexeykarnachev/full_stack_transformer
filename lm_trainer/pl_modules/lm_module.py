@@ -76,7 +76,7 @@ class LMModule(pl.LightningModule):
         outputs_processor = ValidationEpochResultsProcessor(
             validation_outputs=outputs,
             max_n_samples_to_embed=3000,
-            max_n_tokens_to_embed=12,
+            max_n_tokens_to_embed=24,
             tokenizer=self._tokenizer
         )
 
@@ -112,7 +112,7 @@ class LMModule(pl.LightningModule):
             top_k=50,
             top_p=1.0,
             repetition_penalty=5.0,
-            num_return_sequences=4)
+            num_return_sequences=16)
 
         decoded = self._tokenizer.decode_batch(generated_sequences)
         text_samples = [self._tokenizer.postprocess(seq) for seq in decoded]
