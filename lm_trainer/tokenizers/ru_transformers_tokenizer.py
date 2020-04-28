@@ -1,6 +1,5 @@
 import pathlib
 import re
-from typing import Callable
 
 import tokenizers
 
@@ -19,40 +18,19 @@ _DOC_START = '[DOC_START]'
 _DOC_END = '[DOC_END]'
 
 
-def preprocessor(sequence: str) -> str:
-    """Text preprocessor for ru_transformers tokenizer.
-    https://github.com/mgrankin/ru_transformers/blob/master/yt_encoder.py
-
-    Args:
-        sequence (str): Input string.
-
-    Returns:
-        Processed string.
-    """
-    if sequence and sequence[0] != ' ':
-        sequence = ' ' + sequence
-
-    sequence = _PREPROC_PAT.sub(_PREPROC_REP, sequence)
-    sequence = _NEW_LINE_PAT.sub(_NEW_LINE_REP, sequence)
-    sequence = f'{_DOC_START} {sequence} {_DOC_END}'
-
-    return sequence
-
-
-def postprocessor(sequence: str) -> str:
-    """Performs postprocessing on the detokenized sequence."""
-    sequence = re.sub(re.escape(_NEW_LINE_REP), '\n', sequence)
-    sequence = re.sub(r'( )?(<\|n\|>)( )?', r'\n', sequence)
-    sequence = re.sub(r'([\n(]) (\w)', r'\g<1>\g<2>', sequence)
-    sequence = re.sub(r'(\W|^)([«"''\n(]|^) (\w)', r'\g<1>\g<2>\g<3>', sequence)
-    sequence = re.sub(r'(\w)- (\w)', r'\g<1>-\g<2>', sequence)
-    return sequence
-
-
 class RuTransformersTokenizer(Tokenizer):
     """BPE Tokenizer class for model from
     https://github.com/mgrankin/ru_transformers.
     """
+
+    def get_pad_token(self) -> str:
+        return '<pad>'
+
+    def get_eos_token(self) -> str:
+        return _DOC_END
+
+    def get_bos_token(self) -> str:
+        return _DOC_START
 
     def __init__(self):
         super().__init__(vocab_file=str(_VOCAB), merges_file=str(_MERGES))
@@ -65,19 +43,29 @@ class RuTransformersTokenizer(Tokenizer):
 
         self.add_tokens([new_line_sep_token, bos_token, eos_token])
 
-    @staticmethod
-    def get_preprocessor() -> Callable[[str], str]:
-        return preprocessor
+    def preprocess(self, sequence) -> str:
+        """Text preprocessor for ru_transformers tokenizer.
+        https://github.com/mgrankin/ru_transformers/blob/master/yt_encoder.py
 
-    @staticmethod
-    def get_postprocessor() -> Callable[[str], str]:
-        return postprocessor
+        Args:
+            sequence (str): Input string.
 
-    def get_pad_token_id(self) -> int:
-        return self.token_to_id('<pad>')
+        Returns:
+            Processed string.
+        """
+        if sequence and sequence[0] != ' ':
+            sequence = ' ' + sequence
 
-    def get_bos_token_id(self) -> int:
-        return self.token_to_id(_DOC_START)
+        sequence = _PREPROC_PAT.sub(_PREPROC_REP, sequence)
+        sequence = _NEW_LINE_PAT.sub(_NEW_LINE_REP, sequence)
 
-    def get_eos_token_id(self) -> int:
-        return self.token_to_id(_DOC_END)
+        return sequence
+
+    def postprocess(self, sequence) -> str:
+        """Performs postprocessing on the detokenized sequence."""
+        sequence = re.sub(re.escape(_NEW_LINE_REP), '\n', sequence)
+        sequence = re.sub(r'( )?(<\|n\|>)( )?', r'\n', sequence)
+        sequence = re.sub(r'([\n(]) (\w)', r'\g<1>\g<2>', sequence)
+        sequence = re.sub(r'(\W|^)([«"''\n(]|^) (\w)', r'\g<1>\g<2>\g<3>', sequence)
+        sequence = re.sub(r'(\w)- (\w)', r'\g<1>-\g<2>', sequence)
+        return sequence

@@ -90,8 +90,8 @@ class LMModule(pl.LightningModule):
         decoded_sequences = self._tokenizer.decode_batch(generated_sequences)
 
         for seq in decoded_sequences:
-            print('\n\n')
-            seq = self._tokenizer.get_postprocessor()(seq)
+            print('\n')
+            seq = self._tokenizer.postprocess(seq)
             print(seq)
 
     def configure_optimizers(self):

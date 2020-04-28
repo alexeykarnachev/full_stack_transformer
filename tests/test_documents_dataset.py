@@ -14,7 +14,6 @@ _DOCUMENTS_FILE = _DATA_DIR / 'documents.txt'
 
 def test_documents_dataset(tmp_path):
     """Documents dataset reading, construction characterization test."""
-    preprocessor = ru_transformer.preprocessor
     tokenizer = ru_transformer.RuTransformersTokenizer()
 
     max_sample_length = 36
@@ -23,7 +22,6 @@ def test_documents_dataset(tmp_path):
     reader = DocumentsDatasetReader(
         file_path=_DOCUMENTS_FILE,
         end_of_document='|',
-        document_text_preprocessor=preprocessor,
         tokenizer=tokenizer,
         max_sample_length=max_sample_length,
         min_sample_length=min_sample_length)

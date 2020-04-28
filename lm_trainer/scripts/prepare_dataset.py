@@ -76,7 +76,6 @@ def main():
         dataset_reader = DocumentsDatasetReader(
             file_path=file_path,
             end_of_document=args.end_of_document,
-            document_text_preprocessor=tokenizer.get_preprocessor(),
             tokenizer=tokenizer,
             max_sample_length=args.max_sample_length,
             min_sample_length=args.min_sample_length)

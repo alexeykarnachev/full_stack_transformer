@@ -1,28 +1,39 @@
 import abc
-from typing import Callable
 
 import tokenizers
 
 
 class Tokenizer(abc.ABC, tokenizers.SentencePieceBPETokenizer):
     @abc.abstractmethod
+    def get_pad_token(self) -> str:
+        pass
+
+    @abc.abstractmethod
+    def get_eos_token(self) -> str:
+        pass
+
+    @abc.abstractmethod
+    def get_bos_token(self) -> str:
+        pass
+
     def get_pad_token_id(self) -> int:
-        pass
+        return self.token_to_id(self.get_pad_token())
 
-    @abc.abstractmethod
     def get_eos_token_id(self) -> int:
-        pass
+        return self.token_to_id(self.get_eos_token())
 
-    @abc.abstractmethod
     def get_bos_token_id(self) -> int:
+        return self.token_to_id(self.get_bos_token())
+
+    @abc.abstractmethod
+    def preprocess(self, sequence: str) -> str:
         pass
 
-    @staticmethod
     @abc.abstractmethod
-    def get_preprocessor() -> Callable[[str], str]:
+    def postprocess(self, sequence: str) -> str:
         pass
 
-    @staticmethod
-    @abc.abstractmethod
-    def get_postprocessor() -> Callable[[str], str]:
-        pass
+    def preprocess_document(self, sequence: str) -> str:
+        sequence = self.preprocess(sequence)
+        sequence = f'{self.get_bos_token()} {sequence} {self.get_eos_token()}'
+        return sequence

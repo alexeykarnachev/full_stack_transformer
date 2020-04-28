@@ -97,7 +97,6 @@ class DocumentsDatasetReader:
             self,
             file_path: pathlib.Path,
             end_of_document: str,
-            document_text_preprocessor: Callable[[str], str],
             tokenizer: Tokenizer,
             max_sample_length: int,
             min_sample_length: int,
@@ -105,7 +104,6 @@ class DocumentsDatasetReader:
     ):
         self._file_path = file_path
         self._end_of_document = end_of_document
-        self._document_text_preprocessor = document_text_preprocessor
         self._chunk_size = chunk_size
         self._tokenizer = tokenizer
         self._max_sample_length = max_sample_length
@@ -158,7 +156,7 @@ class DocumentsDatasetReader:
     def _preprocess_documents(self, documents: Sequence[str]):
         preprocessed_documents = []
         for document in documents:
-            document = self._document_text_preprocessor(document)
+            document = self._tokenizer.preprocess_document(document)
             preprocessed_documents.append(document)
 
         return preprocessed_documents
