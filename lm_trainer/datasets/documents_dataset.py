@@ -153,8 +153,6 @@ class DocumentsDatasetReader:
 
             for encoding in encodings_chunk:
                 token_ids = encoding.ids
-                token_ids.append(self._tokenizer.get_end_of_doc_val())
-                token_ids.insert(0, self._tokenizer.get_start_of_doc_val())
                 yield token_ids
 
     def _preprocess_documents(self, documents: Sequence[str]):

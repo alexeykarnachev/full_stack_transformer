@@ -30,7 +30,7 @@ def test_documents_dataset(tmp_path):
 
     dataset = reader.construct()
 
-    assert len(dataset) == 152
+    assert len(dataset) == 153
 
     for i in range(len(dataset)):
         sample = dataset[i]

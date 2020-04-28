@@ -15,6 +15,8 @@ _NEW_LINE_PAT = re.compile(r'\n')
 
 _PREPROC_PAT = re.compile(r'(?=[^ ])([\W])([\w])')
 _PREPROC_REP = r'\g<1> \g<2>'
+_DOC_START = '[DOC_START]'
+_DOC_END = '[DOC_END]'
 
 
 def preprocessor(sequence: str) -> str:
@@ -32,6 +34,7 @@ def preprocessor(sequence: str) -> str:
 
     sequence = _PREPROC_PAT.sub(_PREPROC_REP, sequence)
     sequence = _NEW_LINE_PAT.sub(_NEW_LINE_REP, sequence)
+    sequence = f'{_DOC_START} {sequence} {_DOC_END}'
 
     return sequence
 
@@ -53,7 +56,14 @@ class RuTransformersTokenizer(Tokenizer):
 
     def __init__(self):
         super().__init__(vocab_file=str(_VOCAB), merges_file=str(_MERGES))
-        self.add_tokens([tokenizers.AddedToken(_NEW_LINE_REP)])
+        self._add_tokens()
+
+    def _add_tokens(self):
+        new_line_sep_token = tokenizers.AddedToken(_NEW_LINE_REP)
+        bos_token = tokenizers.AddedToken(_DOC_START)
+        eos_token = tokenizers.AddedToken(_DOC_END)
+
+        self.add_tokens([new_line_sep_token, bos_token, eos_token])
 
     @staticmethod
     def get_preprocessor() -> Callable[[str], str]:
@@ -66,11 +76,3 @@ class RuTransformersTokenizer(Tokenizer):
     @staticmethod
     def get_pad_val() -> int:
         return 0
-
-    @staticmethod
-    def get_start_of_doc_val() -> int:
-        return 2
-
-    @staticmethod
-    def get_end_of_doc_val() -> int:
-        return 3
