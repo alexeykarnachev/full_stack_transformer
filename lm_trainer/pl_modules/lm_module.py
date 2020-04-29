@@ -77,25 +77,28 @@ class LMModule(pl.LightningModule):
             validation_outputs=outputs,
             max_n_samples_to_embed=1000,
             max_n_tokens_to_embed=24,
-            tokenizer=self._tokenizer
-        )
+            tokenizer=self._tokenizer)
 
+        self._log_extra_info(outputs_processor)
         loss = outputs_processor.get_validation_loss()
+        logs = {'Loss/valid': loss}
+
+        return {'val_loss': loss, 'log': logs}
+
+    def _log_extra_info(self, outputs_processor):
+        if self.hparams.log_embeddings:
+            self._log_embeddings(outputs_processor)
+        if self.hparams.log_text_samples:
+            self._log_text_samples()
+
+    def _log_embeddings(self, outputs_processor):
         embeddings = outputs_processor.get_validation_embeddings()
         texts = outputs_processor.get_validation_texts()
 
         self.trainer.logger.experiment.add_embedding(
             mat=embeddings,
             metadata=texts,
-            global_step=self.trainer.global_step
-        )
-
-        text_samples = self._generate_text_samples()
-        self._log_text_samples(text_samples)
-
-        logs = {'Loss/valid': loss}
-
-        return {'val_loss': loss, 'log': logs}
+            global_step=self.trainer.global_step)
 
     def _generate_text_samples(self):
         generator = TextGenerator(
@@ -118,7 +121,8 @@ class LMModule(pl.LightningModule):
         text_samples = [self._tokenizer.postprocess(seq) for seq in decoded]
         return text_samples
 
-    def _log_text_samples(self, text_samples: Sequence[str]):
+    def _log_text_samples(self):
+        text_samples = self._generate_text_samples()
         file_path: pathlib.Path = self.hparams.experiment_dir / 'generated.txt'
 
         texts = self._prepare_texts_for_logging(text_samples)
