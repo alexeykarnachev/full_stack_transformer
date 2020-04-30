@@ -6,3 +6,5 @@ pytorch-lightning==0.7.5
 more-itertools==8.2.0
 tqdm==4.45.0
 pytest==5.4.1
+pydantic==1.5.1
+fastapi==0.54.1

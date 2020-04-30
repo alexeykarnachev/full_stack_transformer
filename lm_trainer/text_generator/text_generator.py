@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
 import torch
 import torch.nn.functional as F
@@ -23,8 +23,8 @@ class TextGenerator:
 
     def __call__(
             self,
-            sequence: List[int],
-            ignored_token_ids: Optional[List[int]],
+            seed_token_ids: Sequence[int],
+            ignored_token_ids: Optional[Sequence[int]],
             generation_max_len: int,
             temperature: float,
             top_k: int,
@@ -35,7 +35,7 @@ class TextGenerator:
         self._model_handler.eval()
 
         input_ids = _prepare_model_input(
-            sequence=sequence,
+            sequence=seed_token_ids,
             device=self._model_handler.device,
             num_return_sequences=num_return_sequences)
 

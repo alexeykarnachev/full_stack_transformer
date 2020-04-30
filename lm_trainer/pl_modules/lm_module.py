@@ -105,10 +105,10 @@ class LMModule(pl.LightningModule):
             model=self._model,
             eos_token_id=self._tokenizer.get_eos_token_id())
 
-        seed_sequence = [self._tokenizer.get_bos_token_id()]
+        seed_token_ids = [self._tokenizer.get_bos_token_id()]
 
-        generated_sequences = generator(
-            sequence=seed_sequence,
+        generated_token_ids = generator(
+            seed_token_ids=seed_token_ids,
             ignored_token_ids=None,
             generation_max_len=36,
             temperature=0.7,
@@ -117,7 +117,7 @@ class LMModule(pl.LightningModule):
             repetition_penalty=5.0,
             num_return_sequences=10)
 
-        decoded = self._tokenizer.decode_batch(generated_sequences)
+        decoded = self._tokenizer.decode_batch(generated_token_ids)
         text_samples = [self._tokenizer.postprocess(seq) for seq in decoded]
         return text_samples
 
