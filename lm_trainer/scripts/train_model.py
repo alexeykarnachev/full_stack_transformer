@@ -28,7 +28,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 
 from lm_trainer.pl_modules.lm_module import LMModule
 from lm_trainer.utilities.file_io import prepare_dataset_dir, load_json
-from lm_trainer.utilities.log_config import get_log_config
+from lm_trainer.utilities.log_config import get_log_config, prepare_logging
 from lm_trainer.utilities.training import seed_everything
 
 THIS_DIR = pathlib.Path(__file__).parent
@@ -42,7 +42,7 @@ def main():
     callbacks = _prepare_callbacks(
         experiment_dir=experiment_dir,
         tensorboard_logdir=args.tensorboard_logdir)
-    _prepare_logging(experiment_dir)
+    prepare_logging(experiment_dir / 'logs')
 
     trainer = _prepare_trainer(args=args, callbacks=callbacks)
     module = LMModule(hparams=args)
@@ -142,10 +142,7 @@ def _prepare_experiment_dir(args):
     return experiment_dir
 
 
-def _prepare_logging(experiment_dir):
-    """Configures logging."""
-    log_config = get_log_config(experiment_dir / 'logs')
-    logging.config.dictConfig(log_config)
+
 
 
 def _prepare_trainer(

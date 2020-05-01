@@ -3,8 +3,7 @@ from fastapi import FastAPI
 from lm_trainer.application.schemas import (
     GeneratedTexts,
     TextGeneratorAppParams)
-from lm_trainer.text_generator.text_generator import (
-    TextGenerator)
+from lm_trainer.text_generator.text_generator import TextGenerator
 
 
 class ViewsRegister:

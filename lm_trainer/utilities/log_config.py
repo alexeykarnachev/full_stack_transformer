@@ -1,10 +1,17 @@
 import logging
+import logging.config
 import sys
 from pathlib import Path
 from typing import Dict
 
 logger = logging.getLogger(__name__)
 FORMATTER = '[%(asctime)s %(module)s %(funcName)s %(levelname)s] %(message)s'
+
+
+def prepare_logging(logs_dir):
+    """Configures logging."""
+    log_config = get_log_config(logs_dir)
+    logging.config.dictConfig(log_config)
 
 
 def handle_unhandled_exception(exc_type, exc_value, exc_traceback):

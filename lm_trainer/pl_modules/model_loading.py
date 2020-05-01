@@ -2,7 +2,6 @@ import copy
 import pathlib
 from typing import Optional, Union
 
-import torch
 import transformers
 
 from lm_trainer.tokenization import get_tokenizer
