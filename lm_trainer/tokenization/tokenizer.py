@@ -5,8 +5,6 @@ import tokenizers
 
 
 class Tokenizer(abc.ABC, tokenizers.SentencePieceBPETokenizer):
-    """`Link text <http://target>`_"""
-
     @abc.abstractmethod
     def get_pad_token(self) -> str:
         pass
@@ -50,7 +48,7 @@ class Tokenizer(abc.ABC, tokenizers.SentencePieceBPETokenizer):
     def clean_after_generation(self, string: str, remove_bos_eos: bool = False):
         if remove_bos_eos:
             bos_eos_pattern = f'{self.get_bos_token()}|{self.get_eos_token()}'
-            string = re.sub(bos_eos_pattern, '', string)
+            string = re.sub(re.escape(bos_eos_pattern), '', string)
 
         string = self._postprocess(string)
 

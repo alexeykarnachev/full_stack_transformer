@@ -9,7 +9,7 @@ from lm_trainer.text_generator.text_generator import (
     TextGenerator,
     TextGeneratorParams
 )
-from lm_trainer.tokenizers import Tokenizer
+from lm_trainer.tokenization import Tokenizer
 
 
 def register_generated_texts_view(

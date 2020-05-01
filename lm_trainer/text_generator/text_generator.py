@@ -13,7 +13,7 @@ from lm_trainer.text_generator.logits_modifiers import (
     TopKNucleusModifier
 )
 from lm_trainer.text_generator.model_handler import ModelHandler
-from lm_trainer.tokenizers import Tokenizer
+from lm_trainer.tokenization import Tokenizer
 
 
 class TextGeneratorParams(BaseModel):
@@ -44,8 +44,6 @@ class TextGenerator:
         return generated_texts
 
     def _generate_sequences(self, params: TextGeneratorParams):
-        self._model_handler.eval()
-
         if params.seed_token_ids is None:
             seed_token_ids = [self._tokenizer.get_bos_token_id()]
         else:

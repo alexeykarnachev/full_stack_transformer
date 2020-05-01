@@ -3,7 +3,7 @@ import re
 
 import tokenizers
 
-from lm_trainer.tokenizers.tokenizer import Tokenizer
+from lm_trainer.tokenization.tokenizer import Tokenizer
 
 _THIS_DIR = pathlib.Path(__file__).parent
 _VOCAB = _THIS_DIR / 'data' / 'ru_transformers_yt' / 'vocab.json'

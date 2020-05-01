@@ -33,5 +33,5 @@ setup(
     packages=find_packages(exclude=['tests', 'tests.*']),
     install_requires=_load_requirements(THIS_DIR),
     package_dir={'lm_trainer': 'lm_trainer'},
-    package_data={'lm_trainer': ['tokenizers/data/*']}
+    package_data={'lm_trainer': ['tokenization/data/*']}
 )

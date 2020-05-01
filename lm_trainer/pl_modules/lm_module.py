@@ -8,7 +8,7 @@ import transformers
 from torch.utils.data.dataloader import DataLoader
 from transformers import get_cosine_with_hard_restarts_schedule_with_warmup
 
-import lm_trainer.tokenizers
+import lm_trainer.tokenization
 from lm_trainer.datasets.documents_dataset import load_from_dir
 from lm_trainer.pl_modules.model_loading import load_transformer_model_from_path
 from lm_trainer.text_generator.text_generator import TextGenerator, TextGeneratorParams
@@ -19,12 +19,14 @@ class LMModule(pl.LightningModule):
     def __init__(self, hparams: argparse.Namespace):
         super().__init__()
         self.hparams = hparams
-        self.tokenizer = lm_trainer.tokenizers.get_tokenizer(
+        self.tokenizer = lm_trainer.tokenization.get_tokenizer(
             self._get_tokenizer_cls_name())
 
         self.model = load_transformer_model_from_path(
-            model_path=hparams.model_path,
+            model_path=str(hparams.model_path),
             vocab_size=self.tokenizer.get_vocab_size())
+
+        self.hparams.transformer_config = self.model.config
 
     def _get_tokenizer_cls_name(self):
         description = load_json(self.hparams.dataset_dir / 'description.json')
@@ -173,31 +175,4 @@ class ValidationEpochResultsProcessor:
         return loss
 
 
-def load_model_from_pl_checkpoint(
-        ckpt_path: pathlib.Path,
-        map_location: torch.device
-) -> transformers.GPT2LMHeadModel:
-    model_state_dict = torch.load(
-        str(ckpt_path), map_location=map_location)['state_dict']
 
-    new_state_dict = {}
-
-    for k, v in model_state_dict.items():
-        new_state_dict['.'.join(k.split('.')[1:])] = v
-
-    emb_field = 'backbone.transformer.wte.weight'
-    vocab_size = new_state_dict[emb_field].size()[0]
-
-    gpt_config['output_hidden_states'] = True
-    gpt_config['output_past'] = True
-
-    encoder = load_gpt_from_config(gpt_config, vocab_size)
-
-    # TODO: handle this.
-    mask_val = 0
-
-    model = DialogModel(backbone=encoder, pad_token_id=mask_val)
-
-    model.load_state_dict(new_state_dict)
-    model = model.to(map_location)
-    return model

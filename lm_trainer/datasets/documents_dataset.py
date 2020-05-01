@@ -9,7 +9,7 @@ import tqdm
 from torch.utils.data.dataloader import DataLoader
 
 from lm_trainer.datasets.length_sort_sampler import LengthSortSampler
-from lm_trainer.tokenizers import Tokenizer
+from lm_trainer.tokenization import Tokenizer
 from lm_trainer.utilities.sequences import pad_sequences
 
 

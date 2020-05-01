@@ -131,18 +131,18 @@ def _prepare_experiment_dir(args):
     if args.resume_from_checkpoint is None or args.experiment_name is not None:
         description = {
             "Experiment": args_dict,
-            "Dataset": load_json(args.dataset_dir / 'description.json'),
-            "GPT": load_json(args.model_path / 'config.json')}
+            "Dataset": load_json(args.dataset_dir / 'description.json')}
 
         experiment_dir = prepare_dataset_dir(
             datasets_root=args.experiments_root,
             dataset_name=args.experiment_name,
             description=description)
+
+        args.description = description
     else:
         experiment_dir = pathlib.Path(args.resume_from_checkpoint).parent
 
     args.experiment_dir = experiment_dir
-    args.description = description
 
     return experiment_dir
 
