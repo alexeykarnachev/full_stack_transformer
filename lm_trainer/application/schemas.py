@@ -11,7 +11,7 @@ class GeneratedTexts(BaseModel):
     texts: List[str] = Field()
 
 
-class GeneratorParams(BaseModel):
+class TextGeneratorAppParams(BaseModel):
     generation_max_len: int = Field(default=64, ge=1, le=512)
     temperature: float = Field(default=0.7, gt=0, le=20)
     top_k: int = Field(default=50, ge=0)

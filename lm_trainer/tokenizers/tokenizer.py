@@ -1,9 +1,12 @@
 import abc
+import re
 
 import tokenizers
 
 
 class Tokenizer(abc.ABC, tokenizers.SentencePieceBPETokenizer):
+    """Extra abstraction on the tokenizers sentence piece bpe tokenizer."""
+
     @abc.abstractmethod
     def get_pad_token(self) -> str:
         pass
@@ -25,15 +28,34 @@ class Tokenizer(abc.ABC, tokenizers.SentencePieceBPETokenizer):
     def get_bos_token_id(self) -> int:
         return self.token_to_id(self.get_bos_token())
 
-    @abc.abstractmethod
-    def preprocess(self, sequence: str) -> str:
-        pass
+    def prepare_for_tokenization(
+            self,
+            string: str,
+            add_bos: bool = False,
+            add_eos: bool = False
+    ) -> str:
+        string = self._preprocess(string)
+        if add_bos:
+            string = f'{self.get_bos_token()} {string}'
+
+        if add_eos:
+            string = f'{string} {self.get_eos_token()}'
+
+        return string
 
     @abc.abstractmethod
-    def postprocess(self, sequence: str) -> str:
+    def _preprocess(self, string: str) -> str:
         pass
 
-    def preprocess_document(self, sequence: str) -> str:
-        sequence = self.preprocess(sequence)
-        sequence = f'{self.get_bos_token()} {sequence} {self.get_eos_token()}'
-        return sequence
+    def clean_after_generation(self, string: str, remove_bos_eos: bool = False):
+        if remove_bos_eos:
+            bos_eos_pattern = f'{self.get_bos_token()}|{self.get_eos_token()}'
+            string = re.sub(bos_eos_pattern, '', string)
+
+        string = self._postprocess(string)
+
+        return string
+
+    @abc.abstractmethod
+    def _postprocess(self, sequence: str) -> str:
+        pass

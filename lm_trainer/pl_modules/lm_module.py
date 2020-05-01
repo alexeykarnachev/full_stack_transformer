@@ -12,7 +12,7 @@ from transformers import get_cosine_with_hard_restarts_schedule_with_warmup
 
 import lm_trainer.tokenizers
 from lm_trainer.datasets.documents_dataset import load_from_dir
-from lm_trainer.text_generator.text_generator import TextGenerator
+from lm_trainer.text_generator.text_generator import TextGenerator, TextGeneratorParams
 from lm_trainer.utilities.file_io import load_json
 
 
@@ -103,12 +103,11 @@ class LMModule(pl.LightningModule):
     def _generate_text_samples(self):
         generator = TextGenerator(
             model=self._model,
-            eos_token_id=self._tokenizer.get_eos_token_id())
+            eos_token_id=self._tokenizer.get_eos_token_id(),
+            tokenizer=self._tokenizer)
 
-        seed_token_ids = [self._tokenizer.get_bos_token_id()]
-
-        generated_token_ids = generator(
-            seed_token_ids=seed_token_ids,
+        text_generator_params = TextGeneratorParams(
+            seed_token_ids=None,
             ignored_token_ids=None,
             generation_max_len=36,
             temperature=0.7,
@@ -117,9 +116,9 @@ class LMModule(pl.LightningModule):
             repetition_penalty=5.0,
             num_return_sequences=10)
 
-        decoded = self._tokenizer.decode_batch(generated_token_ids)
-        text_samples = [self._tokenizer.postprocess(seq) for seq in decoded]
-        return text_samples
+        generated_text_samples = generator(text_generator_params)
+
+        return generated_text_samples
 
     def _log_text_samples(self):
         text_samples = self._generate_text_samples()

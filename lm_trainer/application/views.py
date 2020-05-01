@@ -3,9 +3,12 @@ from typing import Optional, Sequence
 from lm_trainer.application.schemas import (
     GeneratedTexts,
     SeedText,
-    GeneratorParams
+    TextGeneratorAppParams
 )
-from lm_trainer.text_generator.text_generator import TextGenerator
+from lm_trainer.text_generator.text_generator import (
+    TextGenerator,
+    TextGeneratorParams
+)
 from lm_trainer.tokenizers import Tokenizer
 
 
@@ -15,19 +18,20 @@ def register_generated_texts_view(
         tokenizer: Tokenizer,
         ignored_token_ids: Optional[Sequence[int]]
 ):
-    @app.post("/generated_text/", response_model=GeneratedTexts)
+    @app.post("/generated_texts/", response_model=GeneratedTexts)
     def generated_texts(
             seed_text: SeedText,
-            generator_params: GeneratorParams
+            text_generator_app_params: TextGeneratorAppParams
     ) -> GeneratedTexts:
         seed_token_ids = _tokenize_seed_text(seed_text.text, tokenizer)
 
-        generated_token_ids = generator(
+        text_generator_params = TextGeneratorParams(
             seed_token_ids=seed_token_ids,
             ignored_token_ids=ignored_token_ids,
-            **generator_params.dict())
+            **text_generator_app_params.dict()
+        )
 
-        texts = _decode_token_ids(generated_token_ids, tokenizer)
+        texts = generator(text_generator_params)
 
         return GeneratedTexts(texts=texts)
 

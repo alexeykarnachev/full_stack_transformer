@@ -43,7 +43,7 @@ class RuTransformersTokenizer(Tokenizer):
 
         self.add_tokens([new_line_sep_token, bos_token, eos_token])
 
-    def preprocess(self, sequence) -> str:
+    def _preprocess(self, sequence) -> str:
         """Text preprocessor for ru_transformers tokenizer.
         https://github.com/mgrankin/ru_transformers/blob/master/yt_encoder.py
 
@@ -61,7 +61,7 @@ class RuTransformersTokenizer(Tokenizer):
 
         return sequence
 
-    def postprocess(self, sequence) -> str:
+    def _postprocess(self, sequence) -> str:
         """Performs postprocessing on the detokenized sequence."""
         sequence = re.sub(re.escape(_DOC_START), '', sequence)
         sequence = re.sub(re.escape(_DOC_END), '', sequence)
