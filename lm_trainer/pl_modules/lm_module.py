@@ -1,10 +1,10 @@
 import argparse
-import pathlib
-from typing import Sequence
+import json
 
 import pytorch_lightning as pl
 import torch
 import transformers
+from cached_property import cached_property
 from torch.utils.data.dataloader import DataLoader
 from transformers import get_cosine_with_hard_restarts_schedule_with_warmup
 
@@ -12,15 +12,42 @@ import lm_trainer.tokenization
 from lm_trainer.datasets.documents_dataset import load_from_dir
 from lm_trainer.pl_modules.model_loading import load_transformer_model_from_path
 from lm_trainer.text_generator.text_generator import TextGenerator, TextGeneratorParams
-from lm_trainer.utilities.file_io import load_json
+from lm_trainer.utilities.file_io import load_json, dump_json
 
 
 class LMModule(pl.LightningModule):
+
+    @cached_property
+    def _generated_samples_file(self):
+        return self.hparams.experiment_dir / 'generated.txt'
+
+    @cached_property
+    def _tokenizer_cls_name(self):
+        description = load_json(self.hparams.dataset_dir / 'description.json')
+        return description['tokenizer_cls_name']
+
+    @cached_property
+    def _text_generator_params_file(self):
+        return self.hparams.experiment_dir / 'text_generator_params.json'
+
+    @cached_property
+    def _default_text_generator_params(self):
+        params = TextGeneratorParams(
+            seed_text=None,
+            ignored_words=None,
+            generation_max_len=64,
+            temperature=0.7,
+            top_k=50,
+            top_p=1.0,
+            repetition_penalty=5.0,
+            num_return_sequences=16)
+        return params
+
     def __init__(self, hparams: argparse.Namespace):
         super().__init__()
         self.hparams = hparams
         self.tokenizer = lm_trainer.tokenization.get_tokenizer(
-            self._get_tokenizer_cls_name())
+            self._tokenizer_cls_name)
 
         self.model = load_transformer_model_from_path(
             model_path=str(hparams.model_path),
@@ -28,9 +55,9 @@ class LMModule(pl.LightningModule):
 
         self.hparams.transformer_config = self.model.config
 
-    def _get_tokenizer_cls_name(self):
-        description = load_json(self.hparams.dataset_dir / 'description.json')
-        return description['tokenizer_cls_name']
+        dump_json(
+            obj=dict(self._default_text_generator_params),
+            file_path=self._text_generator_params_file)
 
     def prepare_data(self) -> None:
         for name in ['train', 'valid']:
@@ -71,62 +98,48 @@ class LMModule(pl.LightningModule):
         outputs_processor = ValidationEpochResultsProcessor(
             validation_outputs=outputs)
 
-        self._log_extra_info()
+        if self.hparams.log_text_samples:
+            self._generate_and_log_text_samples()
+
         loss = outputs_processor.get_validation_loss()
         logs = {'Loss/valid': loss}
 
         return {'val_loss': loss, 'log': logs}
 
-    def _log_extra_info(self):
-        if self.hparams.log_text_samples:
-            self._log_text_samples()
-
-    def _log_embeddings(self, outputs_processor):
-        embeddings = outputs_processor.get_validation_embeddings()
-        texts = outputs_processor.get_validation_texts()
-
-        self.trainer.logger.experiment.add_embedding(
-            mat=embeddings,
-            metadata=texts,
-            global_step=self.trainer.global_step)
-
-    def _generate_text_samples(self):
+    def _generate_and_log_text_samples(self):
         generator = TextGenerator(
             model=self.model,
             eos_token_id=self.tokenizer.get_eos_token_id(),
             tokenizer=self.tokenizer)
 
-        text_generator_params = TextGeneratorParams(
-            seed_token_ids=None,
-            ignored_token_ids=None,
-            generation_max_len=36,
-            temperature=0.7,
-            top_k=50,
-            top_p=1.0,
-            repetition_penalty=5.0,
-            num_return_sequences=10)
+        params, error_msg = self._get_text_generator_params()
+        text_samples = generator(params)
+        self._write_generation_result(text_samples, params, error_msg)
 
-        generated_text_samples = generator(text_generator_params)
+    def _write_generation_result(self, text_samples, params, error_msg):
+        dict_to_write = {
+            'Global step': self.trainer.global_step,
+            'Current epoch': self.trainer.current_epoch,
+            'Generator params': dict(params),
+            'Error message': error_msg or None,
+            'Generated samples': text_samples}
 
-        return generated_text_samples
+        with open(self._generated_samples_file, 'a') as file:
+            string_to_write = json.dumps(
+                obj=dict_to_write, ensure_ascii=False, indent=4)
+            string_to_write += '\n'
+            file.write(string_to_write)
 
-    def _log_text_samples(self):
-        text_samples = self._generate_text_samples()
-        file_path: pathlib.Path = self.hparams.experiment_dir / 'generated.txt'
+    def _get_text_generator_params(self):
+        try:
+            params = load_json(self._text_generator_params_file)
+            params = TextGeneratorParams(**params)
+            error_msg = ''
+        except Exception as e:
+            params = self._default_text_generator_params
+            error_msg = str(e)
 
-        texts = self._prepare_texts_for_logging(text_samples)
-
-        with file_path.open('a') as file:
-            file.write(texts)
-
-    def _prepare_texts_for_logging(self, text_samples: Sequence[str]) -> str:
-        step = self.trainer.global_step
-        epoch = self.trainer.current_epoch
-        header = f"Global step: {step}, Current epoch: {epoch}"
-        texts_sep = '\n' + '-' * 80 + '\n'
-        texts = texts_sep.join([header] + list(text_samples))
-        texts += '\n\n\n' + '=' * 80 + '\n\n\n'
-        return texts
+        return params, error_msg
 
     def configure_optimizers(self):
         optimizer = self._get_optimizer()
@@ -173,6 +186,3 @@ class ValidationEpochResultsProcessor:
         loss = torch.stack(losses).mean()
 
         return loss
-
-
-
