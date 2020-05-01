@@ -9,13 +9,9 @@ from lm_trainer.tokenization import get_tokenizer
 
 
 def load_transformer_model_from_pl_checkpoint(
-        ckpt_path: Union[str, pathlib.Path],
-        map_location: Union[str, torch.device]
-) -> transformers.PreTrainedModel:
-    ckpt = torch.load(str(ckpt_path), map_location=map_location)
-
+        ckpt: Union[str, pathlib.Path]) -> transformers.PreTrainedModel:
     model_config = _load_model_config_from_ckpt(ckpt)
-    tokenizer = _load_tokenizer_from_ckpt(ckpt)
+    tokenizer = load_tokenizer_from_checkpoint(ckpt)
 
     model = initialize_transformer_model_from_config(
         config=model_config,
@@ -52,16 +48,16 @@ def initialize_transformer_model_from_config(
     return model
 
 
-def _load_model_config_from_ckpt(ckpt):
-    model_config = ckpt['hparams']['transformer_config']
-    return model_config
-
-
-def _load_tokenizer_from_ckpt(ckpt):
+def load_tokenizer_from_checkpoint(ckpt):
     description = ckpt['hparams']['description']
     tokenizer_cls_name = description['Dataset']['tokenizer_cls_name']
     tokenizer = get_tokenizer(tokenizer_cls_name)
     return tokenizer
+
+
+def _load_model_config_from_ckpt(ckpt):
+    model_config = ckpt['hparams']['transformer_config']
+    return model_config
 
 
 def _load_state_dict_from_ckpt(ckpt):

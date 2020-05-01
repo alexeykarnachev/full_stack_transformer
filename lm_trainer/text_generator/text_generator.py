@@ -32,12 +32,11 @@ class TextGenerator:
     def __init__(
             self,
             model: transformers.GPT2LMHeadModel,
-            eos_token_id: int,
             tokenizer: Tokenizer
     ):
         self._model_handler = ModelHandler(model)
-        self._eos_token_id = eos_token_id
         self._tokenizer = tokenizer
+        self._eos_token_id = self._tokenizer.get_eos_token_id()
 
     def __call__(self, params: TextGeneratorParams) -> List[str]:
         generated_sequences = self._generate_sequences(params=params)

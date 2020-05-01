@@ -150,8 +150,7 @@ def _prepare_logging(experiment_dir):
 
 def _prepare_trainer(
         args: argparse.Namespace,
-        callbacks: Mapping
-) -> pl.Trainer:
+        callbacks: Mapping) -> pl.Trainer:
     trainer_args = copy.deepcopy(args.__dict__)
 
     trainer_args.update(
@@ -167,8 +166,7 @@ def _prepare_trainer(
 
 def _prepare_callbacks(
         experiment_dir: pathlib.Path,
-        tensorboard_logdir: pathlib.Path
-) -> Mapping:
+        tensorboard_logdir: pathlib.Path) -> Mapping:
     models_dir = str(experiment_dir / 'models')
     tensorboard_logdir = str(tensorboard_logdir)
     name, version = experiment_dir.parts[-2:]

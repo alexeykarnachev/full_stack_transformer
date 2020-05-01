@@ -108,9 +108,7 @@ class LMModule(pl.LightningModule):
 
     def _generate_and_log_text_samples(self):
         generator = TextGenerator(
-            model=self.model,
-            eos_token_id=self.tokenizer.get_eos_token_id(),
-            tokenizer=self.tokenizer)
+            model=self.model, tokenizer=self.tokenizer)
 
         params, error_msg = self._get_text_generator_params()
         text_samples = generator(params)
