@@ -8,6 +8,25 @@ import transformers
 from lm_trainer.tokenization import get_tokenizer
 
 
+def load_transformer_model_from_pl_checkpoint(
+        ckpt_path: Union[str, pathlib.Path],
+        map_location: Union[str, torch.device]
+) -> transformers.PreTrainedModel:
+    ckpt = torch.load(str(ckpt_path), map_location=map_location)
+
+    model_config = _load_model_config_from_ckpt(ckpt)
+    tokenizer = _load_tokenizer_from_ckpt(ckpt)
+
+    model = initialize_transformer_model_from_config(
+        config=model_config,
+        vocab_size=tokenizer.get_vocab_size())
+
+    model_state_dict = _load_state_dict_from_ckpt(ckpt)
+    model.load_state_dict(model_state_dict)
+
+    return model
+
+
 def load_transformer_model_from_path(
         model_path: Union[str, pathlib.Path],
         vocab_size: Optional[int]) -> transformers.PreTrainedModel:
@@ -29,25 +48,6 @@ def initialize_transformer_model_from_config(
     model = transformers.AutoModelForPreTraining.from_config(modified_config)
 
     _resize_embeddings_if_needed(model, vocab_size)
-
-    return model
-
-
-def load_transformer_model_from_pl_checkpoint(
-        ckpt_path: Union[str, pathlib.Path],
-        map_location: Union[str, torch.device]
-) -> transformers.PreTrainedModel:
-    ckpt = torch.load(str(ckpt_path), map_location=map_location)
-
-    model_config = _load_model_config_from_ckpt(ckpt)
-    tokenizer = _load_tokenizer_from_ckpt(ckpt)
-
-    model = initialize_transformer_model_from_config(
-        config=model_config,
-        vocab_size=tokenizer.get_vocab_size())
-
-    model_state_dict = _load_state_dict_from_ckpt(ckpt)
-    model.load_state_dict(model_state_dict)
 
     return model
 
