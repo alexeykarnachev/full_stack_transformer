@@ -1,9 +1,7 @@
 import argparse
 import pathlib
-import re
 from typing import Sequence
 
-import more_itertools
 import pytorch_lightning as pl
 import torch
 import transformers
@@ -12,6 +10,7 @@ from transformers import get_cosine_with_hard_restarts_schedule_with_warmup
 
 import lm_trainer.tokenizers
 from lm_trainer.datasets.documents_dataset import load_from_dir
+from lm_trainer.pl_modules.model_loading import load_transformer_model_from_path
 from lm_trainer.text_generator.text_generator import TextGenerator, TextGeneratorParams
 from lm_trainer.utilities.file_io import load_json
 
@@ -20,12 +19,12 @@ class LMModule(pl.LightningModule):
     def __init__(self, hparams: argparse.Namespace):
         super().__init__()
         self.hparams = hparams
-        self._tokenizer = lm_trainer.tokenizers.get_tokenizer(
+        self.tokenizer = lm_trainer.tokenizers.get_tokenizer(
             self._get_tokenizer_cls_name())
 
-        self._model = get_gpt_model_from_model_path(
+        self.model = load_transformer_model_from_path(
             model_path=hparams.model_path,
-            vocab_size=self._tokenizer.get_vocab_size())
+            vocab_size=self.tokenizer.get_vocab_size())
 
     def _get_tokenizer_cls_name(self):
         description = load_json(self.hparams.dataset_dir / 'description.json')
@@ -46,11 +45,11 @@ class LMModule(pl.LightningModule):
         dataset = getattr(self, f'_{name}_dataset')
         dataloader = dataset.get_dataloader(
             batch_size=self.hparams.batch_size,
-            pad_val=self._tokenizer.get_pad_token_id())
+            pad_val=self.tokenizer.get_pad_token_id())
         return dataloader
 
     def forward(self, documents_batch):
-        output = self._model(documents_batch, labels=documents_batch)
+        output = self.model(documents_batch, labels=documents_batch)
         return output
 
     def training_step(self, batch, batch_idx):
@@ -63,31 +62,20 @@ class LMModule(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         output = self.forward(batch)
-        last_hidden_states = output[-1][-1]
-
-        validation_step_result = {
-            'val_loss': output[0],
-            'last_hidden_states': last_hidden_states,
-            'token_ids': batch
-        }
+        validation_step_result = {'val_loss': output[0]}
         return validation_step_result
 
     def validation_epoch_end(self, outputs):
         outputs_processor = ValidationEpochResultsProcessor(
-            validation_outputs=outputs,
-            max_n_samples_to_embed=1000,
-            max_n_tokens_to_embed=24,
-            tokenizer=self._tokenizer)
+            validation_outputs=outputs)
 
-        self._log_extra_info(outputs_processor)
+        self._log_extra_info()
         loss = outputs_processor.get_validation_loss()
         logs = {'Loss/valid': loss}
 
         return {'val_loss': loss, 'log': logs}
 
-    def _log_extra_info(self, outputs_processor):
-        if self.hparams.log_embeddings:
-            self._log_embeddings(outputs_processor)
+    def _log_extra_info(self):
         if self.hparams.log_text_samples:
             self._log_text_samples()
 
@@ -102,9 +90,9 @@ class LMModule(pl.LightningModule):
 
     def _generate_text_samples(self):
         generator = TextGenerator(
-            model=self._model,
-            eos_token_id=self._tokenizer.get_eos_token_id(),
-            tokenizer=self._tokenizer)
+            model=self.model,
+            eos_token_id=self.tokenizer.get_eos_token_id(),
+            tokenizer=self.tokenizer)
 
         text_generator_params = TextGeneratorParams(
             seed_token_ids=None,
@@ -145,7 +133,7 @@ class LMModule(pl.LightningModule):
         return [optimizer], [scheduler]
 
     def _get_optimizer(self):
-        parameters = self._model.parameters()
+        parameters = self.model.parameters()
         optimizer = transformers.AdamW(
             params=parameters,
             lr=self.hparams.learning_rate)
@@ -175,17 +163,8 @@ class LMModule(pl.LightningModule):
 
 
 class ValidationEpochResultsProcessor:
-    def __init__(
-            self,
-            validation_outputs,
-            max_n_tokens_to_embed,
-            max_n_samples_to_embed,
-            tokenizer
-    ):
+    def __init__(self, validation_outputs, ):
         self._outputs = validation_outputs
-        self._max_n_tokens_to_embed = max_n_tokens_to_embed
-        self._max_n_samples_to_embed = max_n_samples_to_embed
-        self._tokenizer = tokenizer
 
     def get_validation_loss(self):
         losses = [out['val_loss'] for out in self._outputs]
@@ -193,37 +172,32 @@ class ValidationEpochResultsProcessor:
 
         return loss
 
-    def get_validation_embeddings(self):
-        hidden_states = [out['last_hidden_states'] for out in self._outputs]
-        hidden_states = list(more_itertools.flatten(hidden_states))
-        hidden_states = hidden_states[:self._max_n_samples_to_embed]
-        hidden_states = [x[:self._max_n_tokens_to_embed] for x in hidden_states]
-        embeddings = [x.mean(0) for x in hidden_states]
-        embeddings = torch.stack(embeddings, 0)
-        return embeddings
 
-    def get_validation_texts(self):
-        token_ids = []
-        for out in self._outputs:
-            ids = out['token_ids'].detach().cpu().numpy().tolist()
-            token_ids.append(ids)
+def load_model_from_pl_checkpoint(
+        ckpt_path: pathlib.Path,
+        map_location: torch.device
+) -> transformers.GPT2LMHeadModel:
+    model_state_dict = torch.load(
+        str(ckpt_path), map_location=map_location)['state_dict']
 
-        token_ids = list(more_itertools.flatten(token_ids))
-        token_ids = token_ids[:self._max_n_samples_to_embed]
-        token_ids = [ids[:self._max_n_tokens_to_embed] for ids in token_ids]
+    new_state_dict = {}
 
-        texts = self._tokenizer.decode_batch(token_ids)
-        texts = [self._tokenizer.postprocess(text) for text in texts]
-        texts = [re.sub(r'\s+', ' ', text) for text in texts]
-        return texts
+    for k, v in model_state_dict.items():
+        new_state_dict['.'.join(k.split('.')[1:])] = v
 
+    emb_field = 'backbone.transformer.wte.weight'
+    vocab_size = new_state_dict[emb_field].size()[0]
 
-def get_gpt_model_from_model_path(model_path, vocab_size: int):
-    model = transformers.GPT2LMHeadModel.from_pretrained(
-        pretrained_model_name_or_path=model_path,
-        output_past=True,
-        output_hidden_states=True
-    )
-    model.resize_token_embeddings(vocab_size)
+    gpt_config['output_hidden_states'] = True
+    gpt_config['output_past'] = True
 
+    encoder = load_gpt_from_config(gpt_config, vocab_size)
+
+    # TODO: handle this.
+    mask_val = 0
+
+    model = DialogModel(backbone=encoder, pad_token_id=mask_val)
+
+    model.load_state_dict(new_state_dict)
+    model = model.to(map_location)
     return model
