@@ -1,6 +1,6 @@
 import pathlib
 import re
-from typing import Sequence, Callable, Generator
+from typing import Sequence, Generator
 
 import more_itertools
 import numpy as np
@@ -146,24 +146,13 @@ class DocumentsDatasetReader:
         for documents_chunk in more_itertools.chunked(
                 documents_iterator, n=self._chunk_size
         ):
-            documents_chunk = self._preprocess_documents(documents_chunk)
-            encodings_chunk = self._tokenizer.encode_batch(
-                sequences=documents_chunk)
+            encodings_chunk = self._tokenizer.prepare_and_encode_batch(
+                strings=documents_chunk,
+                add_bos=True,
+                add_eos=True)
 
             for encoding in encodings_chunk:
                 yield encoding.ids
-
-    def _preprocess_documents(self, documents: Sequence[str]):
-        preprocessed_documents = []
-        for document in documents:
-            document = self._tokenizer.prepare_for_tokenization(
-                string=document,
-                add_bos=True,
-                add_eos=True
-            )
-            preprocessed_documents.append(document)
-
-        return preprocessed_documents
 
     def _iterate_on_documents(self) -> Generator[str, None, None]:
         document_lines = []

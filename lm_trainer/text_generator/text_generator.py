@@ -1,5 +1,6 @@
 from typing import Optional, Sequence, List
 
+import more_itertools
 import torch
 import torch.nn.functional as F
 import transformers
@@ -17,8 +18,8 @@ from lm_trainer.tokenization import Tokenizer
 
 
 class TextGeneratorParams(BaseModel):
-    seed_token_ids: Optional[Sequence[int]]
-    ignored_token_ids: Optional[Sequence[int]]
+    seed_text: Optional[str]
+    ignored_words: Optional[Sequence[str]]
     generation_max_len: int
     temperature: float
     top_k: int
@@ -44,13 +45,14 @@ class TextGenerator:
         return generated_texts
 
     def _generate_sequences(self, params: TextGeneratorParams):
-        if params.seed_token_ids is None:
-            seed_token_ids = [self._tokenizer.get_bos_token_id()]
-        else:
-            seed_token_ids = params.seed_token_ids
+        seed_encodings = self._tokenizer.prepare_and_encode(
+            string=params.seed_text, add_bos=True)
+
+        ignored_token_ids = _get_words_token_ids(
+            tokenizer=self._tokenizer, words=params.ignored_words)
 
         input_ids = _prepare_model_input(
-            sequence=seed_token_ids,
+            sequence=seed_encodings.ids,
             device=self._model_handler.device,
             num_return_sequences=params.num_return_sequences)
 
@@ -74,7 +76,7 @@ class TextGenerator:
                 [context_token_ids, generated_token_ids], 1)
             _modify_next_token_logits(
                 next_token_logits=next_token_logits,
-                ignored_token_ids=params.ignored_token_ids,
+                ignored_token_ids=ignored_token_ids,
                 token_ids_to_penalize=token_ids_to_penalize,
                 repetition_penalty=params.repetition_penalty,
                 temperature=params.temperature,
@@ -106,6 +108,14 @@ class TextGenerator:
             cleaned_texts.append(cleaned_sequence)
 
         return cleaned_texts
+
+
+def _get_words_token_ids(tokenizer, words: Optional[Sequence[str]]):
+    words = words or []
+    encodings = tokenizer.encode_batch(words)
+    token_ids = [encoding.ids for encoding in encodings]
+    token_ids = list(more_itertools.flatten(token_ids))
+    return token_ids
 
 
 def _get_generated_sequences(generated_tokens, generated_sample_lengths):

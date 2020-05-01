@@ -1,5 +1,6 @@
 import abc
 import re
+from typing import Sequence
 
 import tokenizers
 
@@ -30,8 +31,8 @@ class Tokenizer(abc.ABC, tokenizers.SentencePieceBPETokenizer):
             self,
             string: str,
             add_bos: bool = False,
-            add_eos: bool = False
-    ) -> str:
+            add_eos: bool = False) -> str:
+        string = string or ''
         string = self._preprocess(string)
         if add_bos:
             string = f'{self.get_bos_token()} {string}'
@@ -39,7 +40,32 @@ class Tokenizer(abc.ABC, tokenizers.SentencePieceBPETokenizer):
         if add_eos:
             string = f'{string} {self.get_eos_token()}'
 
+        string = string.strip()
+
         return string
+
+    def prepare_and_encode(
+            self,
+            string: str,
+            add_bos: bool = False,
+            add_eos: bool = False) -> tokenizers.Encoding:
+        prepared_string = self.prepare_for_tokenization(
+            string=string, add_bos=add_bos, add_eos=add_eos)
+
+        return self.encode(prepared_string)
+
+    def prepare_and_encode_batch(
+            self,
+            strings: Sequence[str],
+            add_bos: bool = False,
+            add_eos: bool = False) -> Sequence[tokenizers.Encoding]:
+        prepared_strings = []
+        for string in strings:
+            prepared_string = self.prepare_for_tokenization(
+                string=string, add_bos=add_bos, add_eos=add_eos)
+            prepared_strings.append(prepared_string)
+
+        return self.encode_batch(prepared_strings)
 
     @abc.abstractmethod
     def _preprocess(self, string: str) -> str:
