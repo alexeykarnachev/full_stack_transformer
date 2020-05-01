@@ -5,7 +5,7 @@ import tokenizers
 
 
 class Tokenizer(abc.ABC, tokenizers.SentencePieceBPETokenizer):
-    """Extra abstraction on the tokenizers sentence piece bpe tokenizer."""
+    """`Link text <http://target>`_"""
 
     @abc.abstractmethod
     def get_pad_token(self) -> str:

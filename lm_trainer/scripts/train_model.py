@@ -142,6 +142,7 @@ def _prepare_experiment_dir(args):
         experiment_dir = pathlib.Path(args.resume_from_checkpoint).parent
 
     args.experiment_dir = experiment_dir
+    args.description = description
 
     return experiment_dir
 

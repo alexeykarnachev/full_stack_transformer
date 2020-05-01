@@ -156,7 +156,11 @@ class DocumentsDatasetReader:
     def _preprocess_documents(self, documents: Sequence[str]):
         preprocessed_documents = []
         for document in documents:
-            document = self._tokenizer.preprocess_document(document)
+            document = self._tokenizer.prepare_for_tokenization(
+                string=document,
+                add_bos=True,
+                add_eos=True
+            )
             preprocessed_documents.append(document)
 
         return preprocessed_documents
