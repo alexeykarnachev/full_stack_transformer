@@ -1,14 +1,17 @@
 import copy
 import pathlib
-from typing import Optional, Union
+from typing import Optional, Union, Dict
 
+import torch
 import transformers
 
+from lm_trainer.text_generator.text_generator import TextGenerator
 from lm_trainer.tokenization import get_tokenizer
 
 
 def load_transformer_model_from_pl_checkpoint(
-        ckpt: Union[str, pathlib.Path]) -> transformers.PreTrainedModel:
+        ckpt: Dict,
+        device: Union[torch.device, str]) -> transformers.PreTrainedModel:
     model_config = _load_model_config_from_ckpt(ckpt)
     tokenizer = load_tokenizer_from_checkpoint(ckpt)
 
@@ -18,8 +21,17 @@ def load_transformer_model_from_pl_checkpoint(
 
     model_state_dict = _load_state_dict_from_ckpt(ckpt)
     model.load_state_dict(model_state_dict)
-
+    model = model.to(device)
     return model
+
+
+def load_text_generator_from_pl_checkpoint(
+        ckpt: Dict,
+        device: Union[torch.device, str]) -> TextGenerator:
+    model = load_transformer_model_from_pl_checkpoint(ckpt=ckpt, device=device)
+    tokenizer = load_tokenizer_from_checkpoint(ckpt=ckpt)
+    generator = TextGenerator(model=model, tokenizer=tokenizer)
+    return generator
 
 
 def load_transformer_model_from_path(

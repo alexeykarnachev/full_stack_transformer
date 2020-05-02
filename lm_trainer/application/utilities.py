@@ -6,10 +6,8 @@ from fastapi import FastAPI
 
 from lm_trainer.application.views import ViewsRegister
 from lm_trainer.pl_modules.model_loading import (
-    load_transformer_model_from_pl_checkpoint,
-    load_tokenizer_from_checkpoint
+    load_text_generator_from_pl_checkpoint
 )
-from lm_trainer.text_generator.text_generator import TextGenerator
 from lm_trainer.utilities.log_config import prepare_logging
 
 _LOGGER = logging.getLogger(__name__)
@@ -17,21 +15,13 @@ _LOGGER = logging.getLogger(__name__)
 
 def prepare(checkpoint_path, device, logs_dir) -> FastAPI:
     prepare_logging(pathlib.Path(logs_dir))
-    ckpt = torch.load(f=checkpoint_path, map_location=device)
-    generator = _prepare_generator(ckpt=ckpt)
+    ckpt = torch.load(f=checkpoint_path, map_location='cpu')
+    generator = load_text_generator_from_pl_checkpoint(ckpt=ckpt, device=device)
     app = _prepare_app(generator=generator)
 
     _LOGGER.info('All application components successfully initialized.')
 
     return app
-
-
-def _prepare_generator(ckpt):
-    model = load_transformer_model_from_pl_checkpoint(ckpt=ckpt)
-    tokenizer = load_tokenizer_from_checkpoint(ckpt=ckpt)
-    generator = TextGenerator(model=model, tokenizer=tokenizer)
-
-    return generator
 
 
 def _prepare_app(generator):
