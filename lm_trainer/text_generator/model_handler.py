@@ -25,7 +25,7 @@ class ModelHandler(nn.Module):
         self._model.eval()
         with torch.no_grad():
             input_ids = input_ids.to(self._model.device)
-            past = past.to(self._model.device)
+            past = past.to(self._model.device) if past is not None else past
             logits, past, _ = self._model(input_ids=input_ids, past=past)
 
         return logits, past
