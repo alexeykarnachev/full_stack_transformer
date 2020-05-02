@@ -12,7 +12,9 @@ Powered by:
 - [aiogram](https://github.com/aiogram/aiogram) telegram bot serving
 
 ##End-to-end Steps
+These are steps to prepare dataset, train a model and serve it.
 ### Prepare dataset
+
 First, you need two text (train and validation) files which contain raw documents
 ([example](data/documents/ru_rap/train.txt)). It's a simple text file with documents, which are
 separated by `|` symbol.
@@ -42,7 +44,6 @@ For instance, if you want to use pre-trained weights of the
 [ru_transformers](https://github.com/mgrankin/ru_transformers) model, you definitely need
 to use their tokenizer. `lm_trainer` wraps this tokenizer in the `RuTransformersTokenizer` class.
 So, in such a case, you can just pass a name of this class to the argument.
-<br>
 If you want to use another model with another tokenizer, make sure, that this tokenizer
 could is importable from `lm_trainer.tokenization` package. But for now, only the
 `RuTransformersTokenizer` is available. If you want to implement wrapper for another
