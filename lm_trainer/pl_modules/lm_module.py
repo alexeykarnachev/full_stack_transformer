@@ -158,14 +158,12 @@ class LMModule(pl.LightningModule):
             optimizer=optimizer,
             num_warmup_steps=self.hparams.num_warmup_steps,
             num_training_steps=self._get_num_training_steps(),
-            num_cycles=self.hparams.num_cycles
-        )
+            num_cycles=self.hparams.num_cycles)
         scheduler = {
             'scheduler': lr_scheduler,
             'interval': 'step',
             'frequency': self.trainer.accumulate_grad_batches,
-            'monitor': 'Loss/valid'
-        }
+            'monitor': 'Loss/valid'}
 
         return scheduler
 
@@ -176,7 +174,7 @@ class LMModule(pl.LightningModule):
 
 
 class ValidationEpochResultsProcessor:
-    def __init__(self, validation_outputs, ):
+    def __init__(self, validation_outputs):
         self._outputs = validation_outputs
 
     def get_validation_loss(self):
