@@ -32,7 +32,7 @@ Documents in these files are separated by a delimiter. In this example it's the
 ```
 tail -n5 data/documents/nietzsche/train.txt
 ```
-```
+```text
 force of the latter forces triumph for the former.
 [END_OF_DOCUMENT]
 123
@@ -88,7 +88,7 @@ cat data/datasets/nietzsche/0/description.json
   "number_of_valid_tokens": 7636
 }
 ```
-Now we are ready to train the model.
+We have the dataset, now we are ready to train the model.
 
 
 ### Train Model
