@@ -5,7 +5,7 @@ from typing import Sequence
 import tokenizers
 
 
-class Tokenizer(abc.ABC, tokenizers.SentencePieceBPETokenizer):
+class Tokenizer(abc.ABC, tokenizers.implementations.BaseTokenizer):
     @abc.abstractmethod
     def get_pad_token(self) -> str:
         pass

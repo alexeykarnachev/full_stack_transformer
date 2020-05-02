@@ -6,8 +6,8 @@ import tokenizers
 from full_stack_transformer.tokenization.tokenizer import Tokenizer
 
 _THIS_DIR = pathlib.Path(__file__).parent
-_VOCAB = _THIS_DIR / 'data' / 'ru_transformers_yt' / 'vocab.json'
-_MERGES = _THIS_DIR / 'data' / 'ru_transformers_yt' / 'merges.txt'
+_VOCAB = _THIS_DIR / 'data' / 'ru_transformers_sp' / 'vocab.json'
+_MERGES = _THIS_DIR / 'data' / 'ru_transformers_sp' / 'merges.txt'
 
 _NEW_LINE_REP = '<|n|>'
 _NEW_LINE_PAT = re.compile(r'\n')
@@ -33,7 +33,9 @@ class RuTransformersTokenizer(Tokenizer):
         return _DOC_START
 
     def __init__(self):
-        super().__init__(vocab_file=str(_VOCAB), merges_file=str(_MERGES))
+        tokenizer = tokenizers.implementations.SentencePieceBPETokenizer(
+            vocab_file=str(_VOCAB), merges_file=str(_MERGES))
+        super().__init__(tokenizer=tokenizer)
         self._add_tokens()
 
     def _add_tokens(self):
