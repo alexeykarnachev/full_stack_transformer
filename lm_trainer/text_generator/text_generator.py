@@ -11,8 +11,7 @@ from lm_trainer.text_generator.logits_modifiers import (
     IgnoredTokensModifier,
     RepetitiveTokensModifier,
     TemperatureModifier,
-    TopKNucleusModifier
-)
+    TopKNucleusModifier)
 from lm_trainer.text_generator.model_handler import ModelHandler
 from lm_trainer.tokenization import Tokenizer
 
@@ -32,8 +31,7 @@ class TextGenerator:
     def __init__(
             self,
             model: transformers.GPT2LMHeadModel,
-            tokenizer: Tokenizer
-    ):
+            tokenizer: Tokenizer):
         self._model_handler = ModelHandler(model)
         self._tokenizer = tokenizer
         self._eos_token_id = self._tokenizer.get_eos_token_id()
@@ -95,8 +93,7 @@ class TextGenerator:
         return generated_sequences
 
     def _decode_sequences(
-            self, generated_sequences: List[List[int]]
-    ) -> List[str]:
+            self, generated_sequences: List[List[int]]) -> List[str]:
         decoded_sequences = self._tokenizer.decode_batch(generated_sequences)
         cleaned_texts = []
 
@@ -148,19 +145,15 @@ def _modify_next_token_logits(
         repetition_penalty,
         temperature,
         top_k,
-        top_p
-):
+        top_p):
     modifiers = [
         IgnoredTokensModifier(
-            ignored_token_ids=ignored_token_ids
-        ),
+            ignored_token_ids=ignored_token_ids),
         RepetitiveTokensModifier(
             penalty=repetition_penalty,
-            token_ids_to_penalize=token_ids_to_penalize
-        ),
+            token_ids_to_penalize=token_ids_to_penalize),
         TemperatureModifier(
-            temperature=temperature
-        ),
+            temperature=temperature),
         TopKNucleusModifier(
             top_k=top_k,
             top_p=top_p)
