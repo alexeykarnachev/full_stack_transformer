@@ -23,15 +23,15 @@ First, you need two text files (train and validation) which contain raw document
 ```
 ls data/documents/nietzsche
 ```
-`train.txt` and `valid.txt` are there.
+```
+train.txt  valid.txt
+```
 
 Documents in these files are separated by a delimiter. In this example it's the
 `[END_OF_DOCUMENT]` string.
 ```
 tail -n5 data/documents/nietzsche/train.txt
 ```
-
-Here is the content:
 ```
 force of the latter forces triumph for the former.
 [END_OF_DOCUMENT]
