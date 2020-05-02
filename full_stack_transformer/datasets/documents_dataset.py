@@ -18,6 +18,14 @@ class DocumentsDatasetError(Exception):
 
 
 class DocumentsDataset(torch.utils.data.Dataset):
+    @property
+    def number_of_samples(self):
+        return len(self._sample_start_positions)
+
+    @property
+    def number_of_tokens(self):
+        return len(self._corpus)
+
     CORPUS_FILE = 'corpus.npy'
     SAMPLE_START_POSITIONS_FILE = 'sample_start_positions.npy'
 

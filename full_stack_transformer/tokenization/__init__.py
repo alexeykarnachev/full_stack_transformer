@@ -1,6 +1,6 @@
 from full_stack_transformer.tokenization.ru_transformers_tokenizer import (
-    RuTransformersTokenizer
-)
+    RuTransformersTokenizer)
+from full_stack_transformer.tokenization.gpt2_tokenizer import GPT2Tokenizer
 from full_stack_transformer.tokenization.tokenizer import Tokenizer
 from full_stack_transformer.utilities import factory
 

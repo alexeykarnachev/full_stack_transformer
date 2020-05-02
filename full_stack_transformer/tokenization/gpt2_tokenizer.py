@@ -3,7 +3,7 @@ import re
 
 import tokenizers
 
-from full_stack_transformer.tokenization import Tokenizer
+from full_stack_transformer.tokenization.tokenizer import Tokenizer
 
 _THIS_DIR = pathlib.Path(__file__).parent
 _VOCAB = _THIS_DIR / 'data' / 'gpt2_bpe' / 'vocab.json'

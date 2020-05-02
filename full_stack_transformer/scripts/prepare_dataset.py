@@ -1,5 +1,6 @@
 import argparse
 import pathlib
+from collections import defaultdict
 
 from full_stack_transformer.datasets.documents_dataset import DocumentsDatasetReader
 from full_stack_transformer.tokenization import get_tokenizer
@@ -63,14 +64,13 @@ def _str2path(path: str) -> pathlib.Path:
 
 def main():
     args = _parse_args()
-    dataset_dir = prepare_dataset_dir(
-        datasets_root=args.datasets_root,
-        dataset_name=args.dataset_name,
-        description=args.__dict__)
-
     tokenizer = get_tokenizer(args.tokenizer_cls_name)
+    description = defaultdict()
+    description.update(args.__dict__)
 
-    for name in ['train', 'valid']:
+    datasets = dict()
+    dataset_names = ['train', 'valid']
+    for name in dataset_names:
         file_path = getattr(args, f'documents_{name}_file')
         dataset_reader = DocumentsDatasetReader(
             file_path=file_path,
@@ -80,11 +80,20 @@ def main():
             min_sample_length=args.min_sample_length)
 
         dataset = dataset_reader.construct()
+        datasets[name] = dataset
 
+        description[f'number_of_{name}_samples'] = dataset.number_of_samples
+        description[f'number_of_{name}_tokens'] = dataset.number_of_tokens
+
+    dataset_dir = prepare_dataset_dir(
+        datasets_root=args.datasets_root,
+        dataset_name=args.dataset_name,
+        description=description)
+
+    for name in dataset_names:
         dataset_sub_dir: pathlib.Path = dataset_dir / name
         dataset_sub_dir.mkdir(exist_ok=False, parents=False)
-
-        dataset.save(dir_path=dataset_sub_dir)
+        datasets[name].save(dir_path=dataset_sub_dir)
 
 
 if __name__ == '__main__':
