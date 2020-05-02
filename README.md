@@ -118,7 +118,7 @@ python full_stack_transformer/scripts/train_model.py \
 --log_text_samples
 ```
 
-If you don't have downloaded gpt2 model, it'll be obtained from the huggingface server (548M).
+If you don't have gpt2 model downloaded, it'll be obtained from the huggingface server (548M).
 
 
 

@@ -47,6 +47,7 @@ class TextGenerator:
 
         ignored_token_ids = _get_words_token_ids(
             tokenizer=self._tokenizer, words=params.ignored_words)
+        ignored_token_ids.append(self._tokenizer.get_pad_token_id())
 
         input_ids = _prepare_model_input(
             sequence=seed_encodings.ids,
@@ -163,6 +164,6 @@ def _modify_next_token_logits(
 
 
 def _sample_next_token_ids(next_token_logits: torch.tensor) -> torch.tensor:
-    next_tokens = torch.multinomial(
-        F.softmax(next_token_logits, dim=-1), num_samples=1).squeeze(1)
+    probabilities = F.softmax(next_token_logits, dim=-1)
+    next_tokens = torch.multinomial(probabilities, num_samples=1).squeeze(1)
     return next_tokens

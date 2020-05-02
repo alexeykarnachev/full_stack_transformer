@@ -100,7 +100,7 @@ class IgnoredTokensModifier(NextTokenLogitsModifier):
             ignored_token_ids:
                 Ignored token indexes sequence.
         """
-        self._ignored_token_ids = ignored_token_ids
+        self._ignored_token_ids = list(set(ignored_token_ids))
 
     def modify(self, logits: torch.tensor):
         if self._ignored_token_ids:
