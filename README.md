@@ -19,12 +19,11 @@ serving on the [nietzsche](data/documents/nietzsche) texts example.
 ### Prepare dataset
 
 First, you need two text files (train and validation) which contain raw documents.
-
+For this example, files are already placed here:
 ```
-ls data/documents/nietzsche
-```
-```
-train.txt  valid.txt
+data/documents/nietzsche/
+├── train.txt
+└── valid.txt
 ```
 
 Documents in these files are separated by a delimiter. In this example it's the
@@ -103,6 +102,7 @@ python full_stack_transformer/scripts/train_model.py --help
 Now, let's train the model:
 ```
 python full_stack_transformer/scripts/train_model.py \
+--seed 228 \
 --dataset_dir data/datasets/nietzsche/0 \
 --model_path gpt2 \
 --batch_size 4 \
@@ -119,7 +119,20 @@ python full_stack_transformer/scripts/train_model.py \
 
 If you don't have gpt2 model downloaded, it'll be obtained from the huggingface server (548M).
 
-
+The training has been started. All experiment related files a placed in the experiment directory:
+```
+data/experiments/nietzsche/0/
+├── _ckpt_epoch_0.ckpt
+├── _ckpt_epoch_1.ckpt
+├── description.json
+├── generated.txt
+├── logs
+│   ├── critical.log
+│   ├── debug.log
+│   ├── errors.log
+│   └── info.log
+└── text_generator_params.json
+```
 
 ### Monitor training
 ### Serve application
