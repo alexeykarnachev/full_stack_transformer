@@ -3,8 +3,8 @@ import pathlib
 
 import numpy as np
 
-import lm_trainer.tokenization.ru_transformers_tokenizer as ru_transformer
-from lm_trainer.datasets.documents_dataset import (
+import full_stack_transformer.tokenization.ru_transformers_tokenizer as ru_transformer
+from full_stack_transformer.datasets.documents_dataset import (
     DocumentsDatasetReader, load_from_dir, DocumentsDataset
 )
 

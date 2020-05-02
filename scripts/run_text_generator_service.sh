@@ -8,7 +8,7 @@ DEVICE=$5
 
 TIMEOUT=600
 WORKER_CLASS="uvicorn.workers.UvicornWorker"
-MODULE_PATH="lm_trainer.text_generator_service.utilities"
+MODULE_PATH="full_stack_transformer.text_generator_service.utilities"
 ACCESS_LOGFILE=$LOGS_DIR"/gunicorn_access.log"
 ERROR_LOGFILE=$LOGS_DIR"/gunicorn_error.log"
 LOG_LEVEL="DEBUG"

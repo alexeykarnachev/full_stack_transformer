@@ -25,10 +25,10 @@ import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 
-from lm_trainer.pl_modules.lm_module import LMModule
-from lm_trainer.utilities.file_io import prepare_dataset_dir, load_json
-from lm_trainer.utilities.log_config import prepare_logging
-from lm_trainer.utilities.training import seed_everything
+from full_stack_transformer.pl_modules.lm_module import LMModule
+from full_stack_transformer.utilities.file_io import prepare_dataset_dir, load_json
+from full_stack_transformer.utilities.log_config import prepare_logging
+from full_stack_transformer.utilities.training import seed_everything
 
 THIS_DIR = pathlib.Path(__file__).parent
 

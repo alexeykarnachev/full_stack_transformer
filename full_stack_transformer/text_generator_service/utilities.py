@@ -4,10 +4,10 @@ import pathlib
 import torch
 from fastapi import FastAPI
 
-from lm_trainer.text_generator_service.views import ViewsRegister
-from lm_trainer.pl_modules.model_loading import (
+from full_stack_transformer.text_generator_service.views import ViewsRegister
+from full_stack_transformer.pl_modules.model_loading import (
     load_text_generator_from_pl_checkpoint)
-from lm_trainer.utilities.log_config import prepare_logging
+from full_stack_transformer.utilities.log_config import prepare_logging
 
 _LOGGER = logging.getLogger(__name__)
 

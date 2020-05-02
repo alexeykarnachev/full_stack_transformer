@@ -22,7 +22,7 @@ separated by `end_of_document` string (in provided example it's a `|` symbol).
 Now, run dataset preparation script:
 <br>
 ```bash
-python lm_trainer/scripts/prepare_dataset.py \
+python full_stack_transformer/scripts/prepare_dataset.py \
 --documents_train_file path/to/your/raw/documents/train/file.txt \
 --documents_valid_file path/to/your/raw/documents/valid/file.txt \
 --end_of_document end_of_document_separation_string \
@@ -42,10 +42,10 @@ of a document. Must be placed on a new line, so no other symbols in this line ar
 - **--tokenizer_cls_name**. Each model requires its specific tokenization logic.
 For instance, if you want to use pre-trained weights of the 
 [ru_transformers](https://github.com/mgrankin/ru_transformers) model, you definitely need
-to use their tokenizer. `lm_trainer` wraps this tokenizer in the `RuTransformersTokenizer` class.
+to use their tokenizer. `full_stack_transformer` wraps this tokenizer in the `RuTransformersTokenizer` class.
 So, in such a case, you can just pass a name of this class to the argument.
 If you want to use another model with another tokenizer, make sure, that this tokenizer
- is importable from [lm_trainer.tokenization](lm_trainer/tokenization/__init__.py) 
+ is importable from [full_stack_transformer.tokenization](full_stack_transformer/tokenization/__init__.py) 
  package. But for now, only the
 `RuTransformersTokenizer` is available. If you want to implement wrapper for another
 tokenizer, check the [How to Implement new Tokenizer](#how-to-implement-new-tokenizer)

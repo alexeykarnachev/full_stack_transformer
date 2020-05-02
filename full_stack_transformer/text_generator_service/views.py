@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 
-from lm_trainer.text_generator_service.schemas import (
+from full_stack_transformer.text_generator_service.schemas import (
     GeneratedTexts,
     TextGeneratorAppParams)
-from lm_trainer.text_generator.text_generator import TextGenerator
+from full_stack_transformer.text_generator.text_generator import TextGenerator
 
 
 class ViewsRegister:

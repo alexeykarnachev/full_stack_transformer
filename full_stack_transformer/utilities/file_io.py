@@ -6,7 +6,7 @@ import pathlib
 import pickle
 from typing import Any, Mapping
 
-from lm_trainer.utilities.json_encoder import CustomJsonEncoder
+from full_stack_transformer.utilities.json_encoder import CustomJsonEncoder
 
 
 class FileIOError(Exception):

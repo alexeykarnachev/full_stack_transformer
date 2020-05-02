@@ -27,11 +27,11 @@ def _load_requirements(path_dir=THIS_DIR, comment_char='#'):
 
 
 setup(
-    name='lm_trainer',
-    version=_get_version('lm_trainer/__init__.py'),
+    name='full_stack_transformer',
+    version=_get_version('full_stack_transformer/__init__.py'),
     description='Language Models trainer.',
     packages=find_packages(exclude=['tests', 'tests.*']),
     install_requires=_load_requirements(THIS_DIR),
-    package_dir={'lm_trainer': 'lm_trainer'},
-    package_data={'lm_trainer': ['tokenization/data/*']}
+    package_dir={'full_stack_transformer': 'full_stack_transformer'},
+    package_data={'full_stack_transformer': ['tokenization/data/*']}
 )

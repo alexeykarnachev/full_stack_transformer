@@ -1,9 +1,9 @@
 import argparse
 import pathlib
 
-from lm_trainer.datasets.documents_dataset import DocumentsDatasetReader
-from lm_trainer.tokenization import get_tokenizer
-from lm_trainer.utilities.file_io import prepare_dataset_dir
+from full_stack_transformer.datasets.documents_dataset import DocumentsDatasetReader
+from full_stack_transformer.tokenization import get_tokenizer
+from full_stack_transformer.utilities.file_io import prepare_dataset_dir
 
 THIS_DIR = pathlib.Path(__file__).parent
 
@@ -32,7 +32,7 @@ def _parse_args():
     parser.add_argument(
         '--tokenizer_cls_name', type=str, required=True,
         help='Class name of the tokenizer object. This tokenizer name must be '
-             'importable from `lm_trainer.tokenization`.'
+             'importable from `full_stack_transformer.tokenization`.'
     )
     parser.add_argument(
         '--max_sample_length', type=int, required=True,

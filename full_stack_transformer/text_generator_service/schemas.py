@@ -2,7 +2,7 @@ from typing import List, Sequence, Optional
 
 from pydantic import BaseModel, Field
 
-from lm_trainer.text_generator.text_generator import TextGeneratorParams
+from full_stack_transformer.text_generator.text_generator import TextGeneratorParams
 
 
 class GeneratedTexts(BaseModel):

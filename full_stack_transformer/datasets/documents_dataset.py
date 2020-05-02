@@ -8,9 +8,9 @@ import torch.utils.data
 import tqdm
 from torch.utils.data.dataloader import DataLoader
 
-from lm_trainer.datasets.length_sort_sampler import LengthSortSampler
-from lm_trainer.tokenization import Tokenizer
-from lm_trainer.utilities.sequences import pad_sequences
+from full_stack_transformer.datasets.length_sort_sampler import LengthSortSampler
+from full_stack_transformer.tokenization import Tokenizer
+from full_stack_transformer.utilities.sequences import pad_sequences
 
 
 class DocumentsDatasetError(Exception):

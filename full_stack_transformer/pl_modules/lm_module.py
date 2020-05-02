@@ -8,11 +8,11 @@ from cached_property import cached_property
 from torch.utils.data.dataloader import DataLoader
 from transformers import get_cosine_with_hard_restarts_schedule_with_warmup
 
-import lm_trainer.tokenization
-from lm_trainer.datasets.documents_dataset import load_from_dir
-from lm_trainer.pl_modules.model_loading import load_transformer_model_from_path
-from lm_trainer.text_generator.text_generator import TextGenerator, TextGeneratorParams
-from lm_trainer.utilities.file_io import load_json, dump_json
+import full_stack_transformer.tokenization
+from full_stack_transformer.datasets.documents_dataset import load_from_dir
+from full_stack_transformer.pl_modules.model_loading import load_transformer_model_from_path
+from full_stack_transformer.text_generator.text_generator import TextGenerator, TextGeneratorParams
+from full_stack_transformer.utilities.file_io import load_json, dump_json
 
 
 class LMModule(pl.LightningModule):
@@ -46,7 +46,7 @@ class LMModule(pl.LightningModule):
     def __init__(self, hparams: argparse.Namespace):
         super().__init__()
         self.hparams = hparams
-        self.tokenizer = lm_trainer.tokenization.get_tokenizer(
+        self.tokenizer = full_stack_transformer.tokenization.get_tokenizer(
             self._tokenizer_cls_name)
 
         self.model = load_transformer_model_from_path(

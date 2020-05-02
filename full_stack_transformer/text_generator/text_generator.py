@@ -6,14 +6,14 @@ import torch.nn.functional as F
 import transformers
 from pydantic import BaseModel
 
-from lm_trainer.text_generator.generation_progress import GenerationProgress
-from lm_trainer.text_generator.logits_modifiers import (
+from full_stack_transformer.text_generator.generation_progress import GenerationProgress
+from full_stack_transformer.text_generator.logits_modifiers import (
     IgnoredTokensModifier,
     RepetitiveTokensModifier,
     TemperatureModifier,
     TopKNucleusModifier)
-from lm_trainer.text_generator.model_handler import ModelHandler
-from lm_trainer.tokenization import Tokenizer
+from full_stack_transformer.text_generator.model_handler import ModelHandler
+from full_stack_transformer.tokenization import Tokenizer
 
 
 class TextGeneratorParams(BaseModel):

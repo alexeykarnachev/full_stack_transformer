@@ -5,8 +5,8 @@ from typing import Optional, Union, Dict
 import torch
 import transformers
 
-from lm_trainer.text_generator.text_generator import TextGenerator
-from lm_trainer.tokenization import get_tokenizer
+from full_stack_transformer.text_generator.text_generator import TextGenerator
+from full_stack_transformer.tokenization import get_tokenizer
 
 
 def load_transformer_model_from_pl_checkpoint(
