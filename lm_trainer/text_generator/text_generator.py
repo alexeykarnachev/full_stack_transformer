@@ -52,6 +52,7 @@ class TextGenerator:
 
         input_ids = _prepare_model_input(
             sequence=seed_encodings.ids,
+            device=self._model_handler.device,
             num_return_sequences=params.num_return_sequences)
 
         progress = GenerationProgress(
@@ -126,8 +127,8 @@ def _get_generated_sequences(generated_tokens, generated_sample_lengths):
     return generated_sequences
 
 
-def _prepare_model_input(sequence, num_return_sequences):
-    tensor = torch.tensor(sequence).unsqueeze(0)
+def _prepare_model_input(sequence, device, num_return_sequences):
+    tensor = torch.tensor(sequence).unsqueeze(0).to(device)
 
     batch_size = tensor.shape[0]
     cur_len = tensor.shape[1]

@@ -24,17 +24,9 @@ class ModelHandler(nn.Module):
 
         self._model.eval()
         with torch.no_grad():
-            input_ids, past = self._to_device(input_ids, past)
             logits, past, _ = self._model(input_ids=input_ids, past=past)
 
         return logits, past
-
-    def _to_device(self, input_ids, past):
-        input_ids = input_ids.to(self._model.device)
-        if past is not None:
-            past = [p.to(self._model.device) for p in past]
-
-        return input_ids, past
 
 
 def _check_model_validity(model) -> None:
