@@ -11,7 +11,7 @@ Powered by:
 - [fastapi](https://github.com/tiangolo/fastapi) application serving
 - [aiogram](https://github.com/aiogram/aiogram) telegram bot serving
 
-##End-to-end Steps
+## End-to-end Steps
 These are steps to prepare dataset, train a model and serve it.
 ### Prepare dataset
 
