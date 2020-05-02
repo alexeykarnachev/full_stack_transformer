@@ -17,7 +17,7 @@ These are steps to prepare dataset, train a model and serve it.
 
 First, you need two text (train and validation) files which contain raw documents
 ([example](data/documents/ru_rap/train.txt)). It's a simple text file with documents, which are
-separated by `|` symbol.
+separated by `end_of_document` string (in provided example it's a `|` symbol).
 
 Now, run dataset preparation script:
 <br>
