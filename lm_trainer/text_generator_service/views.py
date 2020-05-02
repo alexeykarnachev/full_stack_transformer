@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from lm_trainer.application.schemas import (
+from lm_trainer.text_generator_service.schemas import (
     GeneratedTexts,
     TextGeneratorAppParams)
 from lm_trainer.text_generator.text_generator import TextGenerator
