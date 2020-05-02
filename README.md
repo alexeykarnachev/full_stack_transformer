@@ -32,7 +32,7 @@ Documents in these files are separated by a delimiter. In this example it's the
 ```
 tail -n5 data/documents/nietzsche/train.txt
 ```
-```text
+```
 force of the latter forces triumph for the former.
 [END_OF_DOCUMENT]
 123
