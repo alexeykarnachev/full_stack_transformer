@@ -104,16 +104,15 @@ Now, let's train the model:
 ```
 python full_stack_transformer/scripts/train_model.py \
 --dataset_dir data/datasets/nietzsche/0 \
---tensorboard_logdir data/tb_logs \
 --model_path gpt2 \
 --batch_size 4 \
 --learning_rate 5.0e-05 \
 --num_warmup_steps 200 \
---num_cycles 5 \
+--num_cycles 3 \
 --gradient_clip_val 5.0 \
 --accumulate_grad_batches 4 \
---max_epochs 10 \
---val_check_interval 250 \
+--max_epochs 13 \
+--val_check_interval 330 \
 --gpus "0," \
 --log_text_samples
 ```
