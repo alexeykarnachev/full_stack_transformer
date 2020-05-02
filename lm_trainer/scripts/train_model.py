@@ -18,7 +18,6 @@ Use `python train_model.py --help` to see them all.
 
 import argparse
 import copy
-import logging.config
 import pathlib
 from typing import Mapping
 
@@ -28,7 +27,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 
 from lm_trainer.pl_modules.lm_module import LMModule
 from lm_trainer.utilities.file_io import prepare_dataset_dir, load_json
-from lm_trainer.utilities.log_config import get_log_config, prepare_logging
+from lm_trainer.utilities.log_config import prepare_logging
 from lm_trainer.utilities.training import seed_everything
 
 THIS_DIR = pathlib.Path(__file__).parent
@@ -140,9 +139,6 @@ def _prepare_experiment_dir(args):
     args.experiment_dir = experiment_dir
 
     return experiment_dir
-
-
-
 
 
 def _prepare_trainer(
