@@ -1,6 +1,6 @@
 ![Logo](docs/source/_images/logos/lightning_logo.svg)
 
-# Language Models Trainer
+# Full Stack Transformer
 Pytorch library for end-to-end transformer models training, inference and serving.
 <br>
 <br>
@@ -88,10 +88,40 @@ cat data/datasets/nietzsche/0/description.json
   "number_of_valid_tokens": 7636
 }
 ```
+
 We have the dataset, now we are ready to train the model.
 
-
 ### Train Model
+The library uses `pytorch-lightning` for training and arguments which are used by
+lightning `Trainer` class are allowed as a command line argument for the script below.
+
+To check them all execute:
+```
+python full_stack_transformer/scripts/train_model.py --help
+```
+
+Now, let's train the model:
+```
+python full_stack_transformer/scripts/train_model.py \
+--dataset_dir data/datasets/nietzsche/0 \
+--tensorboard_logdir data/tb_logs \
+--model_path gpt2 \
+--batch_size 4 \
+--learning_rate 5.0e-05 \
+--num_warmup_steps 200 \
+--num_cycles 5 \
+--gradient_clip_val 5.0 \
+--accumulate_grad_batches 4 \
+--max_epochs 10 \
+--val_check_interval 250 \
+--gpus "0," \
+--log_text_samples
+```
+
+If you don't have downloaded gpt2 model, it'll be obtained from the huggingface server (548M).
+
+
+
 ### Monitor training
 ### Serve application
 ### Serve telegram bot
