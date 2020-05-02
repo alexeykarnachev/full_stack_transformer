@@ -45,7 +45,8 @@ For instance, if you want to use pre-trained weights of the
 to use their tokenizer. `lm_trainer` wraps this tokenizer in the `RuTransformersTokenizer` class.
 So, in such a case, you can just pass a name of this class to the argument.
 If you want to use another model with another tokenizer, make sure, that this tokenizer
-could is importable from `lm_trainer.tokenization` package. But for now, only the
+ is importable from [lm_trainer.tokenization](lm_trainer/tokenization/__init__.py) 
+ package. But for now, only the
 `RuTransformersTokenizer` is available. If you want to implement wrapper for another
 tokenizer, check the [How to Implement new Tokenizer](#how-to-implement-new-tokenizer)
 - **--max_sample_length** represents the maximum sequence length (number of tokens). Make
