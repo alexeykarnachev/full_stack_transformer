@@ -69,6 +69,7 @@ class Tokenizer(abc.ABC, tokenizers.implementations.BaseTokenizer):
 
     @abc.abstractmethod
     def _preprocess(self, string: str) -> str:
+        """Preprocess input string before tokenization."""
         pass
 
     def clean_after_generation(self, string: str, remove_bos_eos: bool = False):
@@ -82,4 +83,5 @@ class Tokenizer(abc.ABC, tokenizers.implementations.BaseTokenizer):
 
     @abc.abstractmethod
     def _postprocess(self, sequence: str) -> str:
+        """Performs postprocessing on the detokenized string."""
         pass

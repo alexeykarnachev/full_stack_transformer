@@ -22,6 +22,8 @@ data/documents/nietzsche/
 ├── train.txt
 └── valid.txt
 ```
+(If you want to start with your own files, check 
+[Input Document Files Format](input-document-files-format))
 
 Files are in place and we are ready to prepare the dataset:
 ```
@@ -35,6 +37,12 @@ python full_stack_transformer/scripts/prepare_dataset.py \
 --datasets_root data/datasets \
 --dataset_name nietzsche
 ```
+
+For this example we'll use the `gpt2` model, weights of which 
+are available from the huggingface server. That's why, we have 
+`--tokenizer_cls_name=GPT2Tokenizer` argument here. If you want to fine tune
+another model (with another tokenizer), check
+[Available Tokenizers](available-tokenizers))
 
 The dataset has been created, here is its directory structure:
 ```
@@ -191,3 +199,39 @@ the source of all good
 and great love: it is
 the most dangerous thing in all of us, and we have
 ```
+
+## Input Document Files Format
+Raw input document files (train and valid) contains documents, separated by 
+some delimiter string. 
+
+For example:
+```
+Document 1
+Some text
+And more text
+[END_OF_DOCUMENT]
+Document 2
+[END_OF_DOCUMENT]
+Last document in the corpus
+Some text
+[END_OF_DOCUMENT]
+```
+
+In this example there are 3 documents, separated by `[END_OF_DOCUMENT]` string.
+Documents separator must be placed on a new line. So, no other symbols allowed on the
+document separator line (of course except the new line `\n` token on the end of line).
+
+## Available Tokenizers
+For now, there are two tokenizers available.
+
+- `GPT2Tokenizer` for huggingface models:
+    - `gpt2`
+    - `gpt2-medium`
+    - `gpt2-large`
+    - `gpt2-xl`
+    - `distilgpt2`
+    - maybe, there are some more models already. 
+    Check [official huggingface repo](https://github.com/huggingface/transformers/blob/master/src/transformers/configuration_gpt2.py)
+- `RuTransformersTokenizer`:
+    - [ru_transformers](https://github.com/mgrankin/ru_transformers) medium size model
+    
