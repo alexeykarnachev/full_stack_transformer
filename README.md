@@ -1,5 +1,3 @@
-![Logo](docs/source/_images/logos/lightning_logo.svg)
-
 # Full Stack Transformer
 Pytorch library for end-to-end transformer models training, inference and serving.
 <br>
@@ -141,10 +139,57 @@ cat data/experiments/nietzsche/0/text_generator_params.json
 Changed parameters will be applied on the next validation step.
 
 ### Serve application
+
+When the model is trained, it could be served for inference:
+```
+./scripts/run_text_generator_service.sh 9228 1 ./logs ./data/experiments/nietzsche/0/_ckpt_epoch_2.ckpt cuda:0
+```
+
+Swagger is available here: [http://localhost:9228/docs](http://localhost:9228/docs)
+<br>
+![Logo](docs/source/_images/swagger_example.png)
+
+
 ### Serve telegram bot
 
+Soon...
+
 ##Inference
+After you train the model, you may want to perform inference in code. You can
+use `TextGenerator` object for this:
+```python
+import torch
 
-##How to Implement new Tokenizer
+from full_stack_transformer.pl_modules.model_loading import (
+    load_text_generator_from_pl_checkpoint)
+from full_stack_transformer.text_generator.text_generator import (
+    TextGeneratorParams)
 
+if __name__ == '__main__':
+    ckpt = torch.load('./data/experiments/nietzsche/0/_ckpt_epoch_2.ckpt')
+
+    text_generator = load_text_generator_from_pl_checkpoint(
+        ckpt=ckpt, device='cuda:0')
+
+    params = TextGeneratorParams(
+        seed_text='Love is',
+        ignored_words=None,
+        generation_max_len=12,
+        temperature=0.7,
+        top_k=50,
+        top_p=1.0,
+        repetition_penalty=5.0,
+        num_return_sequences=16)
+
+    generated_texts = text_generator(params)
+
+    for text in generated_texts:
+        print(text)
+```
+```
+the source of all good
+and great love: it is
+the most dangerous thing in all of us, and we have
+...
+```
 
