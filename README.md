@@ -98,6 +98,14 @@ data/experiments/nietzsche/0/
 ```
 
 ### Monitor training
+Run `tensorboard`:
+```
+tensorboard --logdir=./data/tb_logs/ --port=6006
+```
+TensorBoard interface is available here: [http://localhost:6006/](http://localhost:6006/)
+<br>
+![Logo](docs/source/_images/tb_example.png)
+
 ### Serve application
 ### Serve telegram bot
 
