@@ -69,7 +69,7 @@ def _parse_args():
         help='Path to the pre-trained GPT model.'
     )
     parser.add_argument(
-        '--batch_size', type=int, required=True, help='Batch size'
+        '--batch_size', type=int, required=True, help='Batch size.'
     )
     parser.add_argument(
         '--learning_rate', type=float, required=True, help='Learning rate.'
@@ -80,7 +80,8 @@ def _parse_args():
     )
     parser.add_argument(
         '--num_cycles', type=int, required=True,
-        help='Number of cosine lr-scheduler cycles.'
+        help='Number of cosine lr-scheduler cycles. If 0, the scheduler will '
+             'behave as a warmup-constant one.'
     )
     parser.add_argument(
         '--seed', type=int, required=False, default=228, help='Random seed.'

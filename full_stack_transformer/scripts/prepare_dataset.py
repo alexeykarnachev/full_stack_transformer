@@ -32,6 +32,7 @@ def _parse_args():
     )
     parser.add_argument(
         '--tokenizer_cls_name', type=str, required=True,
+        choices=['RuTransformersTokenizer', 'GPT2Tokenizer'],
         help='Class name of the tokenizer object. This tokenizer name must be '
              'importable from `full_stack_transformer.tokenization`.'
     )
