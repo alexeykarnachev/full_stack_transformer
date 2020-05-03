@@ -183,13 +183,12 @@ if __name__ == '__main__':
 
     generated_texts = text_generator(params)
 
-    for text in generated_texts:
+    for text in generated_texts[:3]:
         print(text)
 ```
 ```
 the source of all good
 and great love: it is
 the most dangerous thing in all of us, and we have
-...
 ```
 
