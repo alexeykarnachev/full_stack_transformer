@@ -106,6 +106,40 @@ TensorBoard interface is available here: [http://localhost:6006/](http://localho
 <br>
 ![Logo](docs/source/_images/tb_example.png)
 
+
+Also, text samples are generated during the training on each validation step.
+They are logged here:
+```
+cat data/experiments/nietzsche/0/generated.txt
+```
+```
+...
+{
+    "Global step": 250,
+    "Current epoch": 2,
+    "Generator params": {
+        "seed_text": null,
+        "ignored_words": null,
+        "generation_max_len": 64,
+        "temperature": 0.7,
+        "top_k": 50,
+        "top_p": 1.0,
+        "repetition_penalty": 5.0,
+        "num_return_sequences": 16
+    },
+    "Error message": null,
+    "Generated samples": [
+        "and\nthe greatest of all philosophers.",
+...
+```
+
+Text generator parameters could be changed here:
+```text
+cat data/experiments/nietzsche/0/text_generator_params.json
+```
+
+Changed parameters will be applied on the next validation step.
+
 ### Serve application
 ### Serve telegram bot
 
