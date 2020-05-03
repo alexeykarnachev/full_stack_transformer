@@ -98,8 +98,7 @@ class LMModule(pl.LightningModule):
         outputs_processor = ValidationEpochResultsProcessor(
             validation_outputs=outputs)
 
-        if self.hparams.log_text_samples:
-            self._generate_and_log_text_samples()
+        self._generate_and_log_text_samples()
 
         loss = outputs_processor.get_validation_loss()
         logs = {'Loss/valid': loss}

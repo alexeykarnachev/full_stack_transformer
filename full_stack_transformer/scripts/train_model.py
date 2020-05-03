@@ -102,11 +102,6 @@ def _parse_args():
              'If None (default), the dataset name will be assumed to be the '
              'experiment name.'
     )
-    parser.add_argument(
-        '--log_text_samples', required=False, action='store_true',
-        help='If this argument set, samples which are generated on each '
-             'validation epoch end, will be logged to the experiment dir.'
-    )
 
     args = parser.parse_args()
 
