@@ -23,7 +23,7 @@ data/documents/nietzsche/
 └── valid.txt
 ```
 (If you want to start with your own files, check 
-[Input Document Files Format](#input-document-files-format))
+[Input Document Files Format](#input-document-files-format)
 
 Files are in place and we are ready to prepare the dataset:
 ```
