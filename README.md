@@ -42,7 +42,7 @@ For this example we'll use the `gpt2` model, weights of which
 are available from the huggingface server. That's why, we have 
 `--tokenizer_cls_name=GPT2Tokenizer` argument here. If you want to fine tune
 another model (with another tokenizer), check
-[Available Tokenizers](#available-tokenizers))
+[Available Tokenizers](#available-tokenizers)
 
 The dataset has been created, here is its directory structure:
 ```
