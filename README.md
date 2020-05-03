@@ -154,7 +154,7 @@ Swagger is available here: [http://localhost:9228/docs](http://localhost:9228/do
 
 Soon...
 
-##Inference
+## Inference
 After you train the model, you may want to perform inference in code. You can
 use `TextGenerator` object for this:
 ```python
