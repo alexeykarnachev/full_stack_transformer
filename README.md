@@ -9,6 +9,11 @@ Powered by:
 - [fastapi](https://github.com/tiangolo/fastapi) application serving
 - [aiogram](https://github.com/aiogram/aiogram) telegram bot serving
 
+Also, I predominantly work with russian texts, so I actively used pre-trained gpt-model
+and tokenizer (which I wrapped in the fast sentence piece tokenizer from 
+[tokenizers](https://github.com/huggingface/tokenizers) library)
+from the [ru_transformers](https://github.com/mgrankin/ru_transformers) repository.
+
 ## End-to-end Example
 As they say, it’s better to see once...<br>
 So, let's go through the whole pipeline from dataset building to the application
@@ -86,7 +91,9 @@ python full_stack_transformer/scripts/train_model.py \
 --log_text_samples
 ```
 
-If you don't have gpt2 model downloaded, it'll be obtained from the huggingface server (548M).
+If you don't have `gpt2` model downloaded, it'll be obtained from the huggingface server (548M).
+Also, if you want to use a pre-trained gpt weights, which are stored locally, pass the path
+to the model directory, like so: `--model_path path/to/local/gpt/model`.
 
 The training has been started. All experiment related files a placed in the experiment directory:
 ```
