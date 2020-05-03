@@ -53,7 +53,7 @@ We have the dataset, now we are ready to train the model.
 
 ### Train Model
 The library uses `pytorch-lightning` for training and arguments which are used by
-lightning `Trainer` class are allowed as a command line argument for the script below.
+lightning `Trainer` class is allowed as a command-line argument for the script below.
 
 To check them all execute:
 ```
@@ -191,4 +191,3 @@ the source of all good
 and great love: it is
 the most dangerous thing in all of us, and we have
 ```
-
