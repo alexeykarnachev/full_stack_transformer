@@ -3,6 +3,7 @@ import pathlib
 from collections import defaultdict
 
 from full_stack_transformer.datasets.documents_dataset import DocumentsDatasetReader
+from full_stack_transformer.scripts.utilities import str2path
 from full_stack_transformer.tokenization import get_tokenizer
 from full_stack_transformer.utilities.file_io import prepare_dataset_dir
 
@@ -16,51 +17,39 @@ def _parse_args():
         description='Script which prepares train and validation dataset files.')
 
     parser.add_argument(
-        '--documents_train_file', type=_str2path, required=True,
+        '--documents_train_file', type=str2path, required=True,
         help='Input raw documents train file. Each document must end with '
-             'a line which contains only `end_of_document` separator.'
-    )
+             'a line which contains only `end_of_document` separator.')
     parser.add_argument(
-        '--documents_valid_file', type=_str2path, required=True,
+        '--documents_valid_file', type=str2path, required=True,
         help='Input raw documents validation file. Each document must end with '
-             'a line which contains only `end_of_document` separator.'
-    )
+             'a line which contains only `end_of_document` separator.')
     parser.add_argument(
         '--end_of_document', type=str, required=True,
         help='String line which must be presented at the end of each document '
-             'in the documents file.'
-    )
+             'in the documents file.')
     parser.add_argument(
         '--tokenizer_cls_name', type=str, required=True,
         choices=['RuTransformersTokenizer', 'GPT2Tokenizer'],
         help='Class name of the tokenizer object. This tokenizer name must be '
-             'importable from `full_stack_transformer.tokenization`.'
-    )
+             'importable from `full_stack_transformer.tokenization`.')
     parser.add_argument(
         '--max_sample_length', type=int, required=True,
         help="The maximum length of a dataset sample. If some document is "
-             "larger than this number, it'll be split on smaller samples."
-    )
+             "larger than this number, it'll be split on smaller samples.")
     parser.add_argument(
         '--min_sample_length', type=int, required=False, default=10,
         help="The minimum length of a dataset sample. If some sample is smaller"
-             "than this number, it'll be dropped. Default is: 10."
-    )
+             "than this number, it'll be dropped. Default is: 10.")
     parser.add_argument(
-        '--datasets_root', type=_str2path, required=False, default=ds_root,
-        help=f'Root dir with datasets sub-dirs. Default is: {ds_root}'
-    )
+        '--datasets_root', type=str2path, required=False, default=ds_root,
+        help=f'Root dir with datasets sub-dirs. Default is: {ds_root}')
     parser.add_argument(
         '--dataset_name', type=str, required=False, default='default',
-        help=f'Dataset name. Default is: "default".'
-    )
+        help=f'Dataset name. Default is: "default".')
 
     args = parser.parse_args()
     return args
-
-
-def _str2path(path: str) -> pathlib.Path:
-    return pathlib.Path(path)
 
 
 def main():
