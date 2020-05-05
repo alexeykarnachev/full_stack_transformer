@@ -9,7 +9,7 @@ from full_stack_transformer.text_generator_telegram_client.handlers import (
 
 
 def prepare(
-        api_token: str,
+        telegram_api_token: str,
         text_generator_service_url: str,
         logs_dir: pathlib.Path,
         text_generator_service_login: Optional[str] = None,
@@ -17,7 +17,7 @@ def prepare(
 ) -> Dispatcher:
     """Prepares dispatcher object."""
 
-    bot = Bot(token=api_token)
+    bot = Bot(token=telegram_api_token)
     dispatcher = Dispatcher(bot)
 
     if text_generator_service_login and text_generator_service_password:

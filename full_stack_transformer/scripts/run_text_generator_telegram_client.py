@@ -39,7 +39,7 @@ def main():
 
     dispatcher = prepare(
         logs_dir=args.logs_dir,
-        api_token=args.telegram_api_token,
+        telegram_api_token=args.telegram_api_token,
         text_generator_service_url=args.text_generator_service_url,
         text_generator_service_login=args.text_generator_service_login,
         text_generator_service_password=args.text_generator_service_password)

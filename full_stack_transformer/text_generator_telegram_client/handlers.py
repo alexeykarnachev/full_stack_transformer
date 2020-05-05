@@ -2,11 +2,13 @@ import json
 import logging
 import os
 import pathlib
+from http import HTTPStatus
 from typing import Optional, Tuple
 
 import aiohttp
 from aiogram import Dispatcher, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
+from aiohttp import ServerDisconnectedError
 
 from full_stack_transformer.utilities.strings import get_string_md5
 
@@ -98,23 +100,26 @@ class HandlersRegister:
 
     async def get_text_generator_service_response(
             self,
-            seed_string: str) -> Tuple[str, int]:
+            seed_string: str) -> Tuple[Optional[str], int]:
         url = os.path.join(self._text_generator_url, 'generated_texts')
         payload = {'seed_text': seed_string}
         headers = {'Content-Type': 'application/json'}
         async with aiohttp.ClientSession(
                 auth=self._text_generator_auth) as session:
-            async with session.post(
-                    url=url,
-                    data=json.dumps(payload),
-                    headers=headers) as response:
-                status = response.status
-                reply = await response.text()
-                return reply, status
+            try:
+                async with session.post(
+                        url=url,
+                        data=json.dumps(payload),
+                        headers=headers) as response:
+                    status = response.status
+                    reply = await response.text()
+                    return reply, status
+            except ServerDisconnectedError:
+                return None, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 def _prepare_reply_text(
-        text_generator_service_response: Tuple[str, int],
+        text_generator_service_response: Tuple[Optional[str], int],
         prefix_string: str) -> str:
     response_text, status = text_generator_service_response
     if status == 200:
@@ -164,6 +169,8 @@ class MessagesCache:
 
 
 class LoggingHandler:
+    """Performs logging for users in their individual files."""
+
     FORMATTER = '%(asctime)s %(message)s'
 
     def __init__(self, logs_dir: pathlib.Path):
