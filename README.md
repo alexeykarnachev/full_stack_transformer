@@ -179,14 +179,14 @@ If you want to play with the text generation via telegram bot, you need the serv
 (previous step). Also, you need to obtain telegram api token. It could be easily done
 via [@BotFather](https://t.me/botfather).
 
-After you run the application server and got the api token, run:
+After you run the application server and got the api token, execute the following:
 ```
 python full_stack_transformer/scripts/run_text_generator_telegram_client.py \
 --telegram_api_token="API-TOKEN-OBTAINED-FROM-BOTFATHER" \
 --text_generator_service_url=http://localhost:9228/
 ```
 
-That's it. We are ready to chat:
+That's it. Go find your bot in telegram and chat:
 ![telegram_example](docs/source/_images/telegram_example.png)
 
 
