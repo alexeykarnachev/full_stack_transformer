@@ -2,17 +2,7 @@
 Pytorch library for end-to-end transformer models training, inference and serving.
 <br>
 <br>
-Powered by:
-- [tokenizers](https://github.com/huggingface/tokenizers) fast tokenization and dataset preparation
-- [transformers](https://github.com/huggingface/transformers) model backbones
-- [pytorch-lightning](https://github.com/PyTorchLightning/pytorch-lightning) training process
-- [fastapi](https://github.com/tiangolo/fastapi) application serving
-- [aiogram](https://github.com/aiogram/aiogram) telegram bot serving
-
-Also, I predominantly work with russian texts, so I actively used pre-trained gpt-model
-and tokenizer (which I wrapped in the fast sentence piece tokenizer from 
-[tokenizers](https://github.com/huggingface/tokenizers) library)
-from the [ru_transformers](https://github.com/mgrankin/ru_transformers) repository.
+[Powered by](#powered-by) a list of great libraries.
 
 ## Features
 - Automatic LM dataset preparation 
@@ -262,4 +252,15 @@ For now, there are two tokenizers available.
     Check [official huggingface repo](https://github.com/huggingface/transformers/blob/master/src/transformers/configuration_gpt2.py)
 - `RuTransformersTokenizer`:
     - [ru_transformers](https://github.com/mgrankin/ru_transformers) medium size model
-    
+
+## Powered By
+- [tokenizers](https://github.com/huggingface/tokenizers) fast tokenization and dataset preparation
+- [transformers](https://github.com/huggingface/transformers) model backbones
+- [pytorch-lightning](https://github.com/PyTorchLightning/pytorch-lightning) training process
+- [fastapi](https://github.com/tiangolo/fastapi) application serving
+- [aiogram](https://github.com/aiogram/aiogram) telegram bot serving
+
+Also, I predominantly work with russian texts, so I actively used pre-trained gpt-model
+and tokenizer (which I wrapped in the fast sentence piece tokenizer from 
+[tokenizers](https://github.com/huggingface/tokenizers) library)
+from the [ru_transformers](https://github.com/mgrankin/ru_transformers) repository.
