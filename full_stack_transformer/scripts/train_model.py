@@ -84,6 +84,10 @@ def _parse_args():
              'behave as a warmup-constant one.'
     )
     parser.add_argument(
+        '--unlikelihood_alpha', type=float, required=False, default=1.0,
+        help='Unlikelihood loss multiplier.'
+    )
+    parser.add_argument(
         '--seed', type=int, required=False, default=228, help='Random seed.'
     )
     parser.add_argument(

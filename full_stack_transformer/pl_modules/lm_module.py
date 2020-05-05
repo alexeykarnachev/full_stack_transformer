@@ -1,15 +1,18 @@
 import argparse
 import json
+from dataclasses import dataclass
 
 import pytorch_lightning as pl
 import torch
 import transformers
 from cached_property import cached_property
+from pytorch_lightning.loggers.base import merge_dicts
 from torch.utils.data.dataloader import DataLoader
 from transformers import get_cosine_with_hard_restarts_schedule_with_warmup
 
 import full_stack_transformer.tokenization
 from full_stack_transformer.datasets.documents_dataset import load_from_dir
+from full_stack_transformer.pl_modules.losses import unlikelihood_candidates_loss
 from full_stack_transformer.pl_modules.model_loading import load_transformer_model_from_path
 from full_stack_transformer.text_generator.text_generator import TextGenerator, TextGeneratorParams
 from full_stack_transformer.utilities.file_io import load_json, dump_json
@@ -43,6 +46,10 @@ class LMModule(pl.LightningModule):
             num_return_sequences=16)
         return params
 
+    @property
+    def current_lr(self):
+        return self.trainer.optimizers[0].param_groups[0]['lr']
+
     def __init__(self, hparams: argparse.Namespace):
         super().__init__()
         self.hparams = hparams
@@ -59,9 +66,17 @@ class LMModule(pl.LightningModule):
             obj=dict(self._default_text_generator_params),
             file_path=self._text_generator_params_file)
 
+        self._dataset_dir = self.hparams.dataset_dir
+        self._batch_size = self.hparams.batch_size
+        self._learning_rate = self.hparams.learning_rate
+        self._num_warmup_steps = self.hparams.num_warmup_steps
+        self._num_cycles = self.hparams.num_cycles
+        self._max_epochs = self.hparams.max_epochs
+        self._unlikelihood_alpha = self.hparams.unlikelihood_alpha
+
     def prepare_data(self) -> None:
         for name in ['train', 'valid']:
-            dataset = load_from_dir(self.hparams.dataset_dir / name)
+            dataset = load_from_dir(self._dataset_dir / name)
             setattr(self, f'_{name}_dataset', dataset)
 
     def train_dataloader(self) -> DataLoader:
@@ -73,37 +88,60 @@ class LMModule(pl.LightningModule):
     def _get_dataloader(self, name: str):
         dataset = getattr(self, f'_{name}_dataset')
         dataloader = dataset.get_dataloader(
-            batch_size=self.hparams.batch_size,
+            batch_size=self._batch_size,
             pad_val=self.tokenizer.get_pad_token_id())
         return dataloader
 
-    def forward(self, documents_batch):
-        output = self.model(documents_batch, labels=documents_batch)
-        return output
+    def forward(self, documents_batch) -> 'ForwardResult':
+        model_output = self.model(
+            input_ids=documents_batch,
+            labels=documents_batch)
+
+        mle_loss = model_output[0]
+        logits = model_output[1]
+
+        ul_loss = unlikelihood_candidates_loss(
+            logits=logits,
+            target=documents_batch)
+
+        loss = mle_loss + self._unlikelihood_alpha * ul_loss
+
+        forward_res = ForwardResult(
+            mle_loss=mle_loss,
+            ul_loss=ul_loss,
+            loss=loss)
+
+        return forward_res
 
     def training_step(self, batch, batch_idx):
-        loss = self.forward(batch)[0]
-        lr = self.trainer.optimizers[0].param_groups[0]['lr']
+        forward_res = self.forward(batch)
 
-        log = {'Loss/train': loss, 'Learning-Rate': lr}
+        log = {
+            'MLE-Loss/train': forward_res.mle_loss,
+            'UL-Loss/train': forward_res.ul_loss,
+            'Loss/train': forward_res.loss,
+            'Learning-Rate': self.current_lr}
 
-        return {'loss': loss, 'log': log}
+        return {'loss': forward_res.loss, 'log': log}
 
     def validation_step(self, batch, batch_idx):
-        output = self.forward(batch)
-        validation_step_result = {'val_loss': output[0]}
+        forward_res = self.forward(batch)
+
+        validation_step_result = {
+            'log': {
+                'MLE-Loss/valid': forward_res.mle_loss,
+                'UL-Loss/valid': forward_res.ul_loss,
+                'Loss/valid': forward_res.loss},
+            'val_loss': forward_res.loss}
+
         return validation_step_result
 
     def validation_epoch_end(self, outputs):
-        outputs_processor = ValidationEpochResultsProcessor(
-            validation_outputs=outputs)
-
         self._generate_and_log_text_samples()
+        validation_epoch_result = merge_dicts(
+            outputs, default_func=lambda x: torch.stack(x).mean())
 
-        loss = outputs_processor.get_validation_loss()
-        logs = {'Loss/valid': loss}
-
-        return {'val_loss': loss, 'log': logs}
+        return validation_epoch_result
 
     def _generate_and_log_text_samples(self):
         generator = TextGenerator(
@@ -148,16 +186,17 @@ class LMModule(pl.LightningModule):
         parameters = self.model.parameters()
         optimizer = transformers.AdamW(
             params=parameters,
-            lr=self.hparams.learning_rate)
+            lr=self._learning_rate)
 
         return optimizer
 
     def _get_lr_scheduler(self, optimizer):
+
         lr_scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(
             optimizer=optimizer,
-            num_warmup_steps=self.hparams.num_warmup_steps,
+            num_warmup_steps=self._num_warmup_steps,
             num_training_steps=self._get_num_training_steps(),
-            num_cycles=self.hparams.num_cycles)
+            num_cycles=self._num_cycles)
         scheduler = {
             'scheduler': lr_scheduler,
             'interval': 'step',
@@ -167,17 +206,13 @@ class LMModule(pl.LightningModule):
         return scheduler
 
     def _get_num_training_steps(self):
-        total_steps = len(self.train_dataloader()) * self.hparams.max_epochs
+        total_steps = len(self.train_dataloader()) * self._max_epochs
         training_steps = total_steps // self.trainer.accumulate_grad_batches
         return training_steps
 
 
-class ValidationEpochResultsProcessor:
-    def __init__(self, validation_outputs):
-        self._outputs = validation_outputs
-
-    def get_validation_loss(self):
-        losses = [out['val_loss'] for out in self._outputs]
-        loss = torch.stack(losses).mean()
-
-        return loss
+@dataclass
+class ForwardResult:
+    mle_loss: torch.Tensor
+    ul_loss: torch.Tensor
+    loss: torch.Tensor

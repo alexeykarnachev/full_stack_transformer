@@ -3,6 +3,23 @@ import torch.nn.functional as F
 
 
 def unlikelihood_candidates_loss(logits, target):
+    """Unlikelihood candidates loss.
+
+    Args:
+        logits (tensor):
+            Torch tensor of shape (bs, seq_len, vocab_size), output language
+            model scores.
+        target (tensor):
+            Torch tensor of shape (bs, seq_len), language model target (model
+            input tokens itself).
+
+    Returns:
+        Not-scaled unlikelihood candidates loss-value.
+
+    Notes:
+        This loss is based on penalizing of the previous context tokens.
+        Original paper - Welleck et al. `https://arxiv.org/pdf/1908.04319.pdf`.
+    """
     logp = F.log_softmax(logits, 2)
     seq_len = logits.size()[1]
     bs = logits.size()[0]
