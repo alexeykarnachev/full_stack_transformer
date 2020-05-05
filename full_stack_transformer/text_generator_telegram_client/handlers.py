@@ -1,5 +1,7 @@
 import json
+import logging
 import os
+import pathlib
 from typing import Optional, Tuple
 
 import aiohttp
@@ -22,11 +24,13 @@ class HandlersRegister:
             self,
             dispatcher: Dispatcher,
             text_generator_url: str,
-            text_generator_auth: Optional):
+            text_generator_auth: Optional,
+            logs_dir: pathlib.Path):
         self._dispatcher = dispatcher
         self._messages_cache = MessagesCache()
         self._text_generator_url = text_generator_url
         self._text_generator_auth = text_generator_auth
+        self._logging_handler = LoggingHandler(logs_dir=logs_dir)
 
     def register_start_message_handler(self):
         """Handles `/start` command and sends welcome message."""
@@ -78,6 +82,10 @@ class HandlersRegister:
 
         keyboard = _get_inline_keyboard(callback_data=callback_data)
 
+        self._logging_handler.log(
+            user_id=_get_user_id_from_message(message=message),
+            log_msg=f'\nSeed: {seed_string}\nGenerated: {reply_text}\n')
+
         await message.answer(
             text=reply_text,
             reply_markup=keyboard,
@@ -119,6 +127,12 @@ def _prepare_reply_text(
     return generated_text
 
 
+def _get_user_id_from_message(message):
+    user_name = "".join(x for x in message.from_user.full_name if x.isalnum())
+    user_id = user_name + '_' + str(message.from_user.id)
+    return user_id
+
+
 def _get_inline_keyboard(callback_data: str) -> InlineKeyboardMarkup:
     buttons = []
     repeat_button = InlineKeyboardButton(
@@ -145,3 +159,30 @@ class MessagesCache:
     def get_message(self, message_hash: str) -> str:
         message = self._cache.get(message_hash)
         return message
+
+
+class LoggingHandler:
+    FORMATTER = '%(asctime)s %(message)s'
+
+    def __init__(self, logs_dir: pathlib.Path):
+        self._logs_dir = logs_dir
+        self._cache = dict()
+
+    def _get_logger(self, user_id: str):
+        if user_id not in self._cache:
+            log_file = self._logs_dir / f'{user_id}.log'
+            formatter = logging.Formatter(self.FORMATTER)
+            handler = logging.FileHandler(str(log_file))
+            handler.setFormatter(formatter)
+
+            logger = logging.getLogger(f'{user_id}')
+            logger.setLevel(logging.INFO)
+            logger.addHandler(handler)
+        else:
+            logger = self._cache[user_id]
+
+        return logger
+
+    def log(self, user_id: str, log_msg: str):
+        logger = self._get_logger(user_id=user_id)
+        logger.info(log_msg)
