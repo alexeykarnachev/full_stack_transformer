@@ -1,26 +1,39 @@
 import json
 import os
-import re
 from typing import Optional, Tuple
 
 import aiohttp
 from aiogram import Dispatcher, types
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 
 from full_stack_transformer.utilities.strings import get_string_md5
 
 
 class HandlersRegister:
+    """Class which registers all text generator telegram client handlers."""
+
+    WELCOME_MESSAGE = "Hello, send me message and I'll continue it."
+    TEXT_GENERATOR_SERVICE_ERROR_MESSAGE = "I'm broken, or tired..."
+    CANT_REPEAT_MESSAGE = "Can't repeat, please send me a new one."
+
+    REPEAT_CALLBACK_DATA_PREFIX = '__repeat__'
+
     def __init__(
             self,
             dispatcher: Dispatcher,
-            messages_cache: 'MessagesCache',
             text_generator_url: str,
             text_generator_auth: Optional):
         self._dispatcher = dispatcher
-        self._messages_cache = messages_cache
+        self._messages_cache = MessagesCache()
         self._text_generator_url = text_generator_url
         self._text_generator_auth = text_generator_auth
+
+    def register_start_message_handler(self):
+        """Handles `/start` command and sends welcome message."""
+
+        @self._dispatcher.message_handler(commands=['start'])
+        async def start(message: types.Message):
+            await message.answer(self.WELCOME_MESSAGE)
 
     def register_send_reply_message_handler(self):
         """Replies on user input message."""
@@ -29,7 +42,7 @@ class HandlersRegister:
         async def send_reply(message: types.Message):
             message_hash = self._messages_cache.add_message(message.text)
 
-            await self._send_reply(
+            await self._get_response_and_send_reply(
                 message=message,
                 seed_string=message.text,
                 callback_data=message_hash)
@@ -38,17 +51,24 @@ class HandlersRegister:
         """Replies with user's previous seed text."""
 
         @self._dispatcher.callback_query_handler(
-            lambda q: q.data.startswith('__repeat__:'))
+            lambda q: q.data.startswith(self.REPEAT_CALLBACK_DATA_PREFIX))
         async def send_reply(callback_query: types.CallbackQuery):
             message_hash = callback_query.data.split(':', 1)[1]
             message_text = self._messages_cache.get_message(message_hash)
 
-            await self._send_reply(
-                message=callback_query.message,
-                seed_string=message_text,
-                callback_data=message_hash)
+            if message_text is None:
+                await callback_query.message.answer(self.CANT_REPEAT_MESSAGE)
+            else:
+                await self._get_response_and_send_reply(
+                    message=callback_query.message,
+                    seed_string=message_text,
+                    callback_data=message_hash)
 
-    async def _send_reply(self, message, seed_string, callback_data):
+    async def _get_response_and_send_reply(
+            self,
+            message,
+            seed_string,
+            callback_data):
         response = await self.get_text_generator_service_response(
             seed_string=seed_string)
 
@@ -58,12 +78,15 @@ class HandlersRegister:
 
         keyboard = _get_inline_keyboard(callback_data=callback_data)
 
-        await message.answer(reply_text, reply_markup=keyboard)
+        await message.answer(
+            text=reply_text,
+            reply_markup=keyboard,
+            parse_mode=ParseMode.MARKDOWN)
 
     def register_all_handlers(self):
-        for field in dir(self):
-            if re.match('^register.+handler$', field):
-                getattr(self, field)()
+        self.register_start_message_handler()
+        self.register_send_reply_message_handler()
+        self.register_send_reply_callback_query_handler()
 
     async def get_text_generator_service_response(
             self,
@@ -89,19 +112,19 @@ def _prepare_reply_text(
     if status == 200:
         response_dict = json.loads(response_text)
         generated_text = response_dict['texts'][0]
-        generated_text = prefix_string + ' ' + generated_text
+        generated_text = f'*{prefix_string}* {generated_text}'
     else:
-        generated_text = "I'm broken, or tired..."
+        generated_text = HandlersRegister.TEXT_GENERATOR_SERVICE_ERROR_MESSAGE
 
     return generated_text
 
 
 def _get_inline_keyboard(callback_data: str) -> InlineKeyboardMarkup:
     buttons = []
-
     repeat_button = InlineKeyboardButton(
         text='Repeat',
-        callback_data=f'__repeat__:{callback_data}')
+        callback_data=f'{HandlersRegister.REPEAT_CALLBACK_DATA_PREFIX}:'
+                      f'{callback_data}')
 
     buttons.append(repeat_button)
 

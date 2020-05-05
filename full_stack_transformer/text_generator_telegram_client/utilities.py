@@ -4,7 +4,6 @@ import aiohttp
 from aiogram import Dispatcher, Bot
 
 from full_stack_transformer.text_generator_telegram_client.handlers import (
-    MessagesCache,
     HandlersRegister)
 
 
@@ -19,8 +18,6 @@ def prepare(
     bot = Bot(token=api_token)
     dispatcher = Dispatcher(bot)
 
-    messages_cache = MessagesCache()
-
     if text_generator_service_login and text_generator_service_password:
         text_generator_auth = aiohttp.BasicAuth(
             login=text_generator_service_login,
@@ -30,7 +27,6 @@ def prepare(
 
     handlers_register = HandlersRegister(
         dispatcher=dispatcher,
-        messages_cache=messages_cache,
         text_generator_url=text_generator_service_url,
         text_generator_auth=text_generator_auth)
 
