@@ -3,7 +3,7 @@ import torch.nn.functional as F
 
 
 def unlikelihood_candidates_loss(logits, target):
-    """Unlikelihood candidates loss.
+    """Loss which helps model not to predict already appeared tokens.
 
     Args:
         logits (tensor):
@@ -18,13 +18,13 @@ def unlikelihood_candidates_loss(logits, target):
 
     Notes:
         This loss is based on penalizing of the previous context tokens.
-        Original paper - Welleck et al. `https://arxiv.org/pdf/1908.04319.pdf`.
+        Original paper - Welleck et al. https://arxiv.org/pdf/1908.04319.pdf.
     """
     logp = F.log_softmax(logits, 2)
-    seq_len = logits.size()[1]
     bs = logits.size()[0]
+    seq_len = logits.size()[1]
 
-    logp_flat = logp.view(logits.size()[0] * logits.size()[1], -1)
+    logp_flat = logp.view(bs * seq_len, -1)
     tril = torch.tril(torch.ones((seq_len, seq_len), device=logits.device), diagonal=-1)
 
     cols = target.repeat(1, seq_len).view(seq_len * bs, -1)
