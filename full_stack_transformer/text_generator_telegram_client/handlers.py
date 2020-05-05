@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from typing import Optional, Tuple, Dict
+from typing import Optional, Tuple
 
 import aiohttp
 from aiogram import Dispatcher, types
@@ -22,22 +22,43 @@ class HandlersRegister:
         self._text_generator_url = text_generator_url
         self._text_generator_auth = text_generator_auth
 
-    def register_send_reply_handler(self):
+    def register_send_reply_message_handler(self):
         """Replies on user input message."""
 
         @self._dispatcher.message_handler()
         async def send_reply(message: types.Message):
-            response = await self.get_text_generator_service_response(
-                seed_string=message.text)
-
-            reply_text = _prepare_reply_text(
-                text_generator_service_response=response,
-                prefix_string=message.text)
-
             message_hash = self._messages_cache.add_message(message.text)
-            keyboard = _get_inline_keyboard(callback_data=message_hash)
 
-            await message.answer(reply_text, reply_markup=keyboard)
+            await self._send_reply(
+                message=message,
+                seed_string=message.text,
+                callback_data=message_hash)
+
+    def register_send_reply_callback_query_handler(self):
+        """Replies with user's previous seed text."""
+
+        @self._dispatcher.callback_query_handler(
+            lambda q: q.data.startswith('__repeat__:'))
+        async def send_reply(callback_query: types.CallbackQuery):
+            message_hash = callback_query.data.split(':', 1)[1]
+            message_text = self._messages_cache.get_message(message_hash)
+
+            await self._send_reply(
+                message=callback_query.message,
+                seed_string=message_text,
+                callback_data=message_hash)
+
+    async def _send_reply(self, message, seed_string, callback_data):
+        response = await self.get_text_generator_service_response(
+            seed_string=seed_string)
+
+        reply_text = _prepare_reply_text(
+            text_generator_service_response=response,
+            prefix_string=seed_string)
+
+        keyboard = _get_inline_keyboard(callback_data=callback_data)
+
+        await message.answer(reply_text, reply_markup=keyboard)
 
     def register_all_handlers(self):
         for field in dir(self):
