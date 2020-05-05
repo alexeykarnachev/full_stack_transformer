@@ -2,7 +2,8 @@ import argparse
 
 from aiogram.utils import executor
 
-from full_stack_transformer.text_generator_telegram_client.utilities import prepare
+from full_stack_transformer.text_generator_telegram_client.utilities import (
+    prepare)
 
 
 def _parse_args():
