@@ -77,7 +77,7 @@ class HandlersRegister:
             message,
             seed_string,
             callback_data):
-        response = await self.get_text_generator_service_response(
+        response = await self._get_text_generator_service_response(
             seed_string=seed_string)
 
         reply_text = _prepare_reply_text(
@@ -95,12 +95,7 @@ class HandlersRegister:
             reply_markup=keyboard,
             parse_mode=ParseMode.MARKDOWN)
 
-    def register_all_handlers(self):
-        self.register_start_message_handler()
-        self.register_send_reply_message_handler()
-        self.register_send_reply_callback_query_handler()
-
-    async def get_text_generator_service_response(
+    async def _get_text_generator_service_response(
             self,
             seed_string: str) -> Tuple[Optional[str], int]:
         url = os.path.join(self._text_generator_service_url, 'generated_texts')
@@ -118,6 +113,11 @@ class HandlersRegister:
                     return reply, status
             except ServerDisconnectedError:
                 return None, HTTPStatus.INTERNAL_SERVER_ERROR
+
+    def register_all_handlers(self):
+        self.register_start_message_handler()
+        self.register_send_reply_message_handler()
+        self.register_send_reply_callback_query_handler()
 
 
 def _prepare_reply_text(
