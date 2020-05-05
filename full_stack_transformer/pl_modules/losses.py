@@ -18,7 +18,7 @@ def unlikelihood_candidates_loss(logits, target):
 
     Notes:
         This loss is based on penalizing of the previous context tokens.
-        Original paper - Welleck et al. `https://arxiv.org/pdf/1908.04319.pdf`.
+        Original paper - Welleck et al. https://arxiv.org/pdf/1908.04319.pdf.
     """
     logp = F.log_softmax(logits, 2)
     seq_len = logits.size()[1]
