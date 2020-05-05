@@ -25,13 +25,14 @@ class HandlersRegister:
     def __init__(
             self,
             dispatcher: Dispatcher,
-            text_generator_url: str,
-            text_generator_auth: Optional,
-            logs_dir: pathlib.Path):
+            text_generator_service_url: str,
+            text_generator_service_auth: Optional,
+            logs_dir: pathlib.Path
+    ):
         self._dispatcher = dispatcher
         self._messages_cache = MessagesCache()
-        self._text_generator_url = text_generator_url
-        self._text_generator_auth = text_generator_auth
+        self._text_generator_service_url = text_generator_service_url
+        self._text_generator_service_auth = text_generator_service_auth
         self._logging_handler = LoggingHandler(logs_dir=logs_dir)
 
     def register_start_message_handler(self):
@@ -57,7 +58,8 @@ class HandlersRegister:
         """Replies with user's previous seed text."""
 
         @self._dispatcher.callback_query_handler(
-            lambda q: q.data.startswith(self.REPEAT_CALLBACK_DATA_PREFIX))
+            lambda q: q.data.startswith(self.REPEAT_CALLBACK_DATA_PREFIX)
+        )
         async def send_reply(callback_query: types.CallbackQuery):
             message_hash = callback_query.data.split(':', 1)[1]
             message_text = self._messages_cache.get_message(message_hash)
@@ -101,11 +103,11 @@ class HandlersRegister:
     async def get_text_generator_service_response(
             self,
             seed_string: str) -> Tuple[Optional[str], int]:
-        url = os.path.join(self._text_generator_url, 'generated_texts')
+        url = os.path.join(self._text_generator_service_url, 'generated_texts')
         payload = {'seed_text': seed_string}
         headers = {'Content-Type': 'application/json'}
         async with aiohttp.ClientSession(
-                auth=self._text_generator_auth) as session:
+                auth=self._text_generator_service_auth) as session:
             try:
                 async with session.post(
                         url=url,

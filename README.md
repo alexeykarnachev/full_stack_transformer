@@ -14,6 +14,14 @@ and tokenizer (which I wrapped in the fast sentence piece tokenizer from
 [tokenizers](https://github.com/huggingface/tokenizers) library)
 from the [ru_transformers](https://github.com/mgrankin/ru_transformers) repository.
 
+## Features
+- Automatic LM dataset preparation 
+- End-to-end transformer LM training
+- [Unlikelihood loss](https://arxiv.org/pdf/1908.04319.pdf) training
+- Text generation tricks (top-k, [nucleus](http://arxiv.org/abs/1904.09751), repetition penalty, etc)
+- Text generation as a service
+- Telegram bot client
+
 ## End-to-end Example
 As they say, it’s better to see once...<br>
 So, let's go through the whole pipeline from dataset building to the application
@@ -88,7 +96,8 @@ python full_stack_transformer/scripts/train_model.py \
 --max_epochs 10 \
 --val_check_interval 330 \
 --gpus "0," \
---log_text_samples
+--log_text_samples \
+--unlikelihood_alpha 100
 ```
 
 If you don't have `gpt2` model downloaded, it'll be obtained from the huggingface server (548M).
@@ -117,7 +126,7 @@ tensorboard --logdir=./data/tb_logs/ --port=6006
 ```
 TensorBoard interface is available here: [http://localhost:6006/](http://localhost:6006/)
 <br>
-![Logo](docs/source/_images/tb_example.png)
+![tb_example](docs/source/_images/tb_example.png)
 
 
 Also, text samples are generated during the training on each validation step.
@@ -162,12 +171,24 @@ When the model is trained, it could be served for inference:
 
 Swagger is available here: [http://localhost:9228/docs](http://localhost:9228/docs)
 <br>
-![Logo](docs/source/_images/swagger_example.png)
+![swagger_example](docs/source/_images/swagger_example.png)
 
 
 ### Serve telegram bot
+If you want to play with the text generation via telegram bot, you need the service run
+(previous step). Also, you need to obtain telegram api token. It could be easily done
+via [@BotFather](https://t.me/botfather).
 
-Soon...
+After you run the application server and got the api token, run:
+```
+python full_stack_transformer/scripts/run_text_generator_telegram_client.py \
+--telegram_api_token="API-TOKEN-OBTAINED-FROM-BOTFATHER" \
+--text_generator_service_url=http://localhost:9228/
+```
+
+That's it. We are ready to chat:
+![telegram_example](docs/source/_images/telegram_example.png)
+
 
 ## Inference
 After you train the model, you may want to perform inference in code. You can
