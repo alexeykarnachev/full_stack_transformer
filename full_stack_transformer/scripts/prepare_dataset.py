@@ -3,6 +3,7 @@ import pathlib
 from collections import defaultdict
 
 from full_stack_transformer.datasets.documents_dataset import DocumentsDatasetReader
+from full_stack_transformer.scripts.utilities import str2path
 from full_stack_transformer.tokenization import get_tokenizer
 from full_stack_transformer.utilities.file_io import prepare_dataset_dir
 
@@ -16,11 +17,11 @@ def _parse_args():
         description='Script which prepares train and validation dataset files.')
 
     parser.add_argument(
-        '--documents_train_file', type=_str2path, required=True,
+        '--documents_train_file', type=str2path, required=True,
         help='Input raw documents train file. Each document must end with '
              'a line which contains only `end_of_document` separator.')
     parser.add_argument(
-        '--documents_valid_file', type=_str2path, required=True,
+        '--documents_valid_file', type=str2path, required=True,
         help='Input raw documents validation file. Each document must end with '
              'a line which contains only `end_of_document` separator.')
     parser.add_argument(
@@ -41,7 +42,7 @@ def _parse_args():
         help="The minimum length of a dataset sample. If some sample is smaller"
              "than this number, it'll be dropped. Default is: 10.")
     parser.add_argument(
-        '--datasets_root', type=_str2path, required=False, default=ds_root,
+        '--datasets_root', type=str2path, required=False, default=ds_root,
         help=f'Root dir with datasets sub-dirs. Default is: {ds_root}')
     parser.add_argument(
         '--dataset_name', type=str, required=False, default='default',
@@ -49,10 +50,6 @@ def _parse_args():
 
     args = parser.parse_args()
     return args
-
-
-def _str2path(path: str) -> pathlib.Path:
-    return pathlib.Path(path)
 
 
 def main():

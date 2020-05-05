@@ -84,7 +84,7 @@ class HandlersRegister:
 
         self._logging_handler.log(
             user_id=_get_user_id_from_message(message=message),
-            log_msg=f'\nSeed: {seed_string}\nGenerated: {reply_text}\n')
+            log_msg=f'\n{reply_text}\n')
 
         await message.answer(
             text=reply_text,
@@ -128,8 +128,10 @@ def _prepare_reply_text(
 
 
 def _get_user_id_from_message(message):
-    user_name = "".join(x for x in message.from_user.full_name if x.isalnum())
-    user_id = user_name + '_' + str(message.from_user.id)
+    username = str(message.chat['username'])
+    chat_id = str(message.chat['id'])
+    user_name = "".join(x for x in username if x.isalnum())
+    user_id = user_name + '_' + chat_id
     return user_id
 
 
@@ -167,6 +169,8 @@ class LoggingHandler:
     def __init__(self, logs_dir: pathlib.Path):
         self._logs_dir = logs_dir
         self._cache = dict()
+
+        self._logs_dir.mkdir(parents=True, exist_ok=True)
 
     def _get_logger(self, user_id: str):
         if user_id not in self._cache:

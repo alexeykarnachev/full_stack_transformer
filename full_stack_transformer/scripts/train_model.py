@@ -26,6 +26,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 
 from full_stack_transformer.pl_modules.lm_module import LMModule
+from full_stack_transformer.scripts.utilities import str2path
 from full_stack_transformer.utilities.file_io import prepare_dataset_dir, load_json
 from full_stack_transformer.utilities.log_config import prepare_logging
 from full_stack_transformer.utilities.training import seed_everything
@@ -59,12 +60,12 @@ def _parse_args():
     parser = pl.Trainer.add_argparse_args(parser)
 
     parser.add_argument(
-        '--dataset_dir', type=_str2path, required=True,
+        '--dataset_dir', type=str2path, required=True,
         help='Path to the dataset directory. It must contain train, valid sub '
              'folders and description.json file. Such a dir is prepared by '
              '`prepare_dataset.py` script.')
     parser.add_argument(
-        '--model_path', type=_str2path, required=True,
+        '--model_path', type=str2path, required=True,
         help='Path to the pre-trained GPT model.')
     parser.add_argument(
         '--batch_size', type=int, required=True, help='Batch size.')
@@ -83,10 +84,10 @@ def _parse_args():
     parser.add_argument(
         '--seed', type=int, required=False, default=228, help='Random seed.')
     parser.add_argument(
-        '--tensorboard_logdir', type=_str2path, required=False,
+        '--tensorboard_logdir', type=str2path, required=False,
         default=tb_logdir, help='Tensorboard logs directory.')
     parser.add_argument(
-        '--experiments_root', type=_str2path, required=False,
+        '--experiments_root', type=str2path, required=False,
         default=experiments_root,
         help='Path to the high level experiments root directory, where all '
              'your specific experiments subdirectories are.')
@@ -103,10 +104,6 @@ def _parse_args():
         args.experiment_name = args.dataset_dir.parents[0].name
 
     return args
-
-
-def _str2path(path: str) -> pathlib.Path:
-    return pathlib.Path(path)
 
 
 def _prepare_experiment_dir(args):
