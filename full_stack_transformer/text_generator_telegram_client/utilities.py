@@ -21,16 +21,16 @@ def prepare(
     dispatcher = Dispatcher(bot)
 
     if text_generator_service_login and text_generator_service_password:
-        text_generator_auth = aiohttp.BasicAuth(
+        text_generator_service_auth = aiohttp.BasicAuth(
             login=text_generator_service_login,
             password=text_generator_service_password)
     else:
-        text_generator_auth = None
+        text_generator_service_auth = None
 
     handlers_register = HandlersRegister(
         dispatcher=dispatcher,
-        text_generator_url=text_generator_service_url,
-        text_generator_auth=text_generator_auth,
+        text_generator_service_url=text_generator_service_url,
+        text_generator_service_auth=text_generator_service_auth,
         logs_dir=logs_dir)
 
     handlers_register.register_all_handlers()
