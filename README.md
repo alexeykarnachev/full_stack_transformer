@@ -186,10 +186,10 @@ use `TextGenerator` object for this:
 ```python
 import torch
 
-from full_stack_transformer.pl_modules.model_loading import (
-    load_text_generator_from_pl_checkpoint)
-from full_stack_transformer.text_generator.text_generator import (
-    TextGeneratorParams)
+from full_stack_transformer.pl_modules.model_loading import \
+    load_text_generator_from_pl_checkpoint
+from full_stack_transformer.text_generator.text_generator import \
+    TextGeneratorParams
 
 if __name__ == '__main__':
     ckpt = torch.load('./data/experiments/nietzsche/0/_ckpt_epoch_2.ckpt')

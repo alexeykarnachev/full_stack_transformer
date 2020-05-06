@@ -5,8 +5,8 @@ import torch
 from fastapi import FastAPI
 
 import full_stack_transformer
-from full_stack_transformer.pl_modules.model_loading import (
-    load_text_generator_from_pl_checkpoint)
+from full_stack_transformer.pl_modules.model_loading import \
+    load_text_generator_from_pl_checkpoint
 from full_stack_transformer.text_generator_service.views import ViewsRegister
 from full_stack_transformer.utilities.log_config import prepare_logging
 

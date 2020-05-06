@@ -6,8 +6,8 @@ import torch.nn.functional as F
 import transformers
 from pydantic import BaseModel
 
-from full_stack_transformer.text_generator.generation_progress import (
-    GenerationProgress)
+from full_stack_transformer.text_generator.generation_progress import \
+    GenerationProgress
 from full_stack_transformer.text_generator.logits_modifiers import (
     IgnoredTokensModifier,
     RepetitiveTokensModifier,

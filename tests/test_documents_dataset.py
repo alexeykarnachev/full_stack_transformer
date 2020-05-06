@@ -4,9 +4,8 @@ import pathlib
 import numpy as np
 
 import full_stack_transformer.tokenization.ru_transformers_tokenizer as ru_transformer
-from full_stack_transformer.datasets.documents_dataset import (
+from full_stack_transformer.datasets.documents_dataset import \
     DocumentsDatasetReader, load_from_dir, DocumentsDataset
-)
 
 _DATA_DIR = pathlib.Path(__file__).parent / 'data'
 _DOCUMENTS_FILE = _DATA_DIR / 'documents.txt'

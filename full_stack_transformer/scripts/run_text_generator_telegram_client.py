@@ -4,8 +4,8 @@ import pathlib
 from aiogram.utils import executor
 
 from full_stack_transformer.scripts.utilities import str2path
-from full_stack_transformer.text_generator_telegram_client.utilities import (
-    prepare)
+from full_stack_transformer.text_generator_telegram_client.utilities import \
+    prepare
 
 THIS_DIR = pathlib.Path(__file__).parent
 

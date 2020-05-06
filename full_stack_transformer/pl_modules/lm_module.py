@@ -12,9 +12,12 @@ from transformers import get_cosine_with_hard_restarts_schedule_with_warmup
 
 import full_stack_transformer.tokenization
 from full_stack_transformer.datasets.documents_dataset import load_from_dir
-from full_stack_transformer.pl_modules.losses import unlikelihood_candidates_loss
-from full_stack_transformer.pl_modules.model_loading import load_transformer_model_from_path
-from full_stack_transformer.text_generator.text_generator import TextGenerator, TextGeneratorParams
+from full_stack_transformer.losses.unlikelihood_candidates_loss import \
+    unlikelihood_candidates_loss
+from full_stack_transformer.pl_modules.model_loading import \
+    load_transformer_model_from_path
+from full_stack_transformer.text_generator.text_generator import \
+    TextGenerator, TextGeneratorParams
 from full_stack_transformer.utilities.file_io import load_json, dump_json
 
 

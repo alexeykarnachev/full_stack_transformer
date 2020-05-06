@@ -4,8 +4,8 @@ from typing import Optional
 import aiohttp
 from aiogram import Dispatcher, Bot
 
-from full_stack_transformer.text_generator_telegram_client.handlers import (
-    HandlersRegister)
+from full_stack_transformer.text_generator_telegram_client.handlers import \
+    HandlersRegister
 
 
 def prepare(

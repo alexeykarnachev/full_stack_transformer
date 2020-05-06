@@ -4,9 +4,8 @@ from typing import Mapping
 from fastapi import FastAPI
 
 from full_stack_transformer.text_generator.text_generator import TextGenerator
-from full_stack_transformer.text_generator_service.schemas import (
-    GeneratedTexts,
-    TextGeneratorAppParams)
+from full_stack_transformer.text_generator_service.schemas import \
+    GeneratedTexts, TextGeneratorAppParams
 
 
 class ViewsRegister:
