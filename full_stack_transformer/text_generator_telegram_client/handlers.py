@@ -191,6 +191,7 @@ class LoggingHandler:
             logger = logging.getLogger(f'{user_id}')
             logger.setLevel(logging.INFO)
             logger.addHandler(handler)
+            self._cache[user_id] = logger
         else:
             logger = self._cache[user_id]
 
