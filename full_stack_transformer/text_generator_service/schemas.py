@@ -10,8 +10,8 @@ class GeneratedTexts(BaseModel):
 
 
 class TextGeneratorAppParams(TextGeneratorParams):
-    generation_max_len: int = Field(default=256, ge=1, le=512)
-    temperature: float = Field(default=1.0, gt=0, le=100)
+    generation_max_len: int = Field(default=128, ge=1, le=512)
+    temperature: float = Field(default=0.8, gt=0, le=100)
     top_k: int = Field(default=0, ge=0)
     top_p: float = Field(default=0.99, gt=0.0, le=1.0)
     repetition_penalty: float = Field(default=1.0, ge=1.0, le=100)
