@@ -25,7 +25,8 @@ def pad_sequences(
         2d array of shape (N, M), where N is a number of input sequences and
         M is a max length.
     """
-    maxlen = max([len(x) for x in sequences]) if not maxlen else maxlen
+    max_seq_len = max([len(x) for x in sequences])
+    maxlen = min(maxlen, max_seq_len) if maxlen else max_seq_len
 
     new_seqs = []
 
