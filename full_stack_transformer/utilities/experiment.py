@@ -29,6 +29,10 @@ class Workspace(ArgparserExtender):
     def models_dir(self):
         return self._models_dir
 
+    @property
+    def experiment_dir(self):
+        return self._main_dir
+
     def __init__(
             self,
             experiments_root: str,
@@ -80,5 +84,4 @@ class Workspace(ArgparserExtender):
             json.dump(content, file, ensure_ascii=False, indent=2)
 
     def save_description(self, content: Mapping):
-        print(content)
         self.save_json(name='description.json', content=content)

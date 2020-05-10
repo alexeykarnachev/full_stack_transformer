@@ -6,8 +6,9 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 
+from full_stack_transformer.language_generation.callback import LanguageGeneratorCallback
 from full_stack_transformer.utilities.experiment import Workspace
-from full_stack_transformer.language_modelling.modelling.lightning import PLModule
+from full_stack_transformer.language_modelling.modelling.lightning import LanguagePLModule
 
 
 def main():
@@ -18,7 +19,7 @@ def main():
         experiment_name=args['experiment_name']
     )
 
-    pl_module = PLModule(**args)
+    pl_module = LanguagePLModule(**args)
 
     workspace.save_description(
         content={
@@ -36,7 +37,7 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser = Trainer.add_argparse_args(parser)
     parser = Workspace.add_argparse_args(parser)
-    parser = PLModule.add_argparse_args(parser)
+    parser = LanguagePLModule.add_argparse_args(parser)
 
     args = parser.parse_args()
     return args
@@ -47,6 +48,10 @@ def _prepare_trainer(args: Dict, workspace: Workspace) -> Trainer:
 
     _fix_trainer_args(args=trainer_args)
     _update_trainer_args(args=trainer_args, workspace=workspace)
+
+    trainer_args['callbacks'] = [
+        LanguageGeneratorCallback(experiment_workspace=workspace)
+    ]
 
     trainer = Trainer(**trainer_args)
 

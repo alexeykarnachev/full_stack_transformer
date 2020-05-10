@@ -12,7 +12,9 @@ def load_transformer_model_from_path(
     modified_config = _modify_transformers_config(config)
 
     model = transformers.AutoModelForPreTraining.from_pretrained(
-        pretrained_model_name_or_path=model_path, config=modified_config)
+        pretrained_model_name_or_path=model_path,
+        config=modified_config
+    )
 
     _resize_embeddings_if_needed(model, vocab_size)
 

@@ -45,7 +45,11 @@ class DocumentTokenizer(PreTrainedTokenizerFast):
         self._ignore_meta_prob = ignore_meta_prob
         self.add_special_tokens({'additional_special_tokens': _SPECIAL_TOKENS})
 
-    def encode_document(self, document: Document) -> Sequence[DocumentEncoding]:
+    def encode_document(
+            self,
+            document: Document,
+            with_eos: bool = True
+    ) -> Sequence[DocumentEncoding]:
 
         body = document.body
         if np.random.rand() > self._ignore_meta_prob:
@@ -53,8 +57,13 @@ class DocumentTokenizer(PreTrainedTokenizerFast):
         else:
             meta = None
 
-        body_ids, body_lm_labels = self._get_body_ids_and_labels(body=body)
-        meta_ids, meta_lm_labels = self._get_meta_ids_and_labels(meta=meta)
+        body_ids, body_lm_labels = self._get_body_ids_and_labels(
+            body=body,
+            with_eos=with_eos
+        )
+        meta_ids, meta_lm_labels = self._get_meta_ids_and_labels(
+            meta=meta
+        )
 
         encodings = self._get_encodings_from_ids_and_labels(
             body_ids=body_ids,
@@ -65,9 +74,13 @@ class DocumentTokenizer(PreTrainedTokenizerFast):
 
         return encodings
 
-    def _get_body_ids_and_labels(self, body: str):
+    def _get_body_ids_and_labels(self, body: str, with_eos: bool):
         body = self.prepare_for_tokenization(text=body)
-        body = f'{_START_OF_DOCUMENT}{body}{_END_OF_DOCUMENT}'
+        body = f'{_START_OF_DOCUMENT}{body}'
+
+        if with_eos:
+            body += _END_OF_DOCUMENT
+
         body_ids = self.encode(text=body)
         body_lm_labels = list(body_ids)
         body_lm_labels[0] = LOSS_IGNORE

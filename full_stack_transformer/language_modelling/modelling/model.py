@@ -1,5 +1,6 @@
 from typing import Optional
 
+import torch
 import torch.nn as nn
 import transformers
 
@@ -57,6 +58,7 @@ class LanguageModel(nn.Module):
 
         return output
 
+    @torch.no_grad()
     def infer(self, inp: LanguageModelInput) -> LanguageModelOutput:
         """Performs forward pass without loss calculation."""
 

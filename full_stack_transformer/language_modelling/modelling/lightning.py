@@ -1,7 +1,7 @@
 import inspect
 import pathlib
 from argparse import Namespace
-from typing import Mapping, Tuple, Dict, Sequence, Optional
+from typing import Mapping, Tuple, Dict, Sequence
 
 import torch
 import transformers
@@ -10,7 +10,6 @@ from pytorch_lightning.loggers.base import merge_dicts
 from torch.utils.data.dataloader import DataLoader
 from transformers import get_cosine_with_hard_restarts_schedule_with_warmup
 
-from full_stack_transformer.utilities.cli import ArgparserExtender
 from full_stack_transformer.language_modelling.data_structures import (
     LanguageModelInput,
     LanguageModelOutput
@@ -21,11 +20,14 @@ from full_stack_transformer.language_modelling.modelling.loading import \
     load_transformer_model_from_path
 from full_stack_transformer.language_modelling.modelling.model import \
     LanguageModel
-from full_stack_transformer.language_modelling.tokenization.tokenizer import \
-    get_tokenizer
+from full_stack_transformer.language_modelling.tokenization.tokenizer import (
+    get_tokenizer,
+    DocumentTokenizer
+)
+from full_stack_transformer.utilities.cli import ArgparserExtender
 
 
-class PLModule(LightningModule, ArgparserExtender):
+class LanguagePLModule(LightningModule, ArgparserExtender):
     @property
     def _current_lr(self):
         return self.trainer.optimizers[0].param_groups[0]['lr']
@@ -33,6 +35,14 @@ class PLModule(LightningModule, ArgparserExtender):
     @property
     def transformer_config(self):
         return self._gpt.config.__dict__
+
+    @property
+    def model(self) -> LanguageModel:
+        return self._model
+
+    @property
+    def tokenizer(self) -> DocumentTokenizer:
+        return self._tokenizer
 
     def __init__(
             self,
@@ -248,7 +258,7 @@ class PLModule(LightningModule, ArgparserExtender):
 
 
 def _get_hparams(locals_):
-    signature = inspect.signature(PLModule.__init__)
+    signature = inspect.signature(LanguagePLModule.__init__)
 
     params = {}
 

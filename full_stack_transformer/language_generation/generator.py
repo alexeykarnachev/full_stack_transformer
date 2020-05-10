@@ -31,11 +31,6 @@ class LanguageGeneratorParams:
     top_p: float
 
 
-@dataclass
-class ReplyCandidate:
-    token_ids: Sequence[int]
-
-
 class LanguageGenerator:
     def __init__(self, model: LanguageModel, eos_token_id: int):
         self._model = model
@@ -49,9 +44,15 @@ class LanguageGenerator:
             self,
             encoding: DocumentEncoding,
             params: LanguageGeneratorParams
-    ) -> Sequence[ReplyCandidate]:
+    ) -> Sequence[DocumentEncoding]:
+
+        self._model.eval()
+
         encodings = [encoding] * params.num_return_sequences
-        model_inp = self._collator(encodings=encodings)
+        model_inp = self._collator(
+            encodings=encodings,
+            device=self._model.device
+        )
 
         progress = GenerationProgressTracker(
             eos_token_id=self._eos_token_ids,
@@ -92,7 +93,11 @@ class LanguageGenerator:
             generated_token_ids[:, progress.current_length - 1] = next_token_ids
 
             input_ids = next_token_ids.unsqueeze(1)
-            token_type_ids = model_inp.token_type_ids[:, -1:]
+
+            if model_inp.token_type_ids is not None:
+                token_type_ids = model_inp.token_type_ids[:, -1:]
+            else:
+                token_type_ids = None
 
             model_inp = LanguageModelInput(
                 input_ids=input_ids,
@@ -153,7 +158,7 @@ def _get_candidates(generated_tokens, generated_sample_lengths):
     for i in range(generated_tokens.size()[0]):
         token_ids = generated_tokens[i, :generated_sample_lengths[i]]
         token_ids = token_ids.detach().cpu().numpy().tolist()
-        candidate = ReplyCandidate(token_ids=token_ids)
+        candidate = DocumentEncoding(token_ids=token_ids, lm_labels=token_ids)
         candidates.append(candidate)
 
     return candidates
