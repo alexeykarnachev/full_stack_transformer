@@ -1,5 +1,5 @@
 import torch
-import torch.nn.functional as F
+import torch.nn.functional
 
 
 def unlikelihood_candidates_loss(logits, target):
@@ -27,7 +27,7 @@ def unlikelihood_candidates_loss(logits, target):
 
 
 def _get_candidates_logp(logits, target):
-    logp = F.log_softmax(logits, 2)
+    logp = torch.nn.functional.log_softmax(logits, 2)
     bs = logits.size()[0]
     seq_len = logits.size()[1]
 

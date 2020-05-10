@@ -5,6 +5,7 @@ transformers==2.8.0
 pytorch-lightning==0.7.5
 more-itertools==8.2.0
 cached-property==1.5.1
+docstring-parser==0.7.1
 tqdm==4.45.0
 pytest==5.4.1
 pydantic==1.5.1

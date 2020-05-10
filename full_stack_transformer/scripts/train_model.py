@@ -13,7 +13,7 @@ consider them. For example, these ones:
 --precision
 --amp_level
 
-Use `python train_model.py --help` to see them all.
+Use `python training.py --help` to see them all.
 """
 
 import argparse
