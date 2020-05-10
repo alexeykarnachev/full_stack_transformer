@@ -1,16 +1,16 @@
 import logging
 import logging.config
+import pathlib
 import sys
-from pathlib import Path
 from typing import Dict
 
-logger = logging.getLogger(__name__)
-FORMATTER = '[%(asctime)s %(module)s %(funcName)s %(levelname)s] %(message)s'
+_LOGGER = logging.getLogger(__name__)
+_FORMATTER = '[%(asctime)s %(module)s %(funcName)s %(levelname)s] %(message)s'
 
 
-def prepare_logging(logs_dir):
+def prepare_logging(logs_dir: pathlib.Path):
     """Configures logging."""
-    log_config = get_log_config(logs_dir)
+    log_config = _get_log_config(logs_dir)
     logging.config.dictConfig(log_config)
 
 
@@ -20,10 +20,18 @@ def handle_unhandled_exception(exc_type, exc_value, exc_traceback):
         # call the default excepthook saved at __excepthook__
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
         return
-    logger.critical("Unhandled exception", exc_info=(exc_type, exc_value, exc_traceback))
+    _LOGGER.critical(
+        "Unhandled exception",
+        exc_info=(exc_type, exc_value, exc_traceback)
+    )
 
 
-def get_rotating_file_handler(log_file: str, level: str, max_bytes: int = 10485760, backup_count: int = 5) -> Dict:
+def _get_rotating_file_handler(
+        log_file: str,
+        level: str,
+        max_bytes: int = 10485760,
+        backup_count: int = 5
+) -> Dict:
     handler_dict = {
         'class': 'logging.handlers.RotatingFileHandler',
         'level': level,
@@ -37,7 +45,7 @@ def get_rotating_file_handler(log_file: str, level: str, max_bytes: int = 104857
     return handler_dict
 
 
-def get_console_output_handler(level):
+def _get_console_output_handler(level) -> Dict:
     handler_dict = {
         'class': 'logging.StreamHandler',
         'level': level,
@@ -47,19 +55,19 @@ def get_console_output_handler(level):
     return handler_dict
 
 
-def get_log_config(log_dir: Path) -> dict:
+def _get_log_config(log_dir: pathlib.Path) -> dict:
+    log_dir = pathlib.Path(log_dir)
+
     log_dir.mkdir(exist_ok=True, parents=True)
     info_file = str(log_dir / 'info.log')
     errors_file = str(log_dir / 'errors.log')
-    critical_file = str(log_dir / 'critical.log')
     debug_file = str(log_dir / 'debug.log')
 
     handlers = {
-        'info_file': get_rotating_file_handler(info_file, 'INFO'),
-        'debug_file': get_rotating_file_handler(debug_file, 'DEBUG'),
-        'errors_file': get_rotating_file_handler(errors_file, 'ERROR'),
-        'critical_file': get_rotating_file_handler(critical_file, 'CRITICAL'),
-        'console': get_console_output_handler('INFO')
+        'info_file': _get_rotating_file_handler(info_file, 'INFO'),
+        'debug_file': _get_rotating_file_handler(debug_file, 'DEBUG'),
+        'errors_file': _get_rotating_file_handler(errors_file, 'ERROR'),
+        'console': _get_console_output_handler('INFO')
     }
 
     log_config = {
@@ -67,7 +75,7 @@ def get_log_config(log_dir: Path) -> dict:
         'version': 1,
         'formatters': {
             'default': {
-                'format': FORMATTER
+                'format': _FORMATTER
             }
         },
         'handlers': handlers,

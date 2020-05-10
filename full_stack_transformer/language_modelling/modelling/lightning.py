@@ -10,7 +10,7 @@ from pytorch_lightning.loggers.base import merge_dicts
 from torch.utils.data.dataloader import DataLoader
 from transformers import get_cosine_with_hard_restarts_schedule_with_warmup
 
-from full_stack_transformer.core.cli import ArgparserExtender
+from full_stack_transformer.utilities.cli import ArgparserExtender
 from full_stack_transformer.language_modelling.data_structures import (
     LanguageModelInput,
     LanguageModelOutput

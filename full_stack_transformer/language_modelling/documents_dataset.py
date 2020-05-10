@@ -4,10 +4,10 @@ from typing import Optional
 
 from torch.utils.data.dataloader import DataLoader
 
-from full_stack_transformer.core.files import count_lines_in_file
-from full_stack_transformer.core.queue_iterable_dataset import \
+from full_stack_transformer.utilities.files import count_lines_in_file
+from full_stack_transformer.utilities.queue_iterable_dataset import \
     QueueIterableDataset
-from full_stack_transformer.core.text_lines_producer import \
+from full_stack_transformer.utilities.text_lines_producer import \
     TextLinesProducer
 from full_stack_transformer.language_modelling.encodings_collate import \
     DocumentEncodingsCollate

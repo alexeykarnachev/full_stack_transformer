@@ -6,7 +6,7 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 
-from full_stack_transformer.core.experiment import Workspace
+from full_stack_transformer.utilities.experiment import Workspace
 from full_stack_transformer.language_modelling.modelling.lightning import PLModule
 
 

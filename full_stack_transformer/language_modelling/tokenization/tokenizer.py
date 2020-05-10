@@ -6,7 +6,7 @@ import more_itertools
 from tokenizers.implementations import BaseTokenizer
 from transformers.tokenization_utils import PreTrainedTokenizerFast
 
-from full_stack_transformer.core.factory import get_object
+from full_stack_transformer.utilities.factory import get_object
 from full_stack_transformer.language_modelling.data_structures import (
     Document,
     DocumentEncoding

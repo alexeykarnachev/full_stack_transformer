@@ -2,8 +2,8 @@ import json
 import pathlib
 from typing import Mapping
 
-from full_stack_transformer.core.cli import ArgparserExtender
-from full_stack_transformer.core.log_config import prepare_logging
+from full_stack_transformer.utilities.cli import ArgparserExtender
+from full_stack_transformer.utilities.log_config import prepare_logging
 
 
 class Workspace(ArgparserExtender):

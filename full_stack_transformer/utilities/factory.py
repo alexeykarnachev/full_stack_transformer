@@ -23,7 +23,8 @@ def get_object(class_path: str, *args, **kwargs):
     Returns:
         Object of a given class.
     """
-    cls = pydoc.locate(class_path)
+    cls = get_class(class_path)
+
     obj = cls(*args, **kwargs)
     return obj
 
@@ -40,5 +41,5 @@ def get_class(class_path):
     """
     cls = pydoc.locate(class_path)
     if cls is None:
-        raise FactoryError('Could not find class: {}'.format(class_path))
+        raise FactoryError("Can't locate class: {}".format(class_path))
     return cls

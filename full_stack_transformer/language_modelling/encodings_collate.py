@@ -2,7 +2,7 @@ from typing import Sequence
 
 import torch
 
-from full_stack_transformer.core.sequences import pad_sequences_from_right
+from full_stack_transformer.utilities.sequences import pad_sequences_from_right
 from full_stack_transformer.language_modelling.data_structures import (
     DocumentEncoding,
     LanguageModelInput
