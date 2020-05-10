@@ -147,6 +147,7 @@ def _sample_next_token_ids(next_token_logits: torch.tensor) -> torch.tensor:
         input=next_token_logits,
         dim=-1
     )
+
     next_tokens = torch.multinomial(
         probabilities, num_samples=1
     )

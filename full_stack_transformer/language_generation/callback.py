@@ -24,7 +24,7 @@ class LanguageGeneratorCallback(Callback):
             max_number_of_generated_tokens=128,
             num_return_sequences=8,
             repetition_penalty=1.0,
-            temperature=0.9,
+            temperature=0.7,
             top_k=0,
             top_p=1.0
         )

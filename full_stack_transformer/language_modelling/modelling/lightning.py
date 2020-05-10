@@ -248,6 +248,7 @@ class LanguagePLModule(LightningModule, ArgparserExtender):
         postfix = 'train' if self.training else 'valid'
         log = {
             f'LM-Loss/{postfix}': model_output.lm_loss,
+            f'UL-Loss/{postfix}': model_output.ul_loss,
             f'Loss/{postfix}': model_output.loss
         }
 

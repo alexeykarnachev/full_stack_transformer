@@ -33,4 +33,7 @@ def _resize_embeddings_if_needed(
         model: transformers.PreTrainedModel,
         vocab_size: int) -> None:
     if vocab_size is not None:
+        old_size = model.base_model.wte.weight.data.size()[0]
         model.resize_token_embeddings(vocab_size)
+        mean_emb = model.base_model.wte.weight.data.mean(0)
+        model.base_model.wte.weight.data[-(vocab_size-old_size):] = mean_emb.unsqueeze(0)

@@ -23,6 +23,8 @@ class DocumentEncodingsProducer(Process):
             encodings = []
             for line in lines_chunk:
                 enc = self._tokenizer.encode_line(line)
+                enc = [e for e in enc if len(e.token_ids) > 2]
+
                 encodings.extend(enc)
 
             self._out_queue.put(encodings)
