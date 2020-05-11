@@ -33,5 +33,5 @@ setup(
     packages=find_packages(exclude=['tests', 'tests.*']),
     install_requires=_load_requirements(THIS_DIR),
     package_dir={'full_stack_transformer': 'full_stack_transformer'},
-    package_data={'full_stack_transformer': ['tokenization/data/*']}
+    package_data={'full_stack_transformer': ['language_modelling/tokenization/data/*']}
 )
