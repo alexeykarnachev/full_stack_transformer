@@ -6,8 +6,8 @@ from tokenizers import SentencePieceBPETokenizer
 from full_stack_transformer.language_modelling.tokenization.tokenizer import DocumentTokenizer
 
 _THIS_DIR = pathlib.Path(__file__).parent
-_VOCAB = _THIS_DIR / 'data' / 'ru_transformers_tokenizer' / 'vocab.json'
-_MERGES = _THIS_DIR / 'data' / 'ru_transformers_tokenizer' / 'merges.txt'
+_VOCAB = _THIS_DIR / 'data' / 'ru_transformers_sp' / 'vocab.json'
+_MERGES = _THIS_DIR / 'data' / 'ru_transformers_sp' / 'merges.txt'
 
 _NEW_LINE_REP = '<|n|>'
 
