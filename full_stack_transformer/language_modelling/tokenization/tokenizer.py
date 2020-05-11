@@ -51,7 +51,7 @@ class DocumentTokenizer(PreTrainedTokenizerFast):
             self,
             document: Document,
             with_eos: bool = True
-    ) -> Sequence[DocumentEncoding]:
+    ) -> DocumentEncoding:
 
         body = document.body
         if np.random.rand() > self._ignore_meta_prob:
@@ -67,14 +67,14 @@ class DocumentTokenizer(PreTrainedTokenizerFast):
             meta=meta
         )
 
-        encodings = self._get_encodings_from_ids_and_labels(
+        encoding = self._get_encoding_from_ids_and_labels(
             body_ids=body_ids,
             body_lm_labels=body_lm_labels,
             meta_ids=meta_ids,
             meta_lm_labels=meta_lm_labels
         )
 
-        return encodings
+        return encoding
 
     def decode_encoding(self, encoding: DocumentEncoding) -> str:
         toke_ids = encoding.token_ids
@@ -108,35 +108,26 @@ class DocumentTokenizer(PreTrainedTokenizerFast):
 
         return meta_ids, meta_lm_labels
 
-    def _get_encodings_from_ids_and_labels(
+    def _get_encoding_from_ids_and_labels(
             self,
             body_ids: List[int],
             body_lm_labels: List[int],
             meta_ids: List[int],
             meta_lm_labels: List[int]
-    ) -> Sequence[DocumentEncoding]:
-        encodings = []
-        chunks = more_itertools.chunked(
-            iterable=zip(body_ids, body_lm_labels),
-            n=self._max_body_len
+    ) -> DocumentEncoding:
+        token_ids = meta_ids + body_ids[:self._max_body_len]
+        lm_labels = meta_lm_labels + body_lm_labels[:self._max_body_len]
+        encoding = DocumentEncoding(
+            token_ids=token_ids,
+            lm_labels=lm_labels
         )
 
-        for chunk in chunks:
-            ids, labels = list(zip(*chunk))
-            token_ids = meta_ids + list(ids)
-            lm_labels = meta_lm_labels + list(labels)
-            encoding = DocumentEncoding(
-                token_ids=token_ids,
-                lm_labels=lm_labels
-            )
-            encodings.append(encoding)
+        return encoding
 
-        return encodings
-
-    def encode_line(self, line: str) -> Sequence[DocumentEncoding]:
+    def encode_line(self, line: str) -> DocumentEncoding:
         document = Document(**json.loads(line))
-        encodings = self.encode_document(document=document)
-        return encodings
+        encoding = self.encode_document(document=document)
+        return encoding
 
     @abc.abstractmethod
     def prepare_for_tokenization(self, text: str) -> str:
