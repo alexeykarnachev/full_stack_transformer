@@ -1,16 +1,18 @@
 import abc
 import json
+import re
 from typing import Sequence, List
-import numpy as np
+
 import more_itertools
+import numpy as np
 from tokenizers.implementations import BaseTokenizer
 from transformers.tokenization_utils import PreTrainedTokenizerFast
 
-from full_stack_transformer.utilities.factory import get_object
 from full_stack_transformer.language_modelling.data_structures import (
     Document,
     DocumentEncoding
 )
+from full_stack_transformer.utilities.factory import get_object
 
 _END_OF_DOCUMENT = '[END_OF_DOCUMENT]'
 _START_OF_DOCUMENT = '[START_OF_DOCUMENT]'
@@ -74,6 +76,12 @@ class DocumentTokenizer(PreTrainedTokenizerFast):
 
         return encodings
 
+    def decode_encoding(self, encoding: DocumentEncoding) -> str:
+        toke_ids = encoding.token_ids
+        text = self.decode(token_ids=toke_ids, skip_special_tokens=True)
+        text = self.postrpocess_decoded(text)
+        return text
+
     def _get_body_ids_and_labels(self, body: str, with_eos: bool):
         body = self.prepare_for_tokenization(text=body)
         body = f'{_START_OF_DOCUMENT}{body}'
@@ -131,7 +139,23 @@ class DocumentTokenizer(PreTrainedTokenizerFast):
         return encodings
 
     @abc.abstractmethod
-    def prepare_for_tokenization(self, text) -> str:
+    def prepare_for_tokenization(self, text: str) -> str:
+        pass
+
+    def postrpocess_decoded(self, text: str) -> str:
+        for token in _SPECIAL_TOKENS:
+            text = re.sub(re.escape(token), '', text)
+
+        processed = self._postrpocess_decoded(text=text)
+
+        if processed is not None:
+            text = processed
+
+        text = text.strip()
+        return text
+
+    @abc.abstractmethod
+    def _postrpocess_decoded(self, text: str) -> str:
         pass
 
 

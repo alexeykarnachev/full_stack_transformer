@@ -37,9 +37,14 @@ if __name__ == '__main__':
         eos_token_id=tokenizer.eos_token_id
     )
 
-    document = Document(body='The love is')
+    document = Document(body='Machine learning and neural networks are')
 
-    encoding = tokenizer.encode_document(document=document, with_eos=False)[-1]
+    inp_encoding = tokenizer.encode_document(
+        document=document, with_eos=False
+    )[0]
 
-    encoding = generator(encoding, params=generator_params)
-    print(tokenizer.decode(encoding[0].token_ids))
+    out_encodings = generator(inp_encoding, params=generator_params)
+
+    for enc in out_encodings:
+        text = tokenizer.decode_encoding(enc)
+        print(text + '\n\n')

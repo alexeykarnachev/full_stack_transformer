@@ -46,22 +46,20 @@ class LanguageGeneratorCallback(Callback):
             pl_module: LanguagePLModule
     ):
         params = self._default_params
-
+        tokenizer = pl_module.tokenizer
         generator = LanguageGenerator(
             model=pl_module.model,
-            eos_token_id=pl_module.tokenizer.eos_token_id
+            eos_token_id=tokenizer.eos_token_id
         )
 
-        encodings = pl_module.tokenizer.encode_document(
+        encodings = tokenizer.encode_document(
             document=self._default_document,
             with_eos=False
         )
 
         encodings = generator(encoding=encodings[0], params=params)
 
-        token_ids = [e.token_ids for e in encodings]
-
-        text_samples = [pl_module.tokenizer.decode(ids) for ids in token_ids]
+        text_samples = [tokenizer.decode_encoding(e) for e in encodings]
 
         result = {
             'Global step': trainer.global_step,
@@ -77,6 +75,3 @@ class LanguageGeneratorCallback(Callback):
             out_str = json.dumps(obj=result, ensure_ascii=False, indent=4)
             out_str += '\n'
             file.write(out_str)
-
-
-

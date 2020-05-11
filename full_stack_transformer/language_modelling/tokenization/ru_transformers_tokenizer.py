@@ -9,6 +9,8 @@ _THIS_DIR = pathlib.Path(__file__).parent
 _VOCAB = _THIS_DIR / 'data' / 'ru_transformers_tokenizer' / 'vocab.json'
 _MERGES = _THIS_DIR / 'data' / 'ru_transformers_tokenizer' / 'merges.txt'
 
+_NEW_LINE_REP = '<|n|>'
+
 
 class RuTransformersDocumentTokenizer(DocumentTokenizer):
     def __init__(
@@ -35,5 +37,12 @@ class RuTransformersDocumentTokenizer(DocumentTokenizer):
             text = ' ' + text
 
         text = re.sub(r'(?=[^ ])([\W])([\w])', r'\g<1> \g<2>', text)
-        text = text.replace('\n', ' <|n|>')
+        text = text.replace('\n', f' {_NEW_LINE_REP}')
+        return text
+
+    def _postrpocess_decoded(self, text: str) -> str:
+        text = re.sub(re.escape(_NEW_LINE_REP), '\n', text)
+        text = re.sub(r'([\n(]) (\w)', r'\g<1>\g<2>', text)
+        text = re.sub(r'(\W|^)([«"''\n(]|^) (\w)', r'\g<1>\g<2>\g<3>', text)
+        text = re.sub(r'(\w)- (\w)', r'\g<1>-\g<2>', text)
         return text
