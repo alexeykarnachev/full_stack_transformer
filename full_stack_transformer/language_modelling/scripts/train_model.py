@@ -59,7 +59,13 @@ def _prepare_trainer(args: Dict, workspace: Workspace) -> Trainer:
 
 
 def _fix_trainer_args(args: Dict) -> None:
-    args['val_check_interval'] = int(args['val_check_interval'])
+    val_check_interval = args['val_check_interval']
+    if val_check_interval <= 1:
+        val_check_interval = float(val_check_interval)
+    else:
+        val_check_interval = int(val_check_interval)
+
+    args['val_check_interval'] = val_check_interval
 
 
 def _update_trainer_args(args: Dict, workspace: Workspace) -> None:

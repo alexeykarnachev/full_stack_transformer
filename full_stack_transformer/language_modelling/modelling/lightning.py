@@ -1,4 +1,5 @@
 import inspect
+import json
 import pathlib
 from argparse import Namespace
 from typing import Mapping, Tuple, Dict, Sequence
@@ -143,7 +144,12 @@ class LanguagePLModule(LightningModule, ArgparserExtender):
         self._valid_dataset = None
 
         locals_ = locals()
-        self.hparams = _get_hparams(locals_=locals_)
+
+        gpt_config = json.dumps(self.transformer_config, ensure_ascii=False)
+        self.hparams = _get_hparams(
+            locals_=locals_,
+            transformer_config=gpt_config
+        )
 
     def prepare_data(self) -> None:
         self._train_dataset = DocumentDataset(
@@ -258,10 +264,10 @@ class LanguagePLModule(LightningModule, ArgparserExtender):
         return log
 
 
-def _get_hparams(locals_):
+def _get_hparams(locals_, **kwargs):
     signature = inspect.signature(LanguagePLModule.__init__)
 
-    params = {}
+    params = kwargs
 
     for name, param in signature.parameters.items():
         value = locals_[name]

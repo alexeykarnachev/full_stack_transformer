@@ -140,7 +140,7 @@ def get_tokenizer(
         max_meta_len: int,
         max_body_len: int,
         ignore_meta_prob: float
-):
+) -> DocumentTokenizer:
     path = f'full_stack_transformer.language_modelling.tokenization.{name}'
     tokenizer = get_object(
         class_path=path,
