@@ -12,8 +12,6 @@ from full_stack_transformer.language_modelling.modelling.loading import (
 )
 from full_stack_transformer.utilities import log_config
 
-
-
 sys.excepthook = log_config.handle_unhandled_exception
 
 __version__ = '0.1.0'
