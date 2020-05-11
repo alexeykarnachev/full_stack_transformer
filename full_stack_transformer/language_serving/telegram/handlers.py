@@ -98,7 +98,8 @@ class HandlersRegister:
 
         await message.answer(
             text=reply_text,
-            reply_markup=keyboard
+            reply_markup=keyboard,
+            parse_mode=ParseMode.HTML
         )
 
     async def _get_text_generator_service_response(
@@ -135,7 +136,7 @@ def _prepare_reply_text(
     if status == 200:
         response_dict = json.loads(response_text)
         generated_text = response_dict['texts'][0]
-        generated_text = f'*{prefix_string}* {generated_text}'
+        generated_text = f'<b>{prefix_string}</b> {generated_text}'
     else:
         generated_text = HandlersRegister.TEXT_GENERATOR_SERVICE_ERROR_MESSAGE
 
