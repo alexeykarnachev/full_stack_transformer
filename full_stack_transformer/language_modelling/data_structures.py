@@ -1,3 +1,5 @@
+"""The core data structure for language modelling."""
+
 from dataclasses import dataclass
 from typing import Optional, Sequence
 
@@ -10,18 +12,25 @@ class LanguageModelInputError(Exception):
 
 @dataclass
 class Document:
+    """Represents raw text document."""
     body: str
     meta: Optional[str] = None
 
 
 @dataclass
 class DocumentEncoding:
+    """Represents encoded document."""
     token_ids: Sequence[int]
     lm_labels: Sequence[int]
 
 
 @dataclass
 class LanguageModelInput(dict):
+    """Represents a set of language model input tensors.
+
+    It's inherited from `dict` to allow `pytorch-lightning` send the instance of
+    this class to the device (`cuda` method is implemented).
+    """
     input_ids: torch.Tensor
     token_type_ids: Optional[torch.Tensor] = None
     lm_labels: Optional[torch.Tensor] = None
@@ -62,6 +71,7 @@ class LanguageModelInput(dict):
 
 @dataclass
 class LanguageModelOutput:
+    """Represents an output of the language model."""
     logits: torch.Tensor
     hidden: torch.Tensor
     past: torch.Tensor
