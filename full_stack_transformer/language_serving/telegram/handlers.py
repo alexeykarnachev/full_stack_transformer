@@ -22,6 +22,14 @@ class HandlersRegister:
 
     REPEAT_CALLBACK_DATA_PREFIX = '__repeat__'
 
+    DEFAULT_PARAMS = {
+        'max_number_of_generated_tokens': 128,
+        'temperature': 1.0,
+        'top_k': 0,
+        'top_p': 1.0,
+        'repetition_penalty': 1.0
+    }
+
     def __init__(
             self,
             dispatcher: Dispatcher,
@@ -107,7 +115,10 @@ class HandlersRegister:
             seed_string: str
     ) -> Tuple[Optional[str], int]:
         url = os.path.join(self._url, 'generated_texts')
+
         payload = {'body': seed_string}
+        payload.update(self.DEFAULT_PARAMS)
+
         headers = {'Content-Type': 'application/json'}
         async with aiohttp.ClientSession(auth=self._auth) as session:
             try:
