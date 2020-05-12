@@ -1,7 +1,7 @@
 from multiprocessing import Process, Queue
 
 
-class DocumentEncodingsSampler(Process):
+class EncodingsSampler(Process):
     def __init__(self, inp_encodings_queue: Queue, out_encodings_queue: Queue):
         super().__init__()
 

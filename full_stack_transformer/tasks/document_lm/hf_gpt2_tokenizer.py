@@ -2,7 +2,8 @@ import pathlib
 
 from tokenizers import ByteLevelBPETokenizer
 
-from full_stack_transformer.language_modelling.tokenization.tokenizer import \
+from full_stack_transformer.tasks.document_lm.text_input import DocumentInput
+from full_stack_transformer.tasks.document_lm.tokenizer import \
     DocumentTokenizer
 
 _THIS_DIR = pathlib.Path(__file__).parent
@@ -10,7 +11,7 @@ _VOCAB = _THIS_DIR / 'data' / 'gpt2_bpe' / 'vocab.json'
 _MERGES = _THIS_DIR / 'data' / 'gpt2_bpe' / 'merges.txt'
 
 
-class GPT2HuggingFaceDocumentTokenizer(DocumentTokenizer):
+class HFGPT2DocumentTokenizer(DocumentTokenizer):
     def __init__(
             self,
             max_meta_len: int,
@@ -30,5 +31,8 @@ class GPT2HuggingFaceDocumentTokenizer(DocumentTokenizer):
             ignore_meta_prob=ignore_meta_prob
         )
 
-    def prepare_for_tokenization(self, text: str) -> str:
+    def _preprocess_input(self, text_input: DocumentInput) -> DocumentInput:
+        return text_input
+
+    def _postprocess_text(self, text: str) -> str:
         return text

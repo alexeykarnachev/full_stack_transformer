@@ -2,12 +2,9 @@ from typing import Sequence, Union, Optional
 
 import torch
 
-from full_stack_transformer.language_modelling.data_structures import (
-    DocumentEncoding,
-    LanguageModelInput
-)
-from full_stack_transformer.language_modelling.tokenization.tokenizer import \
-    LOSS_IGNORE
+from full_stack_transformer.core.constants import LOSS_IGNORE
+from full_stack_transformer.core.encoding import Encoding
+from full_stack_transformer.core.model_input import ModelInput
 from full_stack_transformer.utilities.sequences import pad_sequences_from_right
 
 
@@ -17,9 +14,9 @@ class DocumentEncodingsCollate:
 
     def __call__(
             self,
-            encodings: Sequence[DocumentEncoding],
+            encodings: Sequence[Encoding],
             device: Optional[Union[torch.device, str]] = None
-    ) -> LanguageModelInput:
+    ) -> ModelInput:
         model_input = _collate_encodings(
             encodings=encodings,
             pad_value=self._pad_value,
@@ -30,10 +27,10 @@ class DocumentEncodingsCollate:
 
 
 def _collate_encodings(
-        encodings: Sequence[DocumentEncoding],
+        encodings: Sequence[Encoding],
         pad_value: int,
         device: Optional[Union[torch.device, str]] = None
-) -> LanguageModelInput:
+) -> ModelInput:
     token_ids = pad_sequences_from_right(
         sequences=[e.token_ids for e in encodings],
         pad_value=pad_value,
@@ -47,10 +44,6 @@ def _collate_encodings(
 
     input_ids = torch.tensor(token_ids, dtype=torch.long, device=device)
     lm_labels = torch.tensor(lm_labels, dtype=torch.long, device=device)
-
-    model_input = LanguageModelInput(
-        input_ids=input_ids,
-        lm_labels=lm_labels
-    )
+    model_input = ModelInput(input_ids=input_ids, lm_labels=lm_labels)
 
     return model_input
