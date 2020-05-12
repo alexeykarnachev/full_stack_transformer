@@ -9,8 +9,8 @@ from full_stack_transformer.tasks.document_lm.tokenizer import \
     DocumentTokenizer
 
 _THIS_DIR = pathlib.Path(__file__).parent
-_VOCAB = _THIS_DIR / 'data' / 'ru_transformers_sp' / 'vocab.json'
-_MERGES = _THIS_DIR / 'data' / 'ru_transformers_sp' / 'merges.txt'
+_VOCAB = _THIS_DIR / '..' / 'static' / 'ru_transformers_sp' / 'vocab.json'
+_MERGES = _THIS_DIR / '..' / 'static' / 'ru_transformers_sp' / 'merges.txt'
 
 _NEW_LINE_REP = '<|n|>'
 

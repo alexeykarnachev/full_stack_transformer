@@ -12,7 +12,7 @@ from full_stack_transformer import (
 
 if __name__ == '__main__':
     device = 'cuda:0'
-    experiment_dir = pathlib.Path('../data/experiments/nietzsche_v0/')
+    experiment_dir = pathlib.Path('../static/experiments/nietzsche_v0/')
     ckpt_path = experiment_dir / 'models' / 'epoch=9.ckpt'
 
     generator_params = LanguageGeneratorParams(

@@ -7,8 +7,8 @@ from full_stack_transformer.tasks.document_lm.tokenizer import \
     DocumentTokenizer
 
 _THIS_DIR = pathlib.Path(__file__).parent
-_VOCAB = _THIS_DIR / 'data' / 'gpt2_bpe' / 'vocab.json'
-_MERGES = _THIS_DIR / 'data' / 'gpt2_bpe' / 'merges.txt'
+_VOCAB = _THIS_DIR / '..' / 'static' / 'gpt2_bpe' / 'vocab.json'
+_MERGES = _THIS_DIR / '..' / 'static' / 'gpt2_bpe' / 'merges.txt'
 
 
 class HFGPT2DocumentTokenizer(DocumentTokenizer):
