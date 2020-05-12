@@ -1,9 +1,8 @@
 import abc
 import json
 import re
-from typing import Sequence, List
+from typing import List
 
-import more_itertools
 import numpy as np
 from tokenizers.implementations import BaseTokenizer
 from transformers.tokenization_utils import PreTrainedTokenizerFast
