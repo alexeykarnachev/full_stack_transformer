@@ -84,10 +84,10 @@ class DocumentPLModule(PLModule):
         )
 
         lm_head_model = load_transformer_model_from_path(
-            model_path=self._model_path,
-            vocab_size=self._tokenizer.vocab_size
+            model_path=model_path,
+            vocab_size=self.tokenizer.vocab_size
         )
-        self.model = DocumentModel(
+        model = DocumentModel(
             lm_head_model=lm_head_model,
             unlikelihood_alpha=unlikelihood_alpha
         )
@@ -106,7 +106,7 @@ class DocumentPLModule(PLModule):
             transformer_config=self.transformer_config
         )
 
-        super().__init__(model=self.model)
+        super().__init__(model=model)
 
     def prepare_data(self) -> None:
         self.train_dataset = DocumentDataset(
@@ -132,7 +132,7 @@ class DocumentPLModule(PLModule):
         )
 
     def _get_optimizer(self):
-        parameters = self._model.parameters()
+        parameters = self.model.parameters()
         optimizer = transformers.AdamW(
             params=parameters,
             lr=self.learning_rate
@@ -141,10 +141,13 @@ class DocumentPLModule(PLModule):
         return optimizer
 
     def _get_lr_scheduler(self, optimizer):
+        total_steps = len(self.train_dataloader()) * self.trainer.max_epochs
+        training_steps = total_steps // self.trainer.accumulate_grad_batches
+
         lr_scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(
             optimizer=optimizer,
             num_warmup_steps=self.num_warmup_steps,
-            num_training_steps=self.num_training_steps,
+            num_training_steps=training_steps,
             num_cycles=self.num_cycles
         )
         scheduler = {
@@ -165,7 +168,8 @@ class DocumentPLModule(PLModule):
         }
 
         if self.training:
-            log['Learning-Rate'] = self._current_lr
+            current_lr = self.trainer.optimizers[0].param_groups[0]['lr']
+            log['Learning-Rate'] = current_lr
 
         return log
 

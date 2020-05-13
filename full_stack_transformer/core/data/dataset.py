@@ -34,12 +34,10 @@ class Dataset(QueueIterableDataset):
         self._text_lines_parser = text_lines_parser
         self._collate = encodings_collate
 
-        sorted_samples_queue, length = self._initialize()
+        sorted_samples_queue = self._initialize()
 
-        super().__init__(
-            inp_queue=sorted_samples_queue,
-            length=length
-        )
+        super().__init__(inp_queue=sorted_samples_queue,
+)
 
     def _initialize(self):
         text_inputs_queue = Queue(maxsize=_QUEUE_MAX_SIZE)

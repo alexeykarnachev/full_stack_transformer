@@ -51,7 +51,7 @@ class TaskRunner(abc.ABC):
 
         _fix_trainer_args(args=trainer_args)
 
-        args.update(
+        trainer_args.update(
             {
                 'logger': TensorBoardLogger(
                     save_dir=self.workspace.logs_dir,

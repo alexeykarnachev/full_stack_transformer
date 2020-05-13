@@ -48,12 +48,11 @@ class LanguageGeneratorCallback(Callback):
             eos_token_id=tokenizer.eos_token_id
         )
 
-        encoding = tokenizer.encode_document(
-            document=self._default_document,
-            with_eos=False
-        )
+        inp_encoding = tokenizer.encode_for_inference(
+            text_input=self._default_document,
+        )[0]
 
-        encodings = generator(encoding=encoding, params=params)
+        encodings = generator(encoding=inp_encoding, params=params)
 
         text_samples = [tokenizer.decode_encoding(e) for e in encodings]
 

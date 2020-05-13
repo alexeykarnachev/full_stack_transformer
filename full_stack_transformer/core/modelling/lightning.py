@@ -12,14 +12,6 @@ from full_stack_transformer.utilities.arguments import ArgparserExtender
 
 
 class PLModule(LightningModule, ArgparserExtender):
-
-    @property
-    def num_training_steps(self):
-        dl_len = len(self.trainer.train_dataloader)
-        total_steps = dl_len * self.trainer.max_epochs
-        training_steps = total_steps // self.trainer.accumulate_grad_batches
-        return training_steps
-
     def __init__(self, model: Model):
         super().__init__()
 
