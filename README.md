@@ -4,6 +4,19 @@ Pytorch library for end-to-end transformer models training, inference and servin
 <br>
 [Powered by](#powered-by) a list of great libraries.
 
+## Library Design
+The library is organized in such a way, that the [core](full_stack_transformer/core)
+sub-package contains all modelling, data structures and data streaming classes.
+
+In [tasks](full_stack_transformer/tasks) sub-package there are all tasks-specific code.
+
+Available tasks:
+- [Document Language Model](#document-language-model) - the classic document-base language
+model training. It also provides application serving for interactive text generation.
+
+## Document Language Model
+Let's go through the end-to-end example of the `document_lm` task training and serving.
+
 ## Features
 - Automatic LM dataset preparation 
 - End-to-end transformer LM training
@@ -29,22 +42,21 @@ data/documents/nietzsche/
 (If you want to start with your own files, check 
 [Input Document Files Format](#input-document-files-format)
 
-
 ### Train Model
 The library uses `pytorch-lightning` for training and arguments which are used by
-lightning `Trainer` class is allowed as a command-line arguments for the script below.
+lightning `Trainer` class are allowed as a command-line arguments for the script below.
 
-To check them all execute:
+To check them all (as well as task-specific args) execute:
 ```
-python full_stack_transformer/scripts/train_model.py --help
+python full_stack_transformer/tasks/document_lm/task_runner.py --help
 ```
 
 Now, let's train the model:
 ```
-python full_stack_transformer/language_modelling/scripts/train_model.py \
+python full_stack_transformer/tasks/document_lm/task_runner.py \
 --experiments_root=./data/experiments/ \
 --model_path=gpt2 \
---tokenizer_class_name=GPT2HuggingFaceDocumentTokenizer \
+--tokenizer_class_name=HFGPT2DocumentTokenizer \
 --batch_size=4 \
 --max_meta_len=0 \
 --max_body_len=70 \
@@ -79,15 +91,16 @@ data/experiments/nietzsche_v0/
 │   ├── info.log
 │   └── nietzsche
 │       └── version_0
-│           ├── events.out.tfevents.1589209883
+│           ├── events.out.tfevents.1589375895
 │           └── meta_tags.csv
 └── models
-    └── epoch=10.ckpt
+    ├── epoch=5.ckpt
+    └── epoch=6.ckpt
 ```
 
 **WARNING!**
 
-*In 0.1.0 version dynamic data generation is used. There are multiprocessing workers
+*In 0.2.0 version dynamic data generation is used. There are multiprocessing workers
 that produce samples for training and there is no graceful shutdown for these workers now. 
 It'll be fixed in next version, but for now please make sure, that all training processes are dead
 when the training is finished. Or you can kill them manually:*
@@ -135,7 +148,7 @@ cat data/experiments/nietzsche_v0/generated.txt
 
 When the model is trained, it could be served for inference:
 ```
-./scripts/run_language_model_serving.sh 9228 1 ./ "./data/experiments/nietzsche_v0/models/epoch=10.ckpt" cuda:0
+./full_stack_transformer/tasks/document_lm/serving/run.sh 9228 1 ./ ./data/experiments/nietzsche_v0/models/epoch\=6.ckpt cuda:0
 ```
 
 Swagger is available here: [http://localhost:9228/docs](http://localhost:9228/docs)
@@ -178,9 +191,9 @@ For example:
 ```
 
 ## Available Tokenizers
-For now, there are two tokenizers available.
+For now, there are two tokenizers available for the `dialog_lm` task.
 
-- `GPT2Tokenizer` for huggingface models:
+- `HFGPT2DocumentTokenizer` for huggingface models:
     - `gpt2`
     - `gpt2-medium`
     - `gpt2-large`
@@ -188,7 +201,7 @@ For now, there are two tokenizers available.
     - `distilgpt2`
     - maybe, there are some more models already. 
     Check [official huggingface repo](https://github.com/huggingface/transformers/blob/master/src/transformers/configuration_gpt2.py)
-- `RuTransformersTokenizer`:
+- `RuTransformersDocumentTokenizer`:
     - [ru_transformers](https://github.com/mgrankin/ru_transformers) medium size model
 
 ## Powered By

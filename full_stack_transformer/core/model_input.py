@@ -10,6 +10,7 @@ class ModelInputError(Exception):
 
 @dataclass
 class ModelInput(dict):
+    """Base data container which represents model input."""
     input_ids: torch.Tensor
     token_type_ids: Optional[torch.Tensor] = None
     lm_labels: Optional[torch.Tensor] = None
@@ -39,6 +40,7 @@ class ModelInput(dict):
             )
 
     def cuda(self, gpu_id):
+        """Sends object field to cuda."""
         fields = self.__dict__
 
         for name, field in fields.items():
