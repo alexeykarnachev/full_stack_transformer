@@ -163,7 +163,7 @@ After you run the application server and got the api token, execute the followin
 ```
 python full_stack_transformer/tasks/document_lm/telegram/app.py \
 --telegram_api_token="API-TOKEN-OBTAINED-FROM-BOTFATHER" \
---text_generator_service_url=http://127.0.0.1:9333
+--text_generator_service_url=http://127.0.0.1:9228
 ```
 
 That's it. Go find your bot in telegram and chat:
