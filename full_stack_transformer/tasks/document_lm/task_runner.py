@@ -8,12 +8,13 @@ from full_stack_transformer.tasks.document_lm.modelling.lightning import Documen
 
 
 class DocumentLMTaskRunner(TaskRunner):
-    def __init__(self, experiments_root: str, experiment_name: str):
-        super().__init__(
-            experiments_root=experiments_root,
-            experiment_name=experiment_name,
-            pl_module_cls=DocumentPLModule
-        )
+    def __init__(self):
+        super().__init__(pl_module_cls=DocumentPLModule)
 
     def _get_trainer_callbacks(self) -> List[Callback]:
         return [LanguageGeneratorCallback(experiment_workspace=self.workspace)]
+
+
+if __name__ == '__main__':
+    runner = DocumentLMTaskRunner()
+    runner.run()

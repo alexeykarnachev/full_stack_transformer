@@ -5,7 +5,7 @@ from typing import Dict, Optional
 import transformers
 from transformers import get_cosine_with_hard_restarts_schedule_with_warmup
 
-from full_stack_transformer.core.data.dataloader import DataLoader
+from full_stack_transformer.core.data.dataset import DataLoader
 from full_stack_transformer.core.model_output import LanguageModelOutput
 from full_stack_transformer.core.modelling.lightning import PLModule
 from full_stack_transformer.core.modelling.loading import load_transformer_model_from_path

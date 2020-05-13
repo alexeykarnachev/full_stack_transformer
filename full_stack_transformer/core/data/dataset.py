@@ -3,7 +3,9 @@ import pathlib
 from multiprocessing import Queue
 from typing import Optional, Callable
 
-from full_stack_transformer.core.data.dataloader import DataLoader
+import torch.utils.data
+
+from full_stack_transformer.core.data.encodings_collate import EncodingsCollate
 from full_stack_transformer.core.data.encodings_producer import EncodingsProducer
 from full_stack_transformer.core.data.encodings_sampler import EncodingsSampler
 from full_stack_transformer.core.data.text_inputs_producer import TextInputsProducer
@@ -80,7 +82,7 @@ class Dataset(QueueIterableDataset):
             self,
             batch_size: int,
             num_workers: int
-    ) -> DataLoader:
+    ) -> 'DataLoader':
         dl = DataLoader(
             dataset=self,
             batch_size=batch_size,
@@ -88,3 +90,26 @@ class Dataset(QueueIterableDataset):
             encodings_collate=self._collate
         )
         return dl
+
+
+class DataLoader(torch.utils.data.DataLoader):
+    def __init__(
+            self,
+            dataset: Dataset,
+            batch_size: int,
+            num_workers: int,
+            encodings_collate: EncodingsCollate
+    ):
+        self._dataset = dataset
+        self._batch_size = batch_size
+        self._collate = encodings_collate
+
+        super().__init__(
+            dataset=self._dataset,
+            batch_size=self._batch_size,
+            num_workers=num_workers,
+            collate_fn=self._collate
+        )
+
+    def __len__(self):
+        return (len(self._dataset) // self._batch_size) - 1

@@ -12,18 +12,14 @@ from full_stack_transformer.utilities.experiment import Workspace
 
 
 class TaskRunner(abc.ABC):
-    def __init__(
-            self,
-            experiments_root: str,
-            experiment_name: str,
-            pl_module_cls: Type[PLModule]
-    ):
-        self.workspace = Workspace(
-            experiments_root=experiments_root,
-            experiment_name=experiment_name
-        )
-
+    def __init__(self, pl_module_cls: Type[PLModule]):
         self.pl_module_cls = pl_module_cls
+        args = self._parse_args()
+
+        self.workspace = Workspace(
+            experiments_root=args['experiments_root'],
+            experiment_name=args['experiment_name']
+        )
 
     def _parse_args(self) -> Dict:
         parser = argparse.ArgumentParser()
