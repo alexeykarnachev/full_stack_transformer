@@ -4,4 +4,4 @@ from full_stack_transformer.utilities import log_config
 
 sys.excepthook = log_config.handle_unhandled_exception
 
-__version__ = '0.1.1'
+__version__ = '0.2.0'
