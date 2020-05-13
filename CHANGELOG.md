@@ -1,8 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.1.1]
-
+## [0.2.0] - 2020-05-13
+### Changed
+- Library structure changed to the tasks-oriented design
 
 ## [0.1.0] - 2020-05-11
 ### Added
