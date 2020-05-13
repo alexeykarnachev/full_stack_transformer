@@ -24,7 +24,6 @@ class TextInputsProducer(Process):
             chunk = []
             with self._file_path.open() as file:
                 for line in file:
-
                     text_input = self._parser.parse(line)
                     if text_input is not None:
                         chunk.append(text_input)
