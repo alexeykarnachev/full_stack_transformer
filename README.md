@@ -15,9 +15,12 @@ Available tasks:
 model training. It also provides application serving for interactive text generation.
 
 ## Document Language Model
-Let's go through the end-to-end example of the `document_lm` task training and serving.
 
-## Features
+*For now, there is only 1 task available in the library. So, I'll put an example of this
+task usage right here in README. When another tasks will be implemented, I'll move
+all examples in the documentation.*
+
+### Features
 - Automatic LM dataset preparation 
 - End-to-end transformer LM training
 - [Unlikelihood loss](https://arxiv.org/pdf/1908.04319.pdf) training
@@ -25,11 +28,6 @@ Let's go through the end-to-end example of the `document_lm` task training and s
 - Text generation tricks (top-k, [nucleus](http://arxiv.org/abs/1904.09751), repetition penalty, etc)
 - Text generation as a service
 - Telegram bot client
-
-## End-to-end Example
-As they say, it’s better to see once...<br>
-So, let's go through the whole pipeline from dataset building to the application
-serving on the [nietzsche](data/documents/nietzsche) texts example.
 
 ### Prepare dataset
 First, you need two text files (train and validation) which contain raw documents.
@@ -163,9 +161,9 @@ via [@BotFather](https://t.me/botfather).
 
 After you run the application server and got the api token, execute the following:
 ```
-python full_stack_transformer/language_serving/telegram/app.py \
+python full_stack_transformer/tasks/document_lm/telegram/app.py \
 --telegram_api_token="API-TOKEN-OBTAINED-FROM-BOTFATHER" \
---text_generator_service_url=http://localhost:9228/
+--text_generator_service_url=http://127.0.0.1:9333
 ```
 
 That's it. Go find your bot in telegram and chat:
@@ -174,8 +172,7 @@ That's it. Go find your bot in telegram and chat:
 
 ## Inference
 After you train the model, you may want to perform inference in a code. Check an
-example of [Language Generation](examples/language_generation.py).
-
+example of [Language Generation](full_stack_transformer/tasks/document_lm/examples/language_generation.py).
 
 
 ## Input Document Files Format
