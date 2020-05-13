@@ -3,7 +3,7 @@ from multiprocessing import Process, Queue
 
 class EncodingsSampler(Process):
     def __init__(self, inp_encodings_queue: Queue, out_encodings_queue: Queue):
-        super().__init__()
+        super().__init__(daemon=True)
 
         self._inp_queue = inp_encodings_queue
         self._out_queue = out_encodings_queue

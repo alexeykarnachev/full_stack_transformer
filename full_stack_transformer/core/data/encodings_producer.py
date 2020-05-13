@@ -10,7 +10,7 @@ class EncodingsProducer(Process):
             inp_text_inputs_queue: Queue,
             out_encodings_queue: Queue
     ):
-        super().__init__()
+        super().__init__(daemon=True)
 
         self._tokenizer = tokenizer
         self._inp_queue = inp_text_inputs_queue

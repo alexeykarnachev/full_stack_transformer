@@ -12,7 +12,7 @@ class TextInputsProducer(Process):
             out_chunk_size: int,
             text_lines_parser: TextLinesParser
     ):
-        super().__init__()
+        super().__init__(daemon=True)
 
         self._file_path = file_path
         self._chunk_size = out_chunk_size
