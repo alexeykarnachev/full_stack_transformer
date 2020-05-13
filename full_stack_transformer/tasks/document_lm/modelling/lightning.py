@@ -76,12 +76,14 @@ class DocumentPLModule(PLModule):
         self.num_warmup_steps = num_warmup_steps
         self.num_cycles = num_cycles
 
-        self.tokenizer = get_tokenizer(
+        tokenizer_config = dict(
             name=tokenizer_class_name,
             max_meta_len=max_meta_len,
             max_body_len=max_body_len,
             ignore_meta_prob=ignore_meta_prob
         )
+
+        self.tokenizer = get_tokenizer(**tokenizer_config)
 
         lm_head_model = load_transformer_model_from_path(
             model_path=model_path,
@@ -100,13 +102,15 @@ class DocumentPLModule(PLModule):
             lm_head_model.config.__dict__,
             ensure_ascii=False
         )
+
+        super().__init__(model=model)
+
         self.hparams = get_func_arg_values_as_namespace(
             locals_=locals_,
             func=self.__init__,
-            transformer_config=self.transformer_config
+            transformer_config=self.transformer_config,
+            tokenizer_config=tokenizer_config
         )
-
-        super().__init__(model=model)
 
     def prepare_data(self) -> None:
         self.train_dataset = DocumentDataset(
