@@ -43,4 +43,3 @@ def test_encodings_sampler(chunk_size):
             expected_encoding = expected_chunk.pop(0)
 
             assert predicted_encoding == expected_encoding
-
