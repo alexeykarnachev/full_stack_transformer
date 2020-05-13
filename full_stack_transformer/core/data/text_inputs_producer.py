@@ -29,9 +29,9 @@ class TextInputsProducer(Process):
                     if text_input is not None:
                         chunk.append(text_input)
 
-                    if len(chunk) >= self._chunk_size:
-                        self._out_queue.put(chunk)
-                        chunk = []
+                        if len(chunk) >= self._chunk_size:
+                            self._out_queue.put(chunk)
+                            chunk = []
 
             if len(chunk) > 0:
                 self._out_queue.put(chunk)

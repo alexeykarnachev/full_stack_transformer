@@ -13,10 +13,6 @@ class Model(nn.Module):
     def device(self):
         return self.parameters().__next__().device
 
-    def __init__(self):
-        super().__init__()
-        pass
-
     @abc.abstractmethod
     def forward(self, inp: ModelInput) -> ModelOutput:
         pass

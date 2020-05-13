@@ -1,5 +1,5 @@
 import inspect
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass
 from typing import List, Any
 
@@ -50,3 +50,20 @@ class ArgparserExtender:
             )
 
         return parser
+
+
+def get_func_arg_values_as_namespace(locals_, func, **kwargs):
+    signature = inspect.signature(func)
+
+    params = kwargs
+
+    for name, param in signature.parameters.items():
+        value = locals_[name]
+        if name == 'self':
+            continue
+        elif name == 'kwargs':
+            params.update(value)
+        else:
+            params[name] = value
+
+    return Namespace(**params)

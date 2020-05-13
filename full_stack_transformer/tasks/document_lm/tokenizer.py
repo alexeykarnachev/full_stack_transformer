@@ -7,6 +7,7 @@ from full_stack_transformer.core.constants import LOSS_IGNORE
 from full_stack_transformer.core.encoding import Encoding
 from full_stack_transformer.core.tokenizer import Tokenizer
 from full_stack_transformer.tasks.document_lm.text_input import DocumentInput
+from full_stack_transformer.utilities.factory import get_object
 
 _START_OF_DOCUMENT = '[START_OF_DOCUMENT]'
 _END_OF_META = '[END_OF_META]'
@@ -112,3 +113,23 @@ class DocumentTokenizer(Tokenizer):
         )
 
         return encoding
+
+
+def get_tokenizer(
+        name: str,
+        max_meta_len: int,
+        max_body_len: int,
+        ignore_meta_prob: float
+) -> DocumentTokenizer:
+    path = f'full_stack_transformer.tasks.document_lm.{name}'
+    tokenizer = get_object(
+        class_path=path,
+        max_meta_len=max_meta_len,
+        max_body_len=max_body_len,
+        ignore_meta_prob=ignore_meta_prob
+    )
+
+    if not isinstance(tokenizer, DocumentTokenizer):
+        raise ValueError(f'{name} is not a `DocumentTokenizer` subclass.')
+
+    return tokenizer

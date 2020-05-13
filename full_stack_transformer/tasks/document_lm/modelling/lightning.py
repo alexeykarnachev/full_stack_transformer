@@ -1,13 +1,18 @@
+import json
 import pathlib
-from typing import Dict
+from typing import Dict, Optional
 
 import transformers
 from transformers import get_cosine_with_hard_restarts_schedule_with_warmup
 
-from full_stack_transformer.core.model_output import ModelOutput
+from full_stack_transformer.core.data.dataloader import DataLoader
+from full_stack_transformer.core.model_output import LanguageModelOutput
 from full_stack_transformer.core.modelling.lightning import PLModule
-from full_stack_transformer.tasks.document_lm.modelling.model import \
-    DocumentModel
+from full_stack_transformer.core.modelling.loading import load_transformer_model_from_path
+from full_stack_transformer.tasks.document_lm.data.dataset import DocumentDataset
+from full_stack_transformer.tasks.document_lm.modelling.model import DocumentModel
+from full_stack_transformer.tasks.document_lm.tokenizer import get_tokenizer
+from full_stack_transformer.utilities.arguments import get_func_arg_values_as_namespace
 
 
 class DocumentPLModule(PLModule):
@@ -64,45 +69,67 @@ class DocumentPLModule(PLModule):
                 Unlikelihood loss multiplier. If None, no unlikelihood loss will
                 be used.
         """
-        self._max_meta_len = max_meta_len
-        self._max_body_len = max_body_len
-        self._ignore_meta_prob = ignore_meta_prob
-        self._model_path = model_path
         self.train_file = pathlib.Path(train_file)
         self.valid_file = pathlib.Path(valid_file)
-        self._unlikelihood_alpha = unlikelihood_alpha
+        self.learning_rate = learning_rate
+        self.batch_size = batch_size
+        self.num_warmup_steps = num_warmup_steps
+        self.num_cycles = num_cycles
 
-        self._learning_rate = learning_rate
-        self._num_warmup_steps = num_warmup_steps
-        self._num_cycles = num_cycles
-
-        self._tokenizer = get_tokenizer(
-            name=self._tokenizer_class_name,
-            max_meta_len=self._max_meta_len,
-            max_body_len=self._max_body_len,
-            ignore_meta_prob=self._ignore_meta_prob
+        self.tokenizer = get_tokenizer(
+            name=tokenizer_class_name,
+            max_meta_len=max_meta_len,
+            max_body_len=max_body_len,
+            ignore_meta_prob=ignore_meta_prob
         )
-        self._gpt = load_transformer_model_from_path(
+
+        lm_head_model = load_transformer_model_from_path(
             model_path=self._model_path,
             vocab_size=self._tokenizer.vocab_size
         )
-        self._model = DocumentModel(
-            lm_head_model=self._gpt,
-            unlikelihood_alpha=self._unlikelihood_alpha
+        self.model = DocumentModel(
+            lm_head_model=lm_head_model,
+            unlikelihood_alpha=unlikelihood_alpha
         )
 
-        self._train_dataset = None
-        self._valid_dataset = None
+        self.train_dataset: Optional[DocumentDataset] = None
+        self.valid_dataset: Optional[DocumentDataset] = None
 
         locals_ = locals()
-
-        gpt_config = json.dumps(self.transformer_config, ensure_ascii=False)
-        self.hparams = _get_hparams(
+        self.transformer_config = json.dumps(
+            lm_head_model.config.__dict__,
+            ensure_ascii=False
+        )
+        self.hparams = get_func_arg_values_as_namespace(
             locals_=locals_,
-            transformer_config=gpt_config
+            func=self.__init__,
+            transformer_config=self.transformer_config
         )
 
         super().__init__(model=self.model)
+
+    def prepare_data(self) -> None:
+        self.train_dataset = DocumentDataset(
+            file_path=self.train_file,
+            tokenizer=self.tokenizer,
+        )
+
+        self.valid_dataset = DocumentDataset(
+            file_path=self.valid_file,
+            tokenizer=self.tokenizer
+        )
+
+    def train_dataloader(self) -> DataLoader:
+        return self.train_dataset.get_data_loader(
+            batch_size=self.batch_size,
+            num_workers=4
+        )
+
+    def val_dataloader(self) -> DataLoader:
+        return self.valid_dataset.get_data_loader(
+            batch_size=self.batch_size,
+            num_workers=1
+        )
 
     def _get_optimizer(self):
         parameters = self._model.parameters()
@@ -129,5 +156,18 @@ class DocumentPLModule(PLModule):
 
         return scheduler
 
-    def _get_step_log(self, model_output: ModelOutput) -> Dict:
-        pass
+    def _get_step_log(self, model_output: LanguageModelOutput) -> Dict:
+        postfix = 'train' if self.training else 'valid'
+        log = {
+            f'LM-Loss/{postfix}': model_output.lm_loss,
+            f'UL-Loss/{postfix}': model_output.ul_loss,
+            f'Loss/{postfix}': model_output.loss
+        }
+
+        if self.training:
+            log['Learning-Rate'] = self._current_lr
+
+        return log
+
+    def get_description(self) -> Dict:
+        return {'Transformer': self.transformer_config}

@@ -14,9 +14,9 @@ class DocumentDataset(Dataset):
             self,
             file_path: pathlib.Path,
             tokenizer: DocumentTokenizer,
-            text_lines_parser: DocumentLinesParser,
     ):
         collate = DocumentEncodingsCollate(pad_value=tokenizer.pad_token_id)
+        text_lines_parser = DocumentLinesParser()
 
         super().__init__(
             file_path=file_path,

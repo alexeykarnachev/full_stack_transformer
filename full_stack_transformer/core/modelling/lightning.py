@@ -8,9 +8,10 @@ from pytorch_lightning.loggers.base import merge_dicts
 from full_stack_transformer.core.model_input import ModelInput
 from full_stack_transformer.core.model_output import ModelOutput
 from full_stack_transformer.core.modelling.model import Model
+from full_stack_transformer.utilities.arguments import ArgparserExtender
 
 
-class PLModule(LightningModule):
+class PLModule(LightningModule, ArgparserExtender):
 
     @property
     def num_training_steps(self):
@@ -65,4 +66,8 @@ class PLModule(LightningModule):
 
     @abc.abstractmethod
     def _get_step_log(self, model_output: ModelOutput) -> Dict:
+        pass
+
+    @abc.abstractmethod
+    def get_description(self) -> Dict:
         pass

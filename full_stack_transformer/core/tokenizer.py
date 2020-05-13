@@ -7,6 +7,7 @@ from transformers.tokenization_utils import PreTrainedTokenizerFast
 
 from full_stack_transformer.core.encoding import Encoding
 from full_stack_transformer.core.text_input import TextInput
+from full_stack_transformer.utilities.factory import get_object
 
 _END = '[END]'
 
