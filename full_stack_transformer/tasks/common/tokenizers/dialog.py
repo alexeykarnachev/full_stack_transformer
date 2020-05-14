@@ -149,7 +149,10 @@ class DialogTokenizer(Tokenizer):
                 ignore_loss.append(False)
             else:
                 pers_tok, not_pers_tok = _NOT_PERSONA_SPEAKER, _PERSONA_SPEAKER
-                ignore_loss.append(True)
+                # Original idea was to ignore loss for the non-persona speaker.
+                # So, the flag was True. But the model learns to copy persona
+                # string is such a way. I'll try to use False.
+                ignore_loss.append(False)
 
             ut = f'{pers_tok}{ut}{self.eos_token}'
             if idx == len(utterances) - 1 and not train:
