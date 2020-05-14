@@ -54,10 +54,15 @@ def _collate_encodings(
 
     input_ids = torch.tensor(token_ids, dtype=torch.long, device=device)
     lm_labels = torch.tensor(lm_labels, dtype=torch.long, device=device)
-    model_input = ModelInput(
-        input_ids=input_ids,
-        lm_labels=lm_labels,
-        token_type_ids=token_type_ids
-    )
+    # model_input = ModelInput(
+    #     input_ids=input_ids,
+    #     lm_labels=lm_labels,
+    #     token_type_ids=token_type_ids
+    # )
+    model_input = {
+        'input_ids': input_ids,
+        'lm_labels': lm_labels,
+        'token_type_ids': token_type_ids
+    }
 
     return model_input
