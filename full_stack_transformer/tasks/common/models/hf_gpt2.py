@@ -37,7 +37,7 @@ class HFGPT2Model(Model):
             past=inp.past
         )
 
-        if self._ul_alpha is not None:
+        if self._ul_alpha:
             ul_loss = unlikelihood_candidates_loss(
                 logits=logits,
                 target=inp.input_ids
