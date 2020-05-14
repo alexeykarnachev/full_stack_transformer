@@ -31,6 +31,9 @@ class HFGPT2Model(Model):
         self._ul_alpha = unlikelihood_alpha
 
     def forward(self, inp: ModelInput) -> LanguageModelOutput:
+        if not isinstance(inp, ModelInput):
+            inp = ModelInput(**inp)
+
         lm_loss, logits, past, hidden = self.lm_head_model(
             input_ids=inp.input_ids,
             token_type_ids=inp.token_type_ids,
