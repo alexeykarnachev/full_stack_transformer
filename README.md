@@ -172,7 +172,7 @@ That's it. Go find your bot in telegram and chat:
 
 ## Inference
 After you train the model, you may want to perform inference in a code. Check an
-example of [Language Generation](full_stack_transformer/tasks/document_lm/examples/language_generation.py).
+example of [Language Generation](full_stack_transformer/tasks/document_decoder/examples/language_generation.py).
 
 
 ## Input Document Files Format

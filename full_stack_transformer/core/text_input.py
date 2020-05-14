@@ -3,4 +3,5 @@ from dataclasses import dataclass
 
 @dataclass
 class TextInput:
-    pass
+    def __init__(self, **kwargs):
+        pass
