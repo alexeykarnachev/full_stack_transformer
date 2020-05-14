@@ -30,8 +30,23 @@ class DialogTokenizer(Tokenizer):
         self._max_dialog_len = max_dialog_len
         self.add_special_tokens({'additional_special_tokens': _SPECIAL_TOKENS})
 
-    def _encode_for_train(self, text_input: DialogInput) -> List[Encoding]:
-        utts_tok_ids = self._get_utts_tok_ids(utts=text_input.utterances)
+    def _encode_for_train(
+            self,
+            text_input: DialogInput
+    ) -> List[Encoding]:
+        return self._encode(text_input=text_input, train=True)
+
+    def _encode_for_inference(
+            self,
+            text_input: DialogInput
+    ) -> List[Encoding]:
+        return self._encode(text_input=text_input, train=False)
+
+    def _encode(self, text_input: DialogInput, train: bool) -> List[Encoding]:
+        utts_tok_ids = self._get_utts_tok_ids(
+            utts=text_input.utterances,
+            train=train
+        )
         tags_tok_ids = self._get_tags_tok_ids(tags=text_input.tags)
 
         encs = []
@@ -94,11 +109,19 @@ class DialogTokenizer(Tokenizer):
         enc = Encoding(token_ids=tok_ids, lm_labels=labels)
         return enc
 
-    def _get_utts_tok_ids(self, utts: Sequence[str]) -> List[List[int]]:
+    def _get_utts_tok_ids(
+            self,
+            utts: Sequence[str],
+            train: bool
+    ) -> List[List[int]]:
         tok_ids = []
 
-        for ut in utts:
+        for i, ut in enumerate(utts):
             ut = f'{_START_OF_UTTERANCE}{ut}{self.eos_token}'
+
+            if i == len(utts) - 1 and not train:
+                ut = f'{ut}{_START_OF_UTTERANCE}'
+
             tok_ids.append(self.encode(ut))
 
         return tok_ids
@@ -116,12 +139,6 @@ class DialogTokenizer(Tokenizer):
         tok_ids = self.encode(pers)[-self._max_pers_len:]
 
         return tok_ids
-
-    def _encode_for_inference(
-            self,
-            text_input: DialogInput
-    ) -> List[Encoding]:
-        pass
 
 
 def _not_ignore_utt(utt_id: int, pers_id: Optional[int]):
