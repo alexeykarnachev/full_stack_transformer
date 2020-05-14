@@ -2,6 +2,7 @@ import json
 import re
 from typing import Optional
 
+import numpy as np
 import torch
 import transformers
 from transformers import GPT2Config
@@ -46,7 +47,7 @@ class HFGPT2Model(Model):
             loss = lm_loss + self._ul_alpha * ul_loss
         else:
             loss = lm_loss
-            ul_loss = None
+            ul_loss = torch.tensor(np.float('nan'))
 
         output = LanguageModelOutput(
             lm_loss=lm_loss,
