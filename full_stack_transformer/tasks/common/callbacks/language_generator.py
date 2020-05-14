@@ -8,6 +8,7 @@ from full_stack_transformer.core.modelling.lightning import PLModule
 from full_stack_transformer.core.text_input import TextInput
 from full_stack_transformer.tasks.common.language_generator.generator import LanguageGeneratorParams, \
     LanguageGenerator
+from full_stack_transformer.tasks.common.text_inputs.dialog import DialogInput
 from full_stack_transformer.tasks.common.text_inputs.document import DocumentInput
 from full_stack_transformer.utilities.experiment import Workspace
 
@@ -82,6 +83,24 @@ class LanguageGeneratorDocumentCallback(LanguageGeneratorCallback):
             experiment_workspace: Workspace
     ):
         text_input = DocumentInput(body='', meta=None)
+        super().__init__(
+            experiment_workspace=experiment_workspace,
+            text_input=text_input
+        )
+
+
+class LanguageGeneratorDialogCallback(LanguageGeneratorCallback):
+    def __init__(
+            self,
+            experiment_workspace: Workspace
+    ):
+        text_input = DialogInput(
+            utterances=[
+                'Привет, меня зовут Лёша',
+                'Привет, а меня Маша. Чем любишь заниматься?'
+            ],
+            persona_0='Работаю программистом, люблю стрелять из пистолета'
+        )
         super().__init__(
             experiment_workspace=experiment_workspace,
             text_input=text_input
