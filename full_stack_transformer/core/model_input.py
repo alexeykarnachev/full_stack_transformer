@@ -44,7 +44,16 @@ class ModelInput(dict):
         fields = self.__dict__
 
         for name, field in fields.items():
-            if isinstance(field, torch.Tensor):
+            if hasattr(field, 'cuda'):
                 self.__dict__[name] = field.cuda(gpu_id)
+
+        return self
+
+    def to(self, device):
+        fields = self.__dict__
+
+        for name, field in fields.items():
+            if hasattr(field, 'to'):
+                self.__dict__[name] = field.to(device)
 
         return self
