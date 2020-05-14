@@ -12,7 +12,10 @@ class DialogDecTaskRunner(TaskRunner):
         super().__init__(pl_module_cls=DialogDecPLModule)
 
     def _get_trainer_callbacks(self) -> List[Callback]:
-        return [LanguageGeneratorDialogCallback(experiment_workspace=self.workspace)]
+        generator = LanguageGeneratorDialogCallback(
+            experiment_workspace=self.workspace
+        )
+        return [generator]
 
 
 if __name__ == '__main__':

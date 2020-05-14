@@ -13,7 +13,10 @@ class DocumentDecTaskRunner(TaskRunner):
         super().__init__(pl_module_cls=DocumentDecPLModule)
 
     def _get_trainer_callbacks(self) -> List[Callback]:
-        return [LanguageGeneratorDocumentCallback(experiment_workspace=self.workspace)]
+        generator = LanguageGeneratorDocumentCallback(
+            experiment_workspace=self.workspace
+        )
+        return [generator]
 
 
 if __name__ == '__main__':
