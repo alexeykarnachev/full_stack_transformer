@@ -42,8 +42,22 @@ def _collate_encodings(
         max_len=None
     )
 
+    if encodings[0].token_type_ids is not None:
+        token_type_ids = pad_sequences_from_right(
+            sequences=[e.token_type_ids for e in encodings],
+            pad_value=pad_value,
+            max_len=None
+        )
+        token_type_ids = torch.tensor(token_type_ids, dtype=torch.long)
+    else:
+        token_type_ids = None
+
     input_ids = torch.tensor(token_ids, dtype=torch.long, device=device)
     lm_labels = torch.tensor(lm_labels, dtype=torch.long, device=device)
-    model_input = ModelInput(input_ids=input_ids, lm_labels=lm_labels)
+    model_input = ModelInput(
+        input_ids=input_ids,
+        lm_labels=lm_labels,
+        token_type_ids=token_type_ids
+    )
 
     return model_input

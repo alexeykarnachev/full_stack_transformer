@@ -6,8 +6,10 @@ from pytorch_lightning import Callback, Trainer
 
 from full_stack_transformer.core.modelling.lightning import PLModule
 from full_stack_transformer.core.text_input import TextInput
-from full_stack_transformer.tasks.common.language_generator.generator import LanguageGeneratorParams, \
+from full_stack_transformer.tasks.common.language_generator.generator import (
+    LanguageGeneratorParams,
     LanguageGenerator
+)
 from full_stack_transformer.tasks.common.text_inputs.dialog import DialogInput
 from full_stack_transformer.tasks.common.text_inputs.document import DocumentInput
 from full_stack_transformer.utilities.experiment import Workspace
@@ -15,6 +17,7 @@ from full_stack_transformer.utilities.experiment import Workspace
 
 class LanguageGeneratorCallback(Callback):
     _OUTPUT_FILE_NAME = 'generated.txt'
+    _CONFIG_FILE_NAME = 'generation_config.json'
 
     @property
     def _default_params(self):
@@ -31,20 +34,54 @@ class LanguageGeneratorCallback(Callback):
     def _out_file(self) -> pathlib.Path:
         return self._workspace.experiment_dir / self._OUTPUT_FILE_NAME
 
+    @property
+    def _cfg_file(self) -> pathlib.Path:
+        return self._workspace.experiment_dir / self._CONFIG_FILE_NAME
+
     def __init__(
             self,
             experiment_workspace: Workspace,
-            text_input: TextInput
+            default_text_input: TextInput
     ):
         self._workspace = experiment_workspace
-        self._text_input = text_input
+        self._dflt_text_input = default_text_input
+
+        self._save_config()
+
+    def _save_config(self):
+        generator_params = self._default_params.__dict__
+        text_input_params = self._dflt_text_input.__dict__
+
+        cfg = {
+            'generator_params': generator_params,
+            'text_input_params': text_input_params
+        }
+
+        with self._cfg_file.open('w') as file:
+            json.dump(cfg, file, ensure_ascii=False, indent=2)
+
+    def _get_params_and_input(self):
+        try:
+            with self._cfg_file.open() as file:
+                cfg = json.load(file)
+
+            params = LanguageGeneratorParams(**cfg['generator_params'])
+            inp = self._dflt_text_input.__class__(**cfg['text_input_params'])
+            err = None
+        except Exception as e:
+            params = self._default_params
+            inp = self._dflt_text_input
+            err = str(e)
+
+        return params, inp, err
 
     def on_validation_end(
             self,
             trainer: Trainer,
             pl_module: PLModule
     ):
-        params = self._default_params
+        params, inp, err = self._get_params_and_input()
+
         tokenizer = pl_module.tokenizer
         model = pl_module.model
 
@@ -53,19 +90,17 @@ class LanguageGeneratorCallback(Callback):
             eos_token_id=tokenizer.eos_token_id
         )
 
-        inp_encoding = pl_module.tokenizer.encode_for_inference(
-            text_input=self._text_input,
-        )[0]
-
+        inp_encoding = pl_module.tokenizer.encode_for_inference(inp)[0]
         encodings = generator(encoding=inp_encoding, params=params)
-
         text_samples = [tokenizer.decode_encoding(e) for e in encodings]
 
         result = {
             'Global step': trainer.global_step,
             'Current epoch': trainer.current_epoch,
+            'Error message': err,
             'Generator params': params.__dict__,
-            'Generated samples': text_samples
+            'Generator input': inp.__dict__,
+            'Generated samples': text_samples,
         }
 
         self._dump_result(result=result)
@@ -85,7 +120,7 @@ class LanguageGeneratorDocumentCallback(LanguageGeneratorCallback):
         text_input = DocumentInput(body='', meta=None)
         super().__init__(
             experiment_workspace=experiment_workspace,
-            text_input=text_input
+            default_text_input=text_input
         )
 
 
@@ -95,13 +130,12 @@ class LanguageGeneratorDialogCallback(LanguageGeneratorCallback):
             experiment_workspace: Workspace
     ):
         text_input = DialogInput(
-            utterances=[
-                'Привет, меня зовут Лёша',
-                'Привет, а меня Маша. Чем любишь заниматься?'
-            ],
-            persona_0='Работаю программистом, люблю стрелять из пистолета'
+            utterances=[''],
+            persona_0='',
+            persona_1='',
+            tags=''
         )
         super().__init__(
             experiment_workspace=experiment_workspace,
-            text_input=text_input
+            default_text_input=text_input
         )

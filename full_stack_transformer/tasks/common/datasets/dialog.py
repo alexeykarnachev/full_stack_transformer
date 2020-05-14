@@ -24,7 +24,8 @@ class DialogDataset(Dataset):
             file_path=file_path,
             tokenizer=tokenizer,
             text_lines_parser=text_lines_parser,
-            encodings_collate=collate
+            encodings_collate=collate,
+            chunk_size=2000
         )
 
     def __len__(self) -> int:
@@ -42,6 +43,6 @@ def _count_samples_in_file(file_path: pathlib.Path) -> int:
             else:
                 n_samples += 1
 
-    _LOGGER.info(f'There are dialog {n_samples} samples in {file_path}.')
+    _LOGGER.info(f'There are {n_samples} dialog samples in {file_path}')
 
     return n_samples

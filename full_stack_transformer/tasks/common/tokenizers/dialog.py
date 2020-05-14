@@ -1,5 +1,6 @@
-from typing import List, Optional, Sequence
+from typing import List, Optional, Sequence, Tuple
 
+import more_itertools
 from tokenizers.implementations import BaseTokenizer
 
 from full_stack_transformer.core.constants import LOSS_IGNORE
@@ -7,11 +8,17 @@ from full_stack_transformer.core.encoding import Encoding
 from full_stack_transformer.core.tokenizer import Tokenizer
 from full_stack_transformer.tasks.common.text_inputs.dialog import DialogInput
 
-_START_OF_UTTERANCE = '[START_OF_UTTERANCE]'
+_PERSONA_SPEAKER = '[PERSONA_SPEAKER]'
+_NOT_PERSONA_SPEAKER = '[NOT_PERSONA_SPEAKER]'
 _END_OF_PERSONA = '[END_OF_PERSONA]'
 _END_OF_TAGS = '[END_OF_TAGS]'
 
-_SPECIAL_TOKENS = [_START_OF_UTTERANCE, _END_OF_PERSONA, _END_OF_TAGS]
+_SPECIAL_TOKENS = [
+    _PERSONA_SPEAKER,
+    _NOT_PERSONA_SPEAKER,
+    _END_OF_PERSONA,
+    _END_OF_TAGS
+]
 
 
 class DialogTokenizer(Tokenizer):
@@ -43,102 +50,132 @@ class DialogTokenizer(Tokenizer):
         return self._encode(text_input=text_input, train=False)
 
     def _encode(self, text_input: DialogInput, train: bool) -> List[Encoding]:
-        utts_tok_ids = self._get_utts_tok_ids(
-            utts=text_input.utterances,
-            train=train
+
+        tag_ids, tag_types, tag_labels = self._encode_meta(
+            string=text_input.tags,
+            end_token=_END_OF_TAGS,
+            max_len=self._max_tags_len
         )
-        tags_tok_ids = self._get_tags_tok_ids(tags=text_input.tags)
 
-        encs = []
+        encodings = []
 
-        perss = [text_input.persona_0, text_input.persona_1]
-
-        if not perss[0] and not perss[1]:
-            enc = self._get_pers_enc(
-                pers=None,
-                pers_id=None,
-                tags_tok_ids=tags_tok_ids,
-                utts_tok_ids=utts_tok_ids
+        if text_input.persona_0:
+            pers_ids, pers_types, pers_labels = self._encode_meta(
+                string=text_input.persona_0,
+                end_token=_END_OF_PERSONA,
+                max_len=self._max_pers_len
             )
-            encs.append(enc)
-        else:
-            for i_pers, pers in enumerate(perss):
-                if pers is not None:
-                    enc = self._get_pers_enc(
-                        pers=pers,
-                        pers_id=i_pers,
-                        tags_tok_ids=tags_tok_ids,
-                        utts_tok_ids=utts_tok_ids
-                    )
-                    encs.append(enc)
 
-        return encs
+            dlg_ids, dlg_types, dlg_labels = self._encode_dialog(
+                utterances=text_input.utterances,
+                pers_idx=0,
+                train=train
+            )
 
-    def _get_pers_enc(
+            enc = Encoding(
+                token_ids=tag_ids + pers_ids + dlg_ids,
+                lm_labels=tag_labels + pers_labels + dlg_labels,
+                token_type_ids=tag_types + pers_types + dlg_types
+            )
+            encodings.append(enc)
+
+        if text_input.persona_1:
+            pers_ids, pers_types, pers_labels = self._encode_meta(
+                string=text_input.persona_1,
+                end_token=_END_OF_PERSONA,
+                max_len=self._max_pers_len
+            )
+
+            dlg_ids, dlg_types, dlg_labels = self._encode_dialog(
+                utterances=text_input.utterances,
+                pers_idx=1,
+                train=train
+            )
+
+            enc = Encoding(
+                token_ids=tag_ids + pers_ids + dlg_ids,
+                lm_labels=tag_labels + pers_labels + dlg_labels,
+                token_type_ids=tag_types + pers_types + dlg_types
+            )
+            encodings.append(enc)
+
+        if not text_input.persona_0 and not text_input.persona_1:
+            pers_ids, pers_types, pers_labels = self._encode_meta(
+                string=None,
+                end_token=_END_OF_PERSONA,
+                max_len=self._max_pers_len
+            )
+
+            dlg_ids, dlg_types, dlg_labels = self._encode_dialog(
+                utterances=text_input.utterances,
+                pers_idx=None,
+                train=train
+            )
+
+            enc = Encoding(
+                token_ids=tag_ids + pers_ids + dlg_ids,
+                lm_labels=tag_labels + pers_labels + dlg_labels,
+                token_type_ids=tag_types + pers_types + dlg_types
+            )
+            encodings.append(enc)
+
+        return encodings
+
+    def _encode_meta(
             self,
-            pers: Optional[str],
-            pers_id: Optional[int],
-            tags_tok_ids: List[int],
-            utts_tok_ids: Sequence[List[int]]
-    ) -> Encoding:
-        pers_tok_ids = self._get_pers_tok_ids(pers=pers)
-        tok_ids = tags_tok_ids + pers_tok_ids
-        tags_labels = [LOSS_IGNORE] * len(tags_tok_ids)
-        pers_labels = [LOSS_IGNORE] * len(pers_tok_ids)
-        labels = tags_labels + pers_labels
+            string: Optional[str],
+            end_token: str,
+            max_len: int
+    ) -> Tuple[List[int], List[int], List[int]]:
+        string = string or ''
+        string = f'{string}{end_token}'
+        ids = self.encode(string)
+        types = [ids[-1]] * len(ids)
+        labels = [LOSS_IGNORE] * len(ids)
+        return ids[-max_len:], types[-max_len:], labels[-max_len:]
 
-        dialog_tok_ids = []
-        dialog_labels = []
-
-        for i_utt, utt_tok_ids in enumerate(utts_tok_ids):
-            if _not_ignore_utt(utt_id=i_utt, pers_id=pers_id):
-                utt_labels = list(utt_tok_ids)
-                utt_labels[0] = LOSS_IGNORE
-            else:
-                utt_labels = [LOSS_IGNORE] * len(utt_tok_ids)
-
-            dialog_labels += utt_labels
-            dialog_tok_ids += utt_tok_ids
-
-        dialog_tok_ids = dialog_tok_ids[-self._max_dialog_len:]
-        dialog_labels = dialog_labels[-self._max_dialog_len:]
-
-        tok_ids += dialog_tok_ids
-        labels += dialog_labels
-
-        enc = Encoding(token_ids=tok_ids, lm_labels=labels)
-        return enc
-
-    def _get_utts_tok_ids(
+    def _encode_dialog(
             self,
-            utts: Sequence[str],
+            utterances: Sequence[str],
+            pers_idx: Optional[int],
             train: bool
-    ) -> List[List[int]]:
-        tok_ids = []
+    ) -> Tuple[List[int], List[int], List[int]]:
+        utts = []
 
-        for i, ut in enumerate(utts):
-            ut = f'{_START_OF_UTTERANCE}{ut}{self.eos_token}'
+        ignore_loss = []
+        for idx, ut in enumerate(utterances):
+            if pers_idx is None or idx % 2 == pers_idx:
+                pers_tok, not_pers_tok = _PERSONA_SPEAKER, _NOT_PERSONA_SPEAKER
+                ignore_loss.append(False)
+            else:
+                pers_tok, not_pers_tok = _NOT_PERSONA_SPEAKER, _PERSONA_SPEAKER
+                ignore_loss.append(True)
 
-            if i == len(utts) - 1 and not train:
-                ut = f'{ut}{_START_OF_UTTERANCE}'
+            ut = f'{pers_tok}{ut}{self.eos_token}'
+            if idx == len(utterances) - 1 and not train:
+                ut = f'{ut}{not_pers_tok}'
 
-            tok_ids.append(self.encode(ut))
+            utts.append(ut)
 
-        return tok_ids
+        utts_ids = self.batch_encode_plus(utts, add_special_tokens=False)
+        utts_ids = list(utts_ids['input_ids'])
+        tok_types = [[u[0]] * len(u) for u in utts_ids]
 
-    def _get_tags_tok_ids(self, tags: Optional[str]) -> List[int]:
-        tags = tags or ''
-        tags = f'{tags}{_END_OF_TAGS}'
-        tok_ids = self.encode(tags)[-self._max_tags_len:]
+        labels = []
+        for ids, ignore in zip(utts_ids, ignore_loss):
+            if ignore:
+                labs = [LOSS_IGNORE] * len(ids)
+            else:
+                labs = list(ids)
+                labs[0] = LOSS_IGNORE
 
-        return tok_ids
+            labels.append(labs)
 
-    def _get_pers_tok_ids(self, pers: Optional[str]) -> List[int]:
-        pers = pers or ''
-        pers = f'{pers}{_END_OF_PERSONA}'
-        tok_ids = self.encode(pers)[-self._max_pers_len:]
+        ids = list(more_itertools.flatten(utts_ids))[-self._max_dialog_len:]
+        types = list(more_itertools.flatten(tok_types))[-self._max_dialog_len:]
+        labels = list(more_itertools.flatten(labels))[-self._max_dialog_len:]
 
-        return tok_ids
+        return ids, types, labels
 
 
 def _not_ignore_utt(utt_id: int, pers_id: Optional[int]):

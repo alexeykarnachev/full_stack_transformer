@@ -51,6 +51,8 @@ class LanguageGenerator:
             device=self._model.device
         )
 
+        model_inp = model_inp.cuda(self._model.device)
+
         progress = GenerationProgressTracker(
             eos_token_id=self._eos_token_ids,
             max_length=params.max_number_of_generated_tokens
@@ -156,7 +158,11 @@ def _get_candidates(generated_tokens, generated_sample_lengths):
     for i in range(generated_tokens.size()[0]):
         token_ids = generated_tokens[i, :generated_sample_lengths[i]]
         token_ids = token_ids.detach().cpu().numpy().tolist()
-        candidate = Encoding(token_ids=token_ids, lm_labels=token_ids)
+        candidate = Encoding(
+            token_ids=token_ids,
+            lm_labels=token_ids,
+            token_type_ids=None
+        )
         candidates.append(candidate)
 
     return candidates
