@@ -14,10 +14,14 @@ class _FakeTextInput:
 
 
 class _FakeTokenizer:
-    def encode_for_train(self, text_input: _FakeTextInput) -> List[Encoding]:
+    def encode_for_train(self, text_input: _FakeTextInput) -> Encoding:
         token_ids = [int(x) for x in list(text_input.body)]
-        enc = Encoding(token_ids=token_ids, lm_labels=token_ids)
-        return [enc]
+        enc = Encoding(
+            token_ids=token_ids,
+            lm_labels=token_ids,
+            token_type_ids=None
+        )
+        return enc
 
 
 def test_encodings_producer():
@@ -40,6 +44,7 @@ def test_encodings_producer():
 
     for text_input in text_inputs:
         token_ids = [int(x) for x in list(text_input.body)]
-        expected_encoding = [Encoding(token_ids=token_ids, lm_labels=token_ids)]
-        predicted_encoding = out_encodings_queue.get()
+        expected_encoding = Encoding(
+            token_ids=token_ids, lm_labels=token_ids, token_type_ids=None)
+        predicted_encoding = out_encodings_queue.get()[0]
         assert predicted_encoding == expected_encoding

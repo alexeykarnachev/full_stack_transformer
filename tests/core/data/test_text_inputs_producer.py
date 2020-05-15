@@ -1,6 +1,6 @@
 import pathlib
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List
 
 import pytest
 
@@ -21,8 +21,8 @@ class _FakeTextLinesParser(TextLinesParser):
     def __init__(self):
         pass
 
-    def parse(self, text: str) -> Optional[_FakeTextInput]:
-        return _FakeTextInput(body=text)
+    def parse(self, text: str) -> List[_FakeTextInput]:
+        return [_FakeTextInput(body=text)]
 
 
 @pytest.mark.parametrize('chunk_size', [1, 3, 10, 1000, 5000])

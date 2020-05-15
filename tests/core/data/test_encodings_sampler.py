@@ -18,7 +18,11 @@ def test_encodings_sampler(chunk_size):
 
     for i in range(500):
         token_ids = [0] * np.random.randint(0, 100)
-        encoding = Encoding(token_ids=token_ids, lm_labels=[0])
+        encoding = Encoding(
+            token_ids=token_ids,
+            lm_labels=[0],
+            token_type_ids=None
+        )
         chunk.append(encoding)
 
         if len(chunk) == chunk_size:
