@@ -1,6 +1,7 @@
 import json
 import pathlib
 from collections import Mapping
+from typing import Tuple, List, Optional
 
 from pytorch_lightning import Callback, Trainer
 
@@ -56,56 +57,64 @@ class LanguageGeneratorCallback(Callback):
             'generator_params': generator_params,
             'text_input_params': text_input_params
         }
+        cfg = [cfg]
 
         with self._cfg_file.open('w') as file:
             json.dump(cfg, file, ensure_ascii=False, indent=2)
 
-    def _get_params_and_input(self):
+    def _load_params_and_inputs(
+            self
+    ) -> Tuple[List[Tuple[LanguageGeneratorParams, TextInput]], Optional[str]]:
         try:
+            output = []
             with self._cfg_file.open() as file:
                 cfg = json.load(file)
 
-            params = LanguageGeneratorParams(**cfg['generator_params'])
-            inp = self._dflt_text_input.__class__(**cfg['text_input_params'])
+            for c in cfg:
+                params = LanguageGeneratorParams(**c['generator_params'])
+                inp = self._dflt_text_input.__class__(**c['text_input_params'])
+                output.append((params, inp))
+
             err = None
         except Exception as e:
-            params = self._default_params
-            inp = self._dflt_text_input
+            output = [(self._default_params, self._dflt_text_input)]
             err = str(e)
 
-        return params, inp, err
+        return output, err
 
     def on_validation_end(
             self,
             trainer: Trainer,
             pl_module: PLModule
     ):
-        params, inp, err = self._get_params_and_input()
+        params_and_inputs, err = self._load_params_and_inputs()
+        results = []
+        for params, inp in params_and_inputs:
+            tokenizer = pl_module.tokenizer
+            model = pl_module.model
 
-        tokenizer = pl_module.tokenizer
-        model = pl_module.model
+            generator = LanguageGenerator(
+                model=model,
+                eos_token_id=tokenizer.eos_token_id
+            )
 
-        generator = LanguageGenerator(
-            model=model,
-            eos_token_id=tokenizer.eos_token_id
-        )
+            inp_encoding = pl_module.tokenizer.encode_for_inference(inp)
+            encodings = generator(encoding=inp_encoding, params=params)
+            text_samples = [tokenizer.decode_encoding(e) for e in encodings]
 
-        inp_encoding = pl_module.tokenizer.encode_for_inference(inp)
-        encodings = generator(encoding=inp_encoding, params=params)
-        text_samples = [tokenizer.decode_encoding(e) for e in encodings]
+            result = {
+                'Global step': trainer.global_step,
+                'Current epoch': trainer.current_epoch,
+                'Error message': err,
+                'Generator params': params.__dict__,
+                'Generator input': inp.__dict__,
+                'Generated samples': text_samples,
+            }
+            results.append(result)
 
-        result = {
-            'Global step': trainer.global_step,
-            'Current epoch': trainer.current_epoch,
-            'Error message': err,
-            'Generator params': params.__dict__,
-            'Generator input': inp.__dict__,
-            'Generated samples': text_samples,
-        }
+        self._dump_result(result=results)
 
-        self._dump_result(result=result)
-
-    def _dump_result(self, result: Mapping):
+    def _dump_result(self, result: List):
         with self._out_file.open('a') as file:
             out_str = json.dumps(obj=result, ensure_ascii=False, indent=4)
             out_str += '\n'
