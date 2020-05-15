@@ -90,7 +90,7 @@ class LanguageGeneratorCallback(Callback):
             eos_token_id=tokenizer.eos_token_id
         )
 
-        inp_encoding = pl_module.tokenizer.encode_for_inference(inp)[0]
+        inp_encoding = pl_module.tokenizer.encode_for_inference(inp)
         encodings = generator(encoding=inp_encoding, params=params)
         text_samples = [tokenizer.decode_encoding(e) for e in encodings]
 

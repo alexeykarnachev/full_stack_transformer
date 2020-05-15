@@ -45,7 +45,7 @@ class ViewsRegister:
             )
             inp_encoding = self._tokenizer.encode_for_inference(
                 text_input=document
-            )[0]
+            )
             encodings = self._generator(
                 encoding=inp_encoding,
                 params=params

@@ -29,7 +29,7 @@ if __name__ == '__main__':
     )
 
     document = DocumentInput(body='The best filosopher of the 19th century is')
-    inp_encoding = tokenizer.encode_for_inference(text_input=document)[0]
+    inp_encoding = tokenizer.encode_for_inference(text_input=document)
 
     out_encodings = generator(inp_encoding, params=generator_params)
     for enc in out_encodings:
