@@ -37,89 +37,38 @@ class DialogTokenizer(Tokenizer):
         self._max_dialog_len = max_dialog_len
         self.add_special_tokens({'additional_special_tokens': _SPECIAL_TOKENS})
 
-    def _encode_for_train(
-            self,
-            text_input: DialogInput
-    ) -> List[Encoding]:
+    def _encode_for_train(self, text_input: DialogInput) -> Encoding:
         return self._encode(text_input=text_input, train=True)
 
-    def _encode_for_inference(
-            self,
-            text_input: DialogInput
-    ) -> List[Encoding]:
+    def _encode_for_inference(self, text_input: DialogInput) -> Encoding:
         return self._encode(text_input=text_input, train=False)
 
-    def _encode(self, text_input: DialogInput, train: bool) -> List[Encoding]:
-
+    def _encode(self, text_input: DialogInput, train: bool) -> Encoding:
         tag_ids, tag_types, tag_labels = self._encode_meta(
             string=text_input.tags,
             end_token=_END_OF_TAGS,
             max_len=self._max_tags_len
         )
 
-        encodings = []
+        pers_ids, pers_types, pers_labels = self._encode_meta(
+            string=text_input.persona,
+            end_token=_END_OF_PERSONA,
+            max_len=self._max_pers_len
+        )
 
-        if text_input.persona_0:
-            pers_ids, pers_types, pers_labels = self._encode_meta(
-                string=text_input.persona_0,
-                end_token=_END_OF_PERSONA,
-                max_len=self._max_pers_len
-            )
+        dlg_ids, dlg_types, dlg_labels = self._encode_dialog(
+            utterances=text_input.utterances,
+            pers_idx=text_input.persona_idx,
+            train=train
+        )
 
-            dlg_ids, dlg_types, dlg_labels = self._encode_dialog(
-                utterances=text_input.utterances,
-                pers_idx=0,
-                train=train
-            )
+        enc = Encoding(
+            token_ids=tag_ids + pers_ids + dlg_ids,
+            lm_labels=tag_labels + pers_labels + dlg_labels,
+            token_type_ids=tag_types + pers_types + dlg_types
+        )
 
-            enc = Encoding(
-                token_ids=tag_ids + pers_ids + dlg_ids,
-                lm_labels=tag_labels + pers_labels + dlg_labels,
-                token_type_ids=tag_types + pers_types + dlg_types
-            )
-            encodings.append(enc)
-
-        if text_input.persona_1:
-            pers_ids, pers_types, pers_labels = self._encode_meta(
-                string=text_input.persona_1,
-                end_token=_END_OF_PERSONA,
-                max_len=self._max_pers_len
-            )
-
-            dlg_ids, dlg_types, dlg_labels = self._encode_dialog(
-                utterances=text_input.utterances,
-                pers_idx=1,
-                train=train
-            )
-
-            enc = Encoding(
-                token_ids=tag_ids + pers_ids + dlg_ids,
-                lm_labels=tag_labels + pers_labels + dlg_labels,
-                token_type_ids=tag_types + pers_types + dlg_types
-            )
-            encodings.append(enc)
-
-        if not text_input.persona_0 and not text_input.persona_1:
-            pers_ids, pers_types, pers_labels = self._encode_meta(
-                string=None,
-                end_token=_END_OF_PERSONA,
-                max_len=self._max_pers_len
-            )
-
-            dlg_ids, dlg_types, dlg_labels = self._encode_dialog(
-                utterances=text_input.utterances,
-                pers_idx=None,
-                train=train
-            )
-
-            enc = Encoding(
-                token_ids=tag_ids + pers_ids + dlg_ids,
-                lm_labels=tag_labels + pers_labels + dlg_labels,
-                token_type_ids=tag_types + pers_types + dlg_types
-            )
-            encodings.append(enc)
-
-        return encodings
+        return enc
 
     def _encode_meta(
             self,
@@ -149,10 +98,7 @@ class DialogTokenizer(Tokenizer):
                 ignore_loss.append(False)
             else:
                 pers_tok, not_pers_tok = _NOT_PERSONA_SPEAKER, _PERSONA_SPEAKER
-                # Original idea was to ignore loss for the non-persona speaker.
-                # So, the flag was True. But the model learns to copy persona
-                # string is such a way. I'll try to use False.
-                ignore_loss.append(False)
+                ignore_loss.append(True)
 
             ut = f'{pers_tok}{ut}{self.eos_token}'
             if idx == len(utterances) - 1 and not train:

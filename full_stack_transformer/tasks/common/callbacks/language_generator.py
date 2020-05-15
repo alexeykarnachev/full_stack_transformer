@@ -131,9 +131,9 @@ class LanguageGeneratorDialogCallback(LanguageGeneratorCallback):
     ):
         text_input = DialogInput(
             utterances=[''],
-            persona_0='',
-            persona_1='',
-            tags=''
+            persona=None,
+            persona_idx=None,
+            tags=None
         )
         super().__init__(
             experiment_workspace=experiment_workspace,

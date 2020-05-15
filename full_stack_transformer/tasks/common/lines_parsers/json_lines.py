@@ -1,5 +1,5 @@
 import json
-from typing import Type
+from typing import Type, List
 
 from full_stack_transformer.core.data.text_lines_parsers import TextLinesParser
 from full_stack_transformer.core.text_input import TextInput
@@ -9,6 +9,6 @@ class JsonLinesParser(TextLinesParser):
     def __init__(self, text_input_cls: Type[TextInput]):
         self._cls = text_input_cls
 
-    def parse(self, text: str) -> TextInput:
+    def parse(self, text: str) -> List[TextInput]:
         inp = self._cls(**json.loads(text))
-        return inp
+        return [inp]

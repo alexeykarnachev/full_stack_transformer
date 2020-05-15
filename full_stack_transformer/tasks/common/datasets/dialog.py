@@ -4,7 +4,8 @@ import pathlib
 
 from full_stack_transformer.core.data.dataset import Dataset
 from full_stack_transformer.core.data.encodings_collate import EncodingsCollate
-from full_stack_transformer.tasks.common.line_parsers.json_lines import JsonLinesParser
+from full_stack_transformer.tasks.common.lines_parsers.dialog_lines import DialogLinesParser
+from full_stack_transformer.tasks.common.lines_parsers.json_lines import JsonLinesParser
 from full_stack_transformer.tasks.common.text_inputs.dialog import DialogInput
 from full_stack_transformer.tasks.common.tokenizers.dialog import DialogTokenizer
 
@@ -18,7 +19,7 @@ class DialogDataset(Dataset):
             tokenizer: DialogTokenizer,
     ):
         collate = EncodingsCollate(pad_value=tokenizer.pad_token_id)
-        text_lines_parser = JsonLinesParser(text_input_cls=DialogInput)
+        text_lines_parser = DialogLinesParser()
 
         super().__init__(
             file_path=file_path,

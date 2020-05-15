@@ -32,24 +32,24 @@ class Tokenizer(PreTrainedTokenizerFast):
 
         self.add_special_tokens({'additional_special_tokens': _SPECIAL_TOKENS})
 
-    def encode_for_train(self, text_input: TextInput) -> List[Encoding]:
+    def encode_for_train(self, text_input: TextInput) -> Encoding:
         text_input = self._preprocess_input(text_input=text_input)
-        encodings = self._encode_for_train(text_input=text_input)
+        encoding = self._encode_for_train(text_input=text_input)
 
-        return encodings
+        return encoding
 
-    def encode_for_inference(self, text_input: TextInput) -> List[Encoding]:
+    def encode_for_inference(self, text_input: TextInput) -> Encoding:
         text_input = self._preprocess_input(text_input=text_input)
-        encodings = self._encode_for_inference(text_input=text_input)
+        encoding = self._encode_for_inference(text_input=text_input)
 
-        return encodings
+        return encoding
 
     @abc.abstractmethod
-    def _encode_for_train(self, text_input: TextInput) -> List[Encoding]:
+    def _encode_for_train(self, text_input: TextInput) -> Encoding:
         pass
 
     @abc.abstractmethod
-    def _encode_for_inference(self, text_input: TextInput) -> List[Encoding]:
+    def _encode_for_inference(self, text_input: TextInput) -> Encoding:
         pass
 
     @abc.abstractmethod

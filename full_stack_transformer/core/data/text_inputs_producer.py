@@ -24,13 +24,13 @@ class TextInputsProducer(Process):
             chunk = []
             with self._file_path.open() as file:
                 for line in file:
-                    text_input = self._parser.parse(line)
-                    if text_input is not None:
-                        chunk.append(text_input)
+                    text_inputs = self._parser.parse(line)
 
-                        if len(chunk) >= self._chunk_size:
-                            self._out_queue.put(chunk)
-                            chunk = []
+                    chunk.extend(text_inputs)
+
+                    if len(chunk) >= self._chunk_size:
+                        self._out_queue.put(chunk)
+                        chunk = []
 
             if len(chunk) > 0:
                 self._out_queue.put(chunk)

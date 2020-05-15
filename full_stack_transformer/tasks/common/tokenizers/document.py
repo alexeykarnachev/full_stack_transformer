@@ -7,7 +7,6 @@ from full_stack_transformer.core.constants import LOSS_IGNORE
 from full_stack_transformer.core.encoding import Encoding
 from full_stack_transformer.core.tokenizer import Tokenizer
 from full_stack_transformer.tasks.common.text_inputs.document import DocumentInput
-from full_stack_transformer.utilities.factory import get_object
 
 _START_OF_DOCUMENT = '[START_OF_DOCUMENT]'
 _END_OF_META = '[END_OF_META]'
@@ -31,23 +30,17 @@ class DocumentTokenizer(Tokenizer):
         self._ignore_meta_prob = ignore_meta_prob
         self.add_special_tokens({'additional_special_tokens': _SPECIAL_TOKENS})
 
-    def _encode_for_train(
-            self,
-            text_input: DocumentInput
-    ) -> List[Encoding]:
+    def _encode_for_train(self, text_input: DocumentInput) -> Encoding:
         return self._encode(document=text_input, with_eos=True)
 
-    def _encode_for_inference(
-            self,
-            text_input: DocumentInput
-    ) -> List[Encoding]:
+    def _encode_for_inference(self, text_input: DocumentInput) -> Encoding:
         return self._encode(document=text_input, with_eos=False)
 
     def _encode(
             self,
             document: DocumentInput,
             with_eos: bool = True
-    ) -> List[Encoding]:
+    ) -> Encoding:
 
         body = document.body
         if np.random.rand() > self._ignore_meta_prob:
@@ -70,7 +63,7 @@ class DocumentTokenizer(Tokenizer):
             meta_lm_labels=meta_lm_labels
         )
 
-        return [encoding]
+        return encoding
 
     def _get_body_ids_and_labels(self, body: str, with_eos: bool):
         body = self.prepare_for_tokenization(text=body)

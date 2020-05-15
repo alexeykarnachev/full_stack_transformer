@@ -22,6 +22,6 @@ class EncodingsProducer(Process):
             encodings = []
             for text_input in input_chunk:
                 enc = self._tokenizer.encode_for_train(text_input)
-                encodings.extend(enc)
+                encodings.append(enc)
 
             self._out_queue.put(encodings)
