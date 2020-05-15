@@ -1,5 +1,5 @@
 import json
-from typing import Type, List
+from typing import List
 
 from full_stack_transformer.core.data.text_lines_parsers import TextLinesParser
 from full_stack_transformer.tasks.common.text_inputs.dialog import DialogInput
