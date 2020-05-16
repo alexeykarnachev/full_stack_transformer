@@ -102,7 +102,8 @@ class DocumentTokenizer(Tokenizer):
         lm_labels = meta_lm_labels + body_lm_labels[:self._max_body_len]
         encoding = Encoding(
             token_ids=token_ids,
-            lm_labels=lm_labels
+            lm_labels=lm_labels,
+            token_type_ids=None
         )
 
         return encoding
