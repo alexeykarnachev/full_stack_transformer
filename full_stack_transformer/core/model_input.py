@@ -7,10 +7,6 @@ class ModelInputError(Exception):
 
 ModelInput = namedtuple(
     typename='ModelInput',
-    field_names=(
-        'input_ids',
-        'token_type_ids',
-        'lm_labels',
-        'past'
-    )
+    field_names=('input_ids', 'token_type_ids', 'lm_labels', 'past'),
+    defaults=(None, None, None, None)
 )
