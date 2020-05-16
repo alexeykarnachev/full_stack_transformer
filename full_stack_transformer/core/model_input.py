@@ -13,7 +13,7 @@ ModelInput = namedtuple(
 
 
 def _cuda(self, gpu_id):
-    for name, value in self._asdict().iteritems():
+    for name, value in self._asdict().items():
         if value is not None:
             self[name] = value.cuda(gpu_id)
 
