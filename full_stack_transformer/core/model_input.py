@@ -1,7 +1,5 @@
 from collections import namedtuple
 
-import torch
-
 
 class ModelInputError(Exception):
     pass
@@ -19,6 +17,8 @@ def _cuda(self, gpu_id):
     for name, value in d.items():
         if value is not None:
             d[name] = value.cuda(gpu_id)
+
+    return self
 
 
 ModelInput.cuda = _cuda
