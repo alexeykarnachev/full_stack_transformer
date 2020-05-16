@@ -1,5 +1,7 @@
 from collections import namedtuple
 
+import torch
+
 
 class ModelInputError(Exception):
     pass
@@ -13,9 +15,10 @@ ModelInput = namedtuple(
 
 
 def _cuda(self, gpu_id):
-    for name, value in self._asdict().items():
+    d = self._asdict()
+    for name, value in d.items():
         if value is not None:
-            self[name] = value.cuda(gpu_id)
+            d[name] = value.cuda(gpu_id)
 
 
 ModelInput.cuda = _cuda
