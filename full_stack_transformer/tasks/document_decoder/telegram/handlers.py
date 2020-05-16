@@ -193,7 +193,7 @@ class LoggingHandler:
     FORMATTER = '%(asctime)s %(message)s'
 
     def __init__(self, logs_dir: pathlib.Path):
-        self._logs_dir = logs_dir
+        self._logs_dir = pathlib.Path(logs_dir)
         self._cache = dict()
 
         self._logs_dir.mkdir(parents=True, exist_ok=True)
