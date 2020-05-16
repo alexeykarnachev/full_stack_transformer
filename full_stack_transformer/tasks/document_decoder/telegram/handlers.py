@@ -147,7 +147,7 @@ def _prepare_reply_text(
     if status == 200:
         response_dict = json.loads(response_text)
         generated_text = response_dict['texts'][0]
-        generated_text = f'<b>{prefix_string}</b>\n{generated_text}'
+        generated_text = f'<b>{prefix_string}</b>{generated_text}'
     else:
         generated_text = HandlersRegister.TEXT_GENERATOR_SERVICE_ERROR_MESSAGE
 
