@@ -48,7 +48,8 @@ def _collate_encodings(
             pad_value=pad_value,
             max_len=None
         )
-        token_type_ids = torch.tensor(token_type_ids, dtype=torch.long)
+        token_type_ids = torch.tensor(
+            token_type_ids, dtype=torch.long, device=device)
     else:
         token_type_ids = None
 
