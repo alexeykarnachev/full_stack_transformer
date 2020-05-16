@@ -24,10 +24,10 @@ class HandlersRegister:
 
     DEFAULT_PARAMS = {
         'max_number_of_generated_tokens': 128,
-        'temperature': 1.0,
-        'top_k': 0,
+        'temperature': 0.8,
+        'top_k': 50,
         'top_p': 1.0,
-        'repetition_penalty': 1.0
+        'repetition_penalty': 2.0
     }
 
     def __init__(
@@ -147,7 +147,7 @@ def _prepare_reply_text(
     if status == 200:
         response_dict = json.loads(response_text)
         generated_text = response_dict['texts'][0]
-        generated_text = f'<b>{prefix_string}</b> {generated_text}'
+        generated_text = f'<b>{prefix_string}</b>\n{generated_text}'
     else:
         generated_text = HandlersRegister.TEXT_GENERATOR_SERVICE_ERROR_MESSAGE
 
