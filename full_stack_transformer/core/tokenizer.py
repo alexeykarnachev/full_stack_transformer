@@ -69,6 +69,4 @@ class Tokenizer(PreTrainedTokenizerFast):
 
         text = self._postprocess_text(text)
 
-        text = text.strip()
-
         return text
