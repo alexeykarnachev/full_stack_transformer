@@ -1,6 +1,7 @@
 import pathlib
 from dataclasses import dataclass
-from typing import Optional, List
+from multiprocessing import Queue
+from typing import List
 
 import pytest
 
@@ -8,8 +9,6 @@ from full_stack_transformer.core.data.text_inputs_producer import TextInputsProd
 from full_stack_transformer.core.data.text_lines_parsers import TextLinesParser
 from full_stack_transformer.core.text_input import TextInput
 from tests.utilities import generate_random_text_file
-
-from multiprocessing import Queue
 
 
 @dataclass

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from multiprocessing import Queue
-from typing import List
 
 import numpy as np
 

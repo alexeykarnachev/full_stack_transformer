@@ -41,7 +41,10 @@ class PLModule(LightningModule, ArgparserExtender):
         optimizer = self._get_optimizer()
         scheduler = self._get_lr_scheduler(optimizer=optimizer)
 
-        return [optimizer], [scheduler]
+        if scheduler is None:
+            return optimizer
+        else:
+            return [optimizer], [scheduler]
 
     def _step(self, model_inp: ModelInput) -> Tuple[torch.Tensor, Mapping]:
         output = self.forward(model_inp=model_inp)
