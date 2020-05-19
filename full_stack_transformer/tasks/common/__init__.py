@@ -1,8 +1,11 @@
-from full_stack_transformer.tasks.common.tokenizers.hf_gpt2 import (
-    HFGPT2DocumentTokenizer,
-    HFGPT2DialogTokenizer
-)
-from full_stack_transformer.tasks.common.tokenizers.ru_transformers import (
-    RuTransformersDocumentTokenizer,
-    RuTransformersDialogTokenizer
-)
+from full_stack_transformer.tasks.dialog_decoder.tokenizers.hf_gpt2 import HFGPT2DialogTokenizer
+from full_stack_transformer.tasks.dialog_decoder.tokenizers.ru_transformers import RuTransformersDialogTokenizer
+from full_stack_transformer.tasks.document_decoder.tokenizers.hf_gpt2 import HFGPT2DocumentTokenizer
+from full_stack_transformer.tasks.document_decoder.tokenizers.ru_transformers import RuTransformersDocumentTokenizer
+
+__all__ = [
+    'HFGPT2DialogTokenizer',
+    'RuTransformersDialogTokenizer',
+    'HFGPT2DocumentTokenizer',
+    'RuTransformersDocumentTokenizer'
+]

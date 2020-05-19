@@ -6,7 +6,7 @@ from tokenizers.implementations import BaseTokenizer
 from full_stack_transformer.core.constants import LOSS_IGNORE
 from full_stack_transformer.core.encoding import Encoding
 from full_stack_transformer.core.tokenizer import Tokenizer
-from full_stack_transformer.tasks.common.text_inputs.document import DocumentInput
+from full_stack_transformer.tasks.document_decoder.text_input import DocumentInput
 
 _START_OF_DOCUMENT = '[START_OF_DOCUMENT]'
 _END_OF_META = '[END_OF_META]'

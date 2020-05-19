@@ -1,6 +1,5 @@
 import json
 import pathlib
-from collections import Mapping
 from typing import Tuple, List, Optional
 
 from pytorch_lightning import Callback, Trainer
@@ -11,8 +10,6 @@ from full_stack_transformer.tasks.common.language_generator.generator import (
     LanguageGeneratorParams,
     LanguageGenerator
 )
-from full_stack_transformer.tasks.common.text_inputs.dialog import DialogInput
-from full_stack_transformer.tasks.common.text_inputs.document import DocumentInput
 from full_stack_transformer.utilities.experiment import Workspace
 
 
@@ -119,32 +116,3 @@ class LanguageGeneratorCallback(Callback):
             out_str = json.dumps(obj=result, ensure_ascii=False, indent=4)
             out_str += '\n'
             file.write(out_str)
-
-
-class LanguageGeneratorDocumentCallback(LanguageGeneratorCallback):
-    def __init__(
-            self,
-            experiment_workspace: Workspace
-    ):
-        text_input = DocumentInput(body='', meta=None)
-        super().__init__(
-            experiment_workspace=experiment_workspace,
-            default_text_input=text_input
-        )
-
-
-class LanguageGeneratorDialogCallback(LanguageGeneratorCallback):
-    def __init__(
-            self,
-            experiment_workspace: Workspace
-    ):
-        text_input = DialogInput(
-            utterances=[''],
-            persona=None,
-            persona_idx=None,
-            tags=None
-        )
-        super().__init__(
-            experiment_workspace=experiment_workspace,
-            default_text_input=text_input
-        )

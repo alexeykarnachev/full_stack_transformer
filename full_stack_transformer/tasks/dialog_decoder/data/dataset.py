@@ -5,8 +5,8 @@ import tempfile
 
 from full_stack_transformer.core.data.dataset import Dataset
 from full_stack_transformer.core.data.encodings_collate import EncodingsCollate
-from full_stack_transformer.tasks.common.lines_parsers.dialog_lines import DialogLinesParser
-from full_stack_transformer.tasks.common.tokenizers.dialog import DialogTokenizer
+from full_stack_transformer.tasks.dialog_decoder.data.text_lines_parser import DialogLinesParser
+from full_stack_transformer.tasks.dialog_decoder.tokenizer import DialogTokenizer
 from full_stack_transformer.utilities.files import get_file_md5
 
 _LOGGER = logging.getLogger(__name__)

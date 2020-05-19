@@ -3,14 +3,14 @@ from typing import Mapping
 
 from fastapi import FastAPI
 
-from full_stack_transformer.tasks.common.text_inputs.document import DocumentInput
+from full_stack_transformer.tasks.document_decoder.text_input import DocumentInput
 from full_stack_transformer.tasks.common.language_generator.generator import LanguageGenerator, \
     LanguageGeneratorParams
 from full_stack_transformer.tasks.document_decoder.serving.schemas import (
     GeneratedTexts,
     LanguageGeneratorAppParams
 )
-from full_stack_transformer.tasks.common.tokenizers.document import DocumentTokenizer
+from full_stack_transformer.tasks.document_decoder.tokenizer import DocumentTokenizer
 
 
 class ViewsRegister:

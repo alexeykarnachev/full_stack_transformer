@@ -6,7 +6,7 @@ from tokenizers.implementations import BaseTokenizer
 from full_stack_transformer.core.constants import LOSS_IGNORE
 from full_stack_transformer.core.encoding import Encoding
 from full_stack_transformer.core.tokenizer import Tokenizer
-from full_stack_transformer.tasks.common.text_inputs.dialog import DialogInput
+from full_stack_transformer.tasks.dialog_decoder.text_input import DialogInput
 
 _PERSONA_SPEAKER = '[PERSONA_SPEAKER]'
 _NOT_PERSONA_SPEAKER = '[NOT_PERSONA_SPEAKER]'

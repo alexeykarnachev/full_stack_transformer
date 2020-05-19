@@ -2,9 +2,9 @@ import pathlib
 
 from full_stack_transformer.core.data.dataset import Dataset
 from full_stack_transformer.core.data.encodings_collate import EncodingsCollate
-from full_stack_transformer.tasks.common.lines_parsers.json_lines import JsonLinesParser
-from full_stack_transformer.tasks.common.text_inputs.document import DocumentInput
-from full_stack_transformer.tasks.common.tokenizers.document import DocumentTokenizer
+from full_stack_transformer.tasks.document_decoder.data.text_lines_parser import JsonLinesParser
+from full_stack_transformer.tasks.document_decoder.text_input import DocumentInput
+from full_stack_transformer.tasks.document_decoder.tokenizer import DocumentTokenizer
 from full_stack_transformer.utilities.files import count_lines_in_file
 
 

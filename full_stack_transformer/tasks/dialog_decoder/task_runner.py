@@ -3,7 +3,8 @@ from typing import List
 from pytorch_lightning import Callback
 
 from full_stack_transformer.core.task_runner import TaskRunner
-from full_stack_transformer.tasks.common.callbacks.language_generator import LanguageGeneratorDialogCallback
+from full_stack_transformer.tasks.dialog_decoder.callbacks.language_generator import \
+    LanguageGeneratorDialogCallback
 from full_stack_transformer.tasks.dialog_decoder.lightning import DialogDecPLModule
 
 

@@ -1,5 +1,5 @@
 from full_stack_transformer.tasks.common.tokenizers import get_tokenizer
-from full_stack_transformer.tasks.common.tokenizers.document import DocumentTokenizer
+from full_stack_transformer.tasks.document_decoder.tokenizer import DocumentTokenizer
 
 
 def load_tokenizer_from_checkpoint(ckpt) -> DocumentTokenizer:

@@ -2,7 +2,7 @@ import json
 from typing import List
 
 from full_stack_transformer.core.data.text_lines_parsers import TextLinesParser
-from full_stack_transformer.tasks.common.text_inputs.dialog import DialogInput
+from full_stack_transformer.tasks.dialog_decoder.text_input import DialogInput
 
 
 class DialogLinesParser(TextLinesParser):

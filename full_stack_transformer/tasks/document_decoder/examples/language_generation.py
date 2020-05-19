@@ -4,7 +4,7 @@ import torch
 
 from full_stack_transformer.tasks.common.language_generator.generator import LanguageGeneratorParams, LanguageGenerator
 from full_stack_transformer.tasks.common.models.hf_gpt2 import load_model_from_checkpoint
-from full_stack_transformer.tasks.common.text_inputs.document import DocumentInput
+from full_stack_transformer.tasks.document_decoder.text_input import DocumentInput
 from full_stack_transformer.tasks.document_decoder import load_tokenizer_from_checkpoint
 
 if __name__ == '__main__':
