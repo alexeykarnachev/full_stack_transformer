@@ -30,6 +30,7 @@ class DocumentDecPLModule(PLModule):
             num_warmup_steps: int,
             num_cycles: int,
             unlikelihood_alpha: float,
+            freeze_n_layers: int,
             **kwargs
     ):
         """
@@ -68,6 +69,8 @@ class DocumentDecPLModule(PLModule):
             unlikelihood_alpha (float):
                 Unlikelihood loss multiplier. If None, no unlikelihood loss will
                 be used.
+            freeze_n_layers (int):
+                Number of first transformer's blocks to freeze.
         """
         self.train_file = pathlib.Path(train_file)
         self.valid_file = pathlib.Path(valid_file)
@@ -93,6 +96,7 @@ class DocumentDecPLModule(PLModule):
             lm_head_model=lm_head_model,
             unlikelihood_alpha=unlikelihood_alpha
         )
+        model.freeze_n_layers(freeze_n_layers)
 
         self.train_dataset: Optional[DocumentDataset] = None
         self.valid_dataset: Optional[DocumentDataset] = None

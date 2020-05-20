@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from typing import Optional
 
@@ -13,6 +14,8 @@ from full_stack_transformer.core.modelling.loading import initialize_transformer
 from full_stack_transformer.core.modelling.model import Model
 from full_stack_transformer.core.nn.unlikelihood_candidates_loss import \
     unlikelihood_candidates_loss
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class HFGPT2Model(Model):
@@ -29,6 +32,18 @@ class HFGPT2Model(Model):
 
         self.lm_head_model = lm_head_model
         self._ul_alpha = unlikelihood_alpha
+
+    def freeze_n_layers(self, n: int) -> None:
+        if not n:
+            return None
+        else:
+            for name, params in self.named_parameters():
+                layer_number = re.search(r'\.h\.(\d+)\.', name)
+                if layer_number:
+                    layer_number = int(layer_number.group(1))
+                    if layer_number < n:
+                        params.requires_grad = False
+                        _LOGGER.info(f"Layer `{name}` has been freezed.")
 
     def forward(self, inp: ModelInput) -> LanguageModelOutput:
         if not isinstance(inp, ModelInput):
