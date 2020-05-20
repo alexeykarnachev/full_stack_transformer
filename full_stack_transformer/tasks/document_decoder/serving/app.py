@@ -5,9 +5,9 @@ import torch
 from fastapi import FastAPI
 
 import full_stack_transformer
+from full_stack_transformer.core.tokenizer import load_tokenizer_from_checkpoint
 from full_stack_transformer.tasks.common.language_generator.generator import LanguageGenerator
 from full_stack_transformer.tasks.common.models.hf_gpt2 import load_model_from_checkpoint
-from full_stack_transformer.tasks.document_decoder import load_tokenizer_from_checkpoint
 from full_stack_transformer.tasks.document_decoder.serving.views import ViewsRegister
 from full_stack_transformer.utilities.log_config import prepare_logging
 
@@ -18,7 +18,7 @@ def prepare(checkpoint_path, device, logs_dir) -> FastAPI:
     prepare_logging(pathlib.Path(logs_dir))
     ckpt = torch.load(f=checkpoint_path, map_location='cpu')
 
-    tokenizer = load_tokenizer_from_checkpoint(ckpt=ckpt)
+    tokenizer = load_tokenizer_from_checkpoint(ckpt=ckpt, ignore_meta_prob=0)
 
     model = load_model_from_checkpoint(ckpt=ckpt, device=device)
     generator = LanguageGenerator(

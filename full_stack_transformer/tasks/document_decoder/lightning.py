@@ -9,8 +9,8 @@ from full_stack_transformer.core.data.dataset import DataLoader
 from full_stack_transformer.core.model_output import LanguageModelOutput
 from full_stack_transformer.core.modelling.lightning import PLModule
 from full_stack_transformer.core.modelling.loading import load_transformer_model_from_path
+from full_stack_transformer.core.tokenizer import get_tokenizer
 from full_stack_transformer.tasks.common.models.hf_gpt2 import HFGPT2Model
-from full_stack_transformer.tasks.common.tokenizers import get_tokenizer
 from full_stack_transformer.tasks.document_decoder.data.dataset import DocumentDataset
 from full_stack_transformer.utilities.arguments import get_func_arg_values_as_namespace
 

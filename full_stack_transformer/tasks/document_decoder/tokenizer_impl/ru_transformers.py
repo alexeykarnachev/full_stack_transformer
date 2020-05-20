@@ -3,8 +3,11 @@ from full_stack_transformer.tasks.common.tokenizers.ru_transformers import (
     get_base_tokenizer,
     preprocess
 )
-from full_stack_transformer.tasks.document_decoder import DocumentTokenizer
-from full_stack_transformer.tasks.document_decoder.text_input import DocumentInput
+from full_stack_transformer.tasks.document_decoder.text_input import \
+    DocumentInput
+
+from full_stack_transformer.tasks.document_decoder.tokenizer import \
+    DocumentTokenizer
 
 
 class RuTransformersDocumentTokenizer(

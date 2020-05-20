@@ -2,7 +2,8 @@ from full_stack_transformer.tasks.common.tokenizers.hf_gpt2 import (
     HFGPT2TokenizerMixin,
     get_base_tokenizer
 )
-from full_stack_transformer.tasks.document_decoder import DocumentTokenizer
+from full_stack_transformer.tasks.document_decoder.tokenizer import \
+    DocumentTokenizer
 
 
 class HFGPT2DocumentTokenizer(HFGPT2TokenizerMixin, DocumentTokenizer):

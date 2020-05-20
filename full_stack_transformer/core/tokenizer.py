@@ -1,6 +1,5 @@
 import abc
 import re
-from typing import List
 
 from tokenizers.implementations import BaseTokenizer
 from transformers.tokenization_utils import PreTrainedTokenizerFast
@@ -70,3 +69,21 @@ class Tokenizer(PreTrainedTokenizerFast):
         text = self._postprocess_text(text)
 
         return text
+
+
+def get_tokenizer(name: str, **kwargs):
+    path = f'full_stack_transformer.tasks.common.{name}'
+    obj = get_object(path, **kwargs)
+
+    if not isinstance(obj, Tokenizer):
+        raise ValueError(f'{path} is not a Tokenizer.')
+
+    return obj
+
+
+def load_tokenizer_from_checkpoint(ckpt, **kwargs) -> Tokenizer:
+    config = ckpt['hparams']['tokenizer_config']
+    for key, value in kwargs.items():
+        config[key] = value
+    tokenizer = get_tokenizer(**config)
+    return tokenizer
