@@ -1,9 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2020-05-21
+### Fixed
+- Fixed lightning multi gpu mode compatibility.
+- Fixed lightning apex mode compatibility.
+
+### Added
+- Freeze N layers argument for document decoder task. If > 0, freezes first N
+gpt-model blocks.
+
 ## [0.2.0] - 2020-05-13
 ### Changed
-- Library structure changed to the tasks-oriented design
+- Library structure changed to the tasks-oriented design.
 
 ## [0.1.0] - 2020-05-11
 ### Added
