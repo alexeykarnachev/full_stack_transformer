@@ -24,7 +24,8 @@ class PLModule(LightningModule, ArgparserExtender):
     def training_step(self, model_inp: ModelInput, batch_idx: int) -> Dict:
 
         print('\n\n')
-        print(model_inp)
+        print(len(model_inp))
+        print(len(model_inp[0]))
         print('\n\n')
 
         loss, log = self._step(model_inp=model_inp)
