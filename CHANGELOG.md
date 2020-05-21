@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.1] - 2020-05-21
 ### Fixed
+- Fixed bug with unserializable workspace arguments.
 - Fixed lightning multi gpu mode compatibility.
 - Fixed lightning apex mode compatibility.
 

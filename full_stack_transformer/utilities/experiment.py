@@ -3,6 +3,7 @@ import pathlib
 from typing import Mapping
 
 from full_stack_transformer.utilities.arguments import ArgparserExtender
+from full_stack_transformer.utilities.json_encoder import JsonEncoder
 from full_stack_transformer.utilities.log_config import prepare_logging
 
 
@@ -81,7 +82,8 @@ class Workspace(ArgparserExtender):
 
     def save_json(self, name: str, content: Mapping):
         with (self._main_dir / name).open('w') as file:
-            json.dump(content, file, ensure_ascii=False, indent=2)
+            json.dump(
+                content, file, ensure_ascii=False, indent=2, cls=JsonEncoder)
 
     def save_description(self, content: Mapping):
         self.save_json(name='description.json', content=content)
