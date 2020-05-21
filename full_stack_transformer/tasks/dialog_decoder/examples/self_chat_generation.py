@@ -11,14 +11,14 @@ from full_stack_transformer.tasks.dialog_decoder.text_input import DialogInput
 if __name__ == '__main__':
     device = 'cuda:0'
     experiment_dir = pathlib.Path('../../../../data/experiments/pikabu_toloka_flibusta_v0/')
-    ckpt_path = experiment_dir / 'models' / 'epoch=0_v1.ckpt'
+    ckpt_path = experiment_dir / 'models' / 'epoch=1.ckpt'
 
     generator_params = LanguageGeneratorParams(
         max_number_of_generated_tokens=64,
         num_return_sequences=1,
-        repetition_penalty=5.0,
-        temperature=0.5,
-        top_k=50,
+        repetition_penalty=3,
+        temperature=0.7,
+        top_k=100,
         top_p=1.0
     )
 
@@ -29,11 +29,11 @@ if __name__ == '__main__':
         model=model, eos_token_id=tokenizer.eos_token_id
     )
 
-    persona_0 = "Я мужчина. Работаю ночным грузчиком."
-    persona_1 = "Я женщина. Работаю космическим десантником."
+    persona_0 = "Я мужчина."
+    persona_1 = "Я женщина."
     tags = "моё, абсурдная ситуация, день победы, врачи"
     persons = (persona_0, persona_1)
-    utterances = ['Привет, что делал вчера?']
+    utterances = ['Привет, расскажи про свой любимый фильм.', 'А что ты хочешь узнать?']
 
     generate_n_utterances = 20
     while generate_n_utterances != 0:

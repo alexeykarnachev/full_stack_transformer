@@ -26,10 +26,10 @@ class RuTransformersDialogTokenizer(
         )
 
     def _preprocess_input(self, text_input: DialogInput) -> DialogInput:
-        new_input = DialogInput(
-            tags=preprocess(text_input.tags),
-            persona=preprocess(text_input.persona),
-            utterances=[preprocess(ut) for ut in text_input.utterances]
-        )
+        orig_data = text_input.__dict__
+        orig_data['tags'] = preprocess(orig_data['tags'])
+        orig_data['persona'] = preprocess(orig_data['persona'])
+        orig_data['utterances'] = [preprocess(ut) for ut in orig_data['utterances']]
+        new_input = DialogInput(**orig_data)
 
         return new_input
