@@ -176,7 +176,8 @@ class DialogDecPLModule(PLModule):
 
         if self.training:
             current_lr = self.trainer.optimizers[0].param_groups[0]['lr']
-            log['Learning-Rate'] = torch.tensor(current_lr)
+            log['Learning-Rate'] = torch.tensor(
+                current_lr, device=model_output.loss.device)
 
         return log
 
