@@ -31,7 +31,7 @@ class DocumentDecPLModule(PLModule):
             num_warmup_steps: int,
             num_cycles: int,
             unlikelihood_alpha: float,
-            freeze_n_layers: int,
+            freeze_n_layers: int = 0,
             **kwargs
     ):
         """
@@ -70,7 +70,7 @@ class DocumentDecPLModule(PLModule):
             unlikelihood_alpha (float):
                 Unlikelihood loss multiplier. If None, no unlikelihood loss will
                 be used.
-            freeze_n_layers (int):
+            freeze_n_layers (int, optional):
                 Number of first transformer's blocks to freeze.
         """
         self.train_file = pathlib.Path(train_file)
