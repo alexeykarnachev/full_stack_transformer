@@ -7,12 +7,12 @@ All notable changes to this project will be documented in this file.
 - Fixed lightning apex mode compatibility.
 
 ### Added
-- Added `--freeze_n_layers` argument for document decoder task. If > 0, freezes first N
+- Added `--freeze_n_layers` argument for document decoder task. If n > 0, freezes first n
 gpt-model blocks.
 
 ### Changed
 - Renamed document lm task package `document_lm` -> `document_decoder`.
-- `ModelInput` is not a `namedtuple` to preserve compatibility with automatic pytorch-lightning
+- `ModelInput` is now a `namedtuple` to preserve compatibility with automatic pytorch-lightning
 gpu broadcasting routines.
 
 ## [0.2.0] - 2020-05-13
