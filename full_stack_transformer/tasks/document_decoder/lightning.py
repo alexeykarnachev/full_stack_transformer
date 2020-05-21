@@ -2,6 +2,7 @@ import json
 import pathlib
 from typing import Dict, Optional
 
+import torch
 import transformers
 from transformers import get_cosine_with_hard_restarts_schedule_with_warmup
 
@@ -177,7 +178,7 @@ class DocumentDecPLModule(PLModule):
 
         if self.training:
             current_lr = self.trainer.optimizers[0].param_groups[0]['lr']
-            log['Learning-Rate'] = current_lr
+            log['Learning-Rate'] = torch.tensor(current_lr)
 
         return log
 
