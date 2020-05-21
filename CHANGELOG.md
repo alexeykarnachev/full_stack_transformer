@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Added `--freeze_n_layers` argument for document decoder task. If n > 0, freezes first n
-gpt-model blocks.
+gpt-model blocks. Use `--freeze_n_layers=0` for no freezing.
 
 ### Changed
 - Renamed document lm task package `document_lm` -> `document_decoder`.
