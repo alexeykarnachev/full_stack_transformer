@@ -22,18 +22,21 @@ class PLModule(LightningModule, ArgparserExtender):
         return output
 
     def training_step(self, model_inp: ModelInput, batch_idx: int) -> Dict:
-
-        print('\n\n')
-        print(len(model_inp))
-        print(len(model_inp[0]))
-        print('\n\n')
-
         loss, log = self._step(model_inp=model_inp)
         return {'loss': loss, 'log': log}
 
     def validation_step(self, model_inp: ModelInput, batch_idx: int) -> Dict:
         loss, log = self._step(model_inp=model_inp)
         return {'val_loss': loss, 'log': log}
+
+    def training_step_end(self, batch_parts_outputs):
+        # batch_parts_outputs has outputs of each part of the batch
+
+        print('\n\n')
+        print(batch_parts_outputs)
+        print('\n\n')
+
+        return batch_parts_outputs
 
     def validation_epoch_end(self, val_step_results: Sequence):
         validation_epoch_result = merge_dicts(
