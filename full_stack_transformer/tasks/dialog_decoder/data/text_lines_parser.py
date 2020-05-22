@@ -1,4 +1,5 @@
 import json
+import random
 from typing import List
 
 from full_stack_transformer.core.data.text_lines_parsers import TextLinesParser
@@ -13,7 +14,7 @@ class DialogLinesParser(TextLinesParser):
 
         body = json.loads(text)
         utts = body['utterances']
-        tags = body.get('tags')
+        tags = body.get('tags', '')
 
         inps = []
         for idx in (0, 1):
@@ -25,8 +26,9 @@ class DialogLinesParser(TextLinesParser):
                 inps.append(inp)
 
         if len(inps) == 0:
+            persona_idx = random.randint(0, 1)
             inp = DialogInput(
-                utterances=utts, tags=tags, persona=None, persona_idx=None
+                utterances=utts, tags=tags, persona='', persona_idx=persona_idx
             )
             inps.append(inp)
 

@@ -72,7 +72,7 @@ class Tokenizer(PreTrainedTokenizerFast):
 
 
 def get_tokenizer(name: str, **kwargs):
-    path = f'full_stack_transformer.tasks.common.{name}'
+    path = f'full_stack_transformer.tasks.{name}'
     obj = get_object(path, **kwargs)
 
     if not isinstance(obj, Tokenizer):

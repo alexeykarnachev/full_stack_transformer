@@ -86,7 +86,7 @@ class DialogTokenizer(Tokenizer):
     def _encode_dialog(
             self,
             utterances: Sequence[str],
-            pers_idx: Optional[int],
+            pers_idx: int,
             train: bool
     ) -> Tuple[List[int], List[int], List[int]]:
         utts = []
