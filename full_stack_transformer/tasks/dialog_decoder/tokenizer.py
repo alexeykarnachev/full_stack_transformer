@@ -101,10 +101,11 @@ class DialogTokenizer(Tokenizer):
                 ignore_loss.append(True)
 
             ut = f'{pers_tok}{ut}{self.eos_token}'
-            if idx == len(utterances) - 1 and not train:
-                ut = f'{ut}{not_pers_tok}'
 
             utts.append(ut)
+
+            if idx == len(utterances) - 1 and not train:
+                utts.append(not_pers_tok)
 
         utts_ids = self.batch_encode_plus(utts, add_special_tokens=False)
         utts_ids = list(utts_ids['input_ids'])
