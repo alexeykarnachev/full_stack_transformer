@@ -9,7 +9,7 @@ docstring-parser==0.7.1
 tqdm==4.45.0
 pytest==5.4.1
 pydantic==1.5.1
-fastapi==0.54.1
+fastapi==0.65.2
 gunicorn==20.0.4
 uvicorn==0.11.5
 aiohttp==3.6.2
